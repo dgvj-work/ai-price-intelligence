@@ -71,16 +71,10 @@ def render() -> None:
     if primary is not None:
         recommendation_card(primary, lead=True)
     else:
-        st.markdown(
-            """
-<div class="cca-rec info">
-  <div class="cca-tag">Status</div>
-  <h3>No switch savings above threshold in this window</h3>
-  <p>Either usage is already on efficient models, or rates/usage are sparse.
-  Check Spend for detail and Price Watch for external list moves.</p>
-</div>
-            """,
-            unsafe_allow_html=True,
+        st.info(
+            "**Status** — No switch savings above threshold in this window. "
+            "Either usage is already on efficient models, or rates/usage are sparse. "
+            "Check Spend for detail and Price Watch for external list moves."
         )
 
     # Decision metrics — advice-shaped, not vanity charts first

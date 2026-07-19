@@ -1,5 +1,12 @@
 # Cortex Cost Advisor changelog
 
+## 1.1.3 — 2026-07-19
+
+Marketplace scan hardening:
+
+- Remove all `unsafe_allow_html=True` / injected CSS from Streamlit UI.
+- Hero + recommendation cards use native `st.title` / `st.success` / `st.info` only.
+
 ## 1.1.2 — 2026-07-19
 
 Deployment hygiene + Marketplace review polish:
