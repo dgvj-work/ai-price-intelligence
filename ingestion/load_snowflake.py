@@ -465,7 +465,7 @@ def load_to_snowflake(
         cur.execute(
             "INSERT INTO CURATED._META_REFRESH_LOG "
             "(REFRESH_ID, STARTED_AT, FINISHED_AT, STATUS, ROWS_UPSERTED, MESSAGE) "
-            "VALUES (%s,%s,CURRENT_TIMESTAMP(),%s,PARSE_JSON(%s),%s)",
+            "SELECT %s, %s, CURRENT_TIMESTAMP(), %s, PARSE_JSON(%s), %s",
             (refresh_id, started_at, "RUNNING", json.dumps(counts), None),
         )
 
