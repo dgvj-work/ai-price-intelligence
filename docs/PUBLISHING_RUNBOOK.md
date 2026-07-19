@@ -104,9 +104,14 @@ Marketplace consumers install from a **named** version (not stage/`UNVERSIONED` 
 
 ```bash
 cd native_app
-snow app deploy -c ai_price
-snow app version create V1_1_6 -c ai_price --label "1.1.6" --skip-git-check --force --no-interactive
+# Keep bytecode off the stage (Marketplace hygiene). deploy_root can symlink __pycache__.
+rm -rf src/streamlit/__pycache__ output/deploy/src/streamlit/__pycache__
+snow sql -c ai_price -q "REMOVE @CORTEX_COST_ADVISOR_PKG.APP_SRC.STAGE/src/streamlit/__pycache__/;"
+snow app deploy -c ai_price --prune
+snow app version create V1_2_6 -c ai_price --label "1.2.6" --skip-git-check --force --no-interactive
 ```
+
+`native_app/.snowflakeignore` and `snowflake.yml` artifact `ignore` exclude `__pycache__` / `*.pyc`. Still clean before versioning if a prior `snow app run` left symlinks in `output/deploy`.
 
 ```sql
 ALTER APPLICATION PACKAGE CORTEX_COST_ADVISOR_PKG

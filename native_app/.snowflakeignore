@@ -1,0 +1,7 @@
+# Never sync Python bytecode / local junk to the Native App stage.
+**/__pycache__/
+**/*.py[cod]
+**/*.pyo
+**/.DS_Store
+**/.pytest_cache/
+**/output/

@@ -156,6 +156,13 @@ def check_snowflake() -> None:
     if not live:
         _ok("live source still pending privileges (preview expected until GRANT)")
 
+    pyc = sql(
+        "LIST @CORTEX_COST_ADVISOR_PKG.APP_SRC.STAGE/src/streamlit/ PATTERN='.*__pycache__.*';"
+    )
+    if "__pycache__" in pyc.replace(" ", "") or ".pyc" in pyc:
+        _fail("stage still contains __pycache__ / .pyc (Marketplace hygiene)")
+    _ok("stage has no __pycache__")
+
     # Snowflake LIST wraps long names across columns; use PATTERN queries.
     charts = sql(
         "LIST @CORTEX_COST_ADVISOR_PKG.APP_SRC.STAGE/src/streamlit/ PATTERN='.*charts\\\\.py';"

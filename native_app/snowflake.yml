@@ -13,14 +13,23 @@ entities:
         dest: ./src/
         ignore:
           - "**/__pycache__/**"
+          - "**/*.py[cod]"
           - "**/*.pyc"
+          - "**/*.pyo"
           - "**/.DS_Store"
+          - "**/.pytest_cache/**"
       # Dotdirs are easy to miss in globs; theme must ship for Native App Streamlit.
       - src: src/streamlit/.streamlit/*
         dest: ./src/streamlit/.streamlit/
+        ignore:
+          - "**/__pycache__/**"
+          - "**/*.pyc"
       # Optional listing/brand assets (UI uses text monogram; PNG kept for Marketplace).
       - src: src/streamlit/assets/*
         dest: ./src/streamlit/assets/
+        ignore:
+          - "**/__pycache__/**"
+          - "**/*.pyc"
     meta:
       role: AI_PRICE_ADMIN
       warehouse: COMPUTE_WH
