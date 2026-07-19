@@ -108,24 +108,24 @@ cd native_app
 rm -rf src/streamlit/__pycache__ output/deploy/src/streamlit/__pycache__
 snow sql -c ai_price -q "REMOVE @CORTEX_COST_ADVISOR_PKG.APP_SRC.STAGE/src/streamlit/__pycache__/;"
 snow app deploy -c ai_price --prune
-snow app version create V1_2_6 -c ai_price --label "1.2.6" --skip-git-check --force --no-interactive
+snow app version create V1_2_7 -c ai_price --label "1.2.7" --skip-git-check --force --no-interactive
 ```
 
 `native_app/.snowflakeignore` and `snowflake.yml` artifact `ignore` exclude `__pycache__` / `*.pyc`. Still clean before versioning if a prior `snow app run` left symlinks in `output/deploy`.
 
 ```sql
 ALTER APPLICATION PACKAGE CORTEX_COST_ADVISOR_PKG
-  MODIFY RELEASE CHANNEL DEFAULT ADD VERSION V1_1_6;
+  MODIFY RELEASE CHANNEL DEFAULT ADD VERSION V1_2_7;
 
 ALTER APPLICATION PACKAGE CORTEX_COST_ADVISOR_PKG
   MODIFY RELEASE CHANNEL DEFAULT
-  SET DEFAULT RELEASE DIRECTIVE VERSION = V1_1_6 PATCH = 0;
+  SET DEFAULT RELEASE DIRECTIVE VERSION = V1_2_7 PATCH = 0;
 
 -- Optional cleanup of unused versions (release-channels packages):
-ALTER APPLICATION PACKAGE CORTEX_COST_ADVISOR_PKG DEREGISTER VERSION V1_1_2;
+ALTER APPLICATION PACKAGE CORTEX_COST_ADVISOR_PKG DEREGISTER VERSION V1_2_6;
 ```
 
-Current package state: **DEFAULT** and **ALPHA** directives point at **V1_2_6** patch 0.
+Current package state: **DEFAULT** and **ALPHA** directives point at **V1_2_7** patch 0.
 
 ### EXTERNAL distribution (security scan)
 

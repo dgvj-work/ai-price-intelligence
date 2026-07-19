@@ -1,5 +1,10 @@
 # Cortex Cost Advisor changelog
 
+## 1.2.7 - 2026-07-19
+
+Release cut for Marketplace submit: always open on **Getting started**, keep
+`__pycache__` off the stage, and align listing copy with the installed UX.
+
 ## 1.2.6 - 2026-07-19
 
 P0: fix `V_CORTEX_USAGE` for `CORTEX_AI_FUNCTIONS_USAGE_HISTORY`. Replace the

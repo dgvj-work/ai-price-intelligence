@@ -100,26 +100,25 @@ Ranked Cortex model-switch savings, spend spikes, and price context. FinOps deci
 
 ### Listing images (attach in Provider Studio)
 
-Capture from the **installed v1.2.3+** app (preview sample data is fine). Prefer Advisor with a filled recommendation card, not an empty Overview:
+Capture from the **installed v1.2.7+** app (preview sample data is fine). First open is **Getting started**; also show Advisor with recommendations (not an empty Overview):
 
-1. `docs/screenshots/app-advisor.png` — **Advisor** tab: primary switch recommendation + metric strip + switch savings chart
-2. `docs/screenshots/app-switches.png` — **Switches** tab: ranked scenario cards / matrix
-3. Optional: `docs/screenshots/app-getting-started.png` — privilege matrix (trust buyers)
+1. `docs/screenshots/app-getting-started.png` (optional but recommended) — privilege callout / GRANT steps
+2. `docs/screenshots/app-advisor.png` — **Advisor**: primary switch recommendation + metric strip + switch savings chart
+3. `docs/screenshots/app-switches.png` — **Switches**: ranked scenario cards / matrix
 
-How to capture: open Streamlit → sidebar **Advisor** (or **Switches**) → full browser window → PNG. Retire old `app-overview.png` / `app-model-advisor.png` names in Provider Studio.
+How to capture: open Streamlit → **Getting started** (default) or **Advisor** / **Switches** → full browser window → PNG. Retire old `app-overview.png` / `app-model-advisor.png` names in Provider Studio.
 
 ### Description
 
-**Cortex Cost Advisor** (v1.2.4) is for FinOps / platform teams deciding **which Cortex models to allow or migrate**.
+**Cortex Cost Advisor** (v1.2.7) is for FinOps / platform teams deciding **which Cortex models to allow or migrate**.
 
-On first open (after connect), **Advisor** leads with recommendations such as:
-"Switch model A -> B: save ~X credits (~$Y est.)", plus concentration risk, spend-spike detection, and a simple forward estimate. Preview mode uses sample usage so you see the product before granting privileges. Min switch savings % is configurable (default 15%; many teams use 25%+).
+**Every open starts on Getting started** so installers see the exact privilege story first (one ACCOUNTADMIN GRANT; Connect cannot self-grant). Preview mode uses **sample** usage so you can evaluate recommendations before granting. Then open **Advisor** for ranked recommendations such as: "Switch model A -> B: save ~X credits (~$Y est.)", plus concentration risk, spend-spike detection, and a simple forward estimate. Min switch savings % is configurable (default 15%; many teams use 25%+).
 
-**Not a Snowsight clone.** Account credit rollups stay in Snowflake's native cost UI. This app adds same-token **switch scenarios**, Cortex-only anomaly/concentration signals, and **Price Watch** against public list moves.
+**Not a Snowsight clone.** Account credit rollups stay in Snowflake's native cost UI. This app adds same-token **Cortex switch scenarios** and Cortex-only anomaly/concentration signals. **Price Watch** is secondary (optional public list-price context when you bind the companion dataset; otherwise a bundled snapshot).
 
-**Pages:** Getting started | Advisor | Switches | Price Watch | Spend detail | Trust
+**Pages:** Getting started | Advisor | Switches | Price Watch (secondary) | Spend detail | Trust
 
-USD figures use **your** entered $/credit (apps cannot read contracted rates). Analysis window up to **365 days**.
+USD figures use **your** entered $/credit (apps cannot read contracted rates). Analysis window up to **365 days**. No alerts/notifications yet; use Snowflake budgets / resource monitors for ongoing spend control.
 
 ### Privacy / trust (prominently display)
 
@@ -129,7 +128,7 @@ USD figures use **your** entered $/credit (apps cannot read contracted rates). A
 > Un-obfuscated source. Preview recommendations before granting.  
 > ACCOUNT_USAGE can lag ~45 minutes.
 
-Optional: bind Marketplace price dataset views for weekly rates; otherwise bundled snapshot.
+Optional: bind Marketplace price dataset views for weekly rates; otherwise bundled snapshot. The companion dataset is **not required** for Advisor / Switches.
 
 **Support:** [GitHub Discussions](https://github.com/dgvj-work/ai-price-intelligence/discussions) (preferred)  
 **Contact:** digvijay.vaghela@yahoo.com  

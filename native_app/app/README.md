@@ -1,4 +1,4 @@
-# Cortex Cost Advisor (v1.2.6)
+# Cortex Cost Advisor (v1.2.7)
 
 **Advisor for Cortex model spend**: ranked switch savings, concentration/spike signals, and price context. Not a generic credit report.
 

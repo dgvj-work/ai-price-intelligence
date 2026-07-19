@@ -1,9 +1,9 @@
 manifest_version: 1
 
 version:
-  name: v1_2_6
-  label: "1.2.6"
-  comment: "Fix V_CORTEX_USAGE LATERAL FLATTEN; probe view after CREATE"
+  name: v1_2_7
+  label: "1.2.7"
+  comment: "Always open Getting started; stage hygiene; listing-aligned release"
 
 artifacts:
   setup_script: setup_script.sql
