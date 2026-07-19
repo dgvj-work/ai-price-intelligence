@@ -1,4 +1,5 @@
-# VERIFY BEFORE FIRST PUBLISH — public list prices (USD). Units: per_1m_tokens unless noted.
+# Public list prices (USD). Verified 2026-07-18 for OpenAI + Anthropic; others best-effort.
+# See docs/SEED_VERIFICATION.md
 prices:
   - model_id: openai:gpt-4o
     unit: per_1m_tokens
@@ -6,41 +7,48 @@ prices:
     price_output: 10.00
     price_cached_input: 1.25
     batch_discount_pct: 50
-    tier_notes: Standard API list price
-    source_url: https://openai.com/api/pricing/
-    retrieved_at: "2026-07-01T00:00:00"
+    tier_notes: Verified OpenAI Platform Pricing 2026-07-18
+    source_url: https://platform.openai.com/docs/pricing
+    retrieved_at: "2026-07-18T00:00:00"
   - model_id: openai:gpt-4o-mini
     unit: per_1m_tokens
     price_input: 0.15
     price_output: 0.60
     price_cached_input: 0.075
-    source_url: https://openai.com/api/pricing/
-    retrieved_at: "2026-07-01T00:00:00"
+    tier_notes: Verified OpenAI Platform Pricing 2026-07-18
+    source_url: https://platform.openai.com/docs/pricing
+    retrieved_at: "2026-07-18T00:00:00"
   - model_id: openai:o3-mini
     unit: per_1m_tokens
     price_input: 1.10
     price_output: 4.40
-    source_url: https://openai.com/api/pricing/
-    retrieved_at: "2026-07-01T00:00:00"
+    price_cached_input: 0.55
+    tier_notes: Verified OpenAI Platform Pricing 2026-07-18
+    source_url: https://platform.openai.com/docs/pricing
+    retrieved_at: "2026-07-18T00:00:00"
   - model_id: openai:text-embedding-3-large
     unit: per_1m_tokens
     price_input: 0.13
     price_output: 0.0
-    source_url: https://openai.com/api/pricing/
-    retrieved_at: "2026-07-01T00:00:00"
+    tier_notes: Verified OpenAI Platform Pricing 2026-07-18
+    source_url: https://platform.openai.com/docs/pricing
+    retrieved_at: "2026-07-18T00:00:00"
   - model_id: anthropic:claude-sonnet-4
     unit: per_1m_tokens
     price_input: 3.00
     price_output: 15.00
     price_cached_input: 0.30
+    tier_notes: Claude Sonnet 4.6 API list (Anthropic pricing 2026-07-18)
     source_url: https://www.anthropic.com/pricing
-    retrieved_at: "2026-07-01T00:00:00"
+    retrieved_at: "2026-07-18T00:00:00"
   - model_id: anthropic:claude-haiku-3-5
     unit: per_1m_tokens
-    price_input: 0.80
-    price_output: 4.00
+    price_input: 1.00
+    price_output: 5.00
+    price_cached_input: 0.10
+    tier_notes: Mapped to Claude Haiku 4.5 API list (Anthropic pricing 2026-07-18)
     source_url: https://www.anthropic.com/pricing
-    retrieved_at: "2026-07-01T00:00:00"
+    retrieved_at: "2026-07-18T00:00:00"
   - model_id: google:gemini-2-5-pro
     unit: per_1m_tokens
     price_input: 1.25
@@ -106,20 +114,26 @@ prices:
     unit: per_1m_tokens
     price_input: 2.00
     price_output: 8.00
-    source_url: https://openai.com/api/pricing/
-    retrieved_at: "2026-07-01T00:00:00"
+    price_cached_input: 0.50
+    tier_notes: Verified OpenAI Platform Pricing 2026-07-18
+    source_url: https://platform.openai.com/docs/pricing
+    retrieved_at: "2026-07-18T00:00:00"
   - model_id: openai:gpt-4-1-mini
     unit: per_1m_tokens
     price_input: 0.40
     price_output: 1.60
-    source_url: https://openai.com/api/pricing/
-    retrieved_at: "2026-07-01T00:00:00"
+    price_cached_input: 0.10
+    tier_notes: Verified OpenAI Platform Pricing 2026-07-18
+    source_url: https://platform.openai.com/docs/pricing
+    retrieved_at: "2026-07-18T00:00:00"
   - model_id: anthropic:claude-opus-4
     unit: per_1m_tokens
-    price_input: 15.00
-    price_output: 75.00
+    price_input: 5.00
+    price_output: 25.00
+    price_cached_input: 0.50
+    tier_notes: Claude Opus 4.8 API list (Anthropic pricing 2026-07-18)
     source_url: https://www.anthropic.com/pricing
-    retrieved_at: "2026-07-01T00:00:00"
+    retrieved_at: "2026-07-18T00:00:00"
   - model_id: google:gemini-2-0-flash
     unit: per_1m_tokens
     price_input: 0.10

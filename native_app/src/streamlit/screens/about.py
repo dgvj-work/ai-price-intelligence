@@ -32,7 +32,8 @@ change history. Without bindings, a bundled CSV snapshot ships in the app packag
 
 ## Source
 
-Public repository (replace with your GitHub URL before publish):
-`https://github.com/YOUR_ORG/ai-price-intelligence`
+Public repository: https://github.com/dgvj-work/ai-price-intelligence  
+
+Support: digvijay.vaghela@yahoo.com
         """
     )

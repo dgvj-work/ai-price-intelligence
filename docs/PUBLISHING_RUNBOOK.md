@@ -136,7 +136,7 @@ Mapped to Snowflake app security review expectations:
 
 ## 7) Weekly ops
 
-1. Monday morning (or before cron): update YAML seeds (~15 min), especially rows marked `VERIFY BEFORE FIRST PUBLISH`.
+1. Monday morning (or before cron): update YAML seeds (~15 min); see `docs/SEED_VERIFICATION.md`.
 2. CI dry-run on PR; scheduled workflow loads Snowflake.
 3. If Action fails, read job log (no webhooks) and fix seeds/API issues.
 

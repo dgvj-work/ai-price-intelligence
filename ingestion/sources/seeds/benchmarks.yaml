@@ -1,4 +1,4 @@
-# VERIFY BEFORE FIRST PUBLISH — public leaderboard / report scores.
+# Public leaderboard / report scores. Re-check major rows before Marketplace updates.
 benchmarks:
   - model_id: openai:gpt-4o
     benchmark_name: MMLU

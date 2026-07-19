@@ -34,4 +34,6 @@ If unbound, Model Advisor / Price Watch use a bundled CSV snapshot so the app st
 
 ## Trust
 
-All application code is un-obfuscated and inspectable. Source repository: see the listing / provider profile for the public GitHub URL.
+All application code is un-obfuscated and inspectable.  
+Source: https://github.com/dgvj-work/ai-price-intelligence  
+Support: digvijay.vaghela@yahoo.com

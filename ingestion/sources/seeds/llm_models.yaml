@@ -1,4 +1,4 @@
-# VERIFY BEFORE FIRST PUBLISH — curated model catalog (source of truth).
+# Curated model catalog. Pricing verification: docs/SEED_VERIFICATION.md (2026-07-18).
 providers:
   - provider_id: openai
     name: OpenAI

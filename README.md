@@ -29,14 +29,16 @@ flowchart LR
   Snapshot[Bundled CSV] --> App
 ```
 
-## Screenshot placeholders
+## Screenshots
 
-| Surface | Placeholder |
-|---|---|
-| Dataset — current model prices | `docs/screenshots/dataset-model-current.png` *(add before publish)* |
-| Dataset — cost per MMLU point | `docs/screenshots/cost-per-mmlu.png` |
-| App — Overview | `docs/screenshots/app-overview.png` |
-| App — Model Advisor | `docs/screenshots/app-model-advisor.png` |
+Illustrative listing images (attach in Provider Studio):
+
+- [Dataset — current model prices](docs/screenshots/dataset-model-current.png)
+- [Dataset — cost per MMLU point](docs/screenshots/cost-per-mmlu.png)
+- [App — Overview](docs/screenshots/app-overview.png)
+- [App — Model Advisor](docs/screenshots/app-model-advisor.png)
+
+Replace with live Snowsight captures after your first private-share install when possible.
 
 ## Quickstart
 
@@ -77,12 +79,18 @@ See the tree in the product brief — key entrypoints:
 - No external access, network, containers, telemetry, or secrets in code
 - Un-obfuscated Python; dependencies declared in `environment.yml`
 
-## Before Marketplace publish
+## Support
 
-1. Human-verify YAML seeds (`# VERIFY BEFORE FIRST PUBLISH`)
-2. Replace `YOURDOMAIN` / `YOUR_ORG` placeholders in listing docs
-3. Add screenshots under `docs/screenshots/`
-4. Private-share to a second account and click **Refresh usage views** after granting privileges
+- Email: digvijay.vaghela@yahoo.com
+- Repo: https://github.com/dgvj-work/ai-price-intelligence
+- Rights: [docs/RIGHTS.md](docs/RIGHTS.md) · Seed verification: [docs/SEED_VERIFICATION.md](docs/SEED_VERIFICATION.md)
+
+## Before Marketplace publish (Snowflake-only remaining)
+
+1. Deploy warehouse + refresh + `snow app run` on your account
+2. Private-share to a second account; grant privileges; click **Refresh usage views**
+3. Optionally capture live Snowsight screenshots to replace the illustrative mocks
+4. Complete Provider Studio profile and submit listings (`docs/PUBLISHING_RUNBOOK.md`)
 
 ## License
 

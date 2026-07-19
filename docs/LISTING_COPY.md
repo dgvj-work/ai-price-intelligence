@@ -1,6 +1,6 @@
 # Marketplace listing copy
 
-Replace `support@YOURDOMAIN.com` and GitHub URLs before publish.
+Support: digvijay.vaghela@yahoo.com · Source: https://github.com/dgvj-work/ai-price-intelligence
 
 ---
 
@@ -15,6 +15,10 @@ Weekly LLM, GPU, and Snowflake Cortex prices with full history — public source
 ### Category / tags (suggestions)
 - Category: AI & ML / Data Enrichment
 - Tags: `llm`, `pricing`, `gpu`, `cortex`, `benchmarks`, `finops`, `marketplace-data`
+
+### Listing images (attach in Provider Studio)
+- `docs/screenshots/dataset-model-current.png`
+- `docs/screenshots/cost-per-mmlu.png`
 
 ### Description (benefit-led)
 
@@ -35,7 +39,8 @@ Use it to:
 
 **Refresh cadence:** Weekly (Mondays). Check `VW_META_REFRESH_LOG` for the latest successful load.
 
-**Support:** support@YOURDOMAIN.com
+**Support:** digvijay.vaghela@yahoo.com  
+**Source:** https://github.com/dgvj-work/ai-price-intelligence
 
 ### Sample SQL (5)
 
@@ -92,6 +97,10 @@ Free, read-only Streamlit app: your Cortex spend, model-switch savings, and pric
 - Category: AI & ML / Cost Management
 - Tags: `cortex`, `finops`, `native-app`, `streamlit`, `read-only`
 
+### Listing images (attach in Provider Studio)
+- `docs/screenshots/app-overview.png`
+- `docs/screenshots/app-model-advisor.png`
+
 ### Description
 
 **Cortex Cost Advisor** turns Snowflake account-usage metadata into a clear AI spend picture — without sending anything outside your account.
@@ -114,5 +123,5 @@ Free, read-only Streamlit app: your Cortex spend, model-switch savings, and pric
 
 Optional: bind Marketplace dataset references (`VW_MODEL_CURRENT`, `VW_CORTEX_CURRENT`, `VW_PRICE_CHANGES_90D`) for live weekly prices. Without bindings, the app still works using a bundled snapshot.
 
-**Support:** support@YOURDOMAIN.com  
-**Source:** https://github.com/YOUR_ORG/ai-price-intelligence
+**Support:** digvijay.vaghela@yahoo.com  
+**Source:** https://github.com/dgvj-work/ai-price-intelligence

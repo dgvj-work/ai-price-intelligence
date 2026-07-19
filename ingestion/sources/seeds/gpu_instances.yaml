@@ -1,4 +1,4 @@
-# VERIFY BEFORE FIRST PUBLISH — curated GPU fallback when cloud APIs are unavailable.
+# Curated GPU fallback when cloud APIs are unavailable (APIs override on refresh).
 # Prices are approximate public on-demand USD per *instance*-hour; normalize divides by gpu_count.
 instances:
   - instance_id: aws:p5.48xlarge

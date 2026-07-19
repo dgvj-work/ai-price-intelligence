@@ -66,7 +66,7 @@ Database / schemas: `AI_PRICE_INTEL.{RAW,CURATED,SHARE}`.
 
 ## Dataset seed values
 
-Seed YAML files are populated with **approximate public list prices as of mid-2026 research** and marked `# VERIFY BEFORE FIRST PUBLISH`. They must be human-verified against provider pages before the first Marketplace publish.
+OpenAI, Anthropic, and Cortex (SCT) seeds were verified **2026-07-18** (see `docs/SEED_VERIFICATION.md`). Other providers remain best-effort and should be re-checked on the weekly ops cadence.
 
 ## Deferred (intentionally out of v1)
 
@@ -83,6 +83,8 @@ Seed YAML files are populated with **approximate public list prices as of mid-20
 
 ## Support & legal placeholders
 
-- Support contact in listing copy: `support@YOURDOMAIN.com` (replace before publish).
+- Support contact: `digvijay.vaghela@yahoo.com`
+- Public repo: https://github.com/dgvj-work/ai-price-intelligence
 - License: Apache-2.0 for this repository.
 - Marketplace provider profile: create in Snowflake Provider Studio before first listing (see `docs/PUBLISHING_RUNBOOK.md`).
+- Rights memo: `docs/RIGHTS.md`
