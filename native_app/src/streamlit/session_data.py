@@ -13,7 +13,7 @@ import queries
 
 SNAPSHOT_PATH = Path(__file__).resolve().parent / "data" / "price_snapshot.csv"
 
-APP_VERSION = "1.1.0"  # keep in sync with manifest.yml version.label
+APP_VERSION = "1.1.1"  # keep in sync with manifest.yml version.label
 
 # Internal procedure return values → never shown raw in the UI.
 _LIVE_SOURCES = {
@@ -21,6 +21,7 @@ _LIVE_SOURCES = {
     "CORTEX_AISQL_USAGE_HISTORY": "Cortex AI SQL usage history",
 }
 _PENDING = frozenset({"PENDING_PRIVILEGES", "EMPTY_STUB", "OK"})
+_BLOCKED_UI_TOKENS = ("EMPTY_STUB", "PENDING_PRIVILEGES", "ENSURE_FAILED")
 
 # live = real ACCOUNT_USAGE rows
 # preview = privileges missing — sample data + connect CTA
@@ -28,14 +29,31 @@ _PENDING = frozenset({"PENDING_PRIVILEGES", "EMPTY_STUB", "OK"})
 DataMode = Literal["live", "preview", "sample"]
 
 
-def classify_source(source: str | None) -> Literal["live", "needs_privilege", "unknown"]:
+def sanitize_source_token(source: str | None) -> str | None:
+    """Map procedure return values to safe session tokens. Never keep EMPTY_STUB."""
     if not source:
+        return None
+    raw = str(source).strip()
+    if raw in _LIVE_SOURCES:
+        return raw
+    if raw == "EMPTY_STUB" or "EMPTY_STUB" in raw.upper():
+        return "PENDING_PRIVILEGES"
+    if raw.startswith("ENSURE_FAILED") or raw == "ENSURE_FAILED":
+        return "ENSURE_FAILED"
+    if raw in _PENDING:
+        return "PENDING_PRIVILEGES" if raw == "EMPTY_STUB" else raw
+    # Unknown / leaky payloads → pending, never echo to UI
+    return "PENDING_PRIVILEGES"
+
+
+def classify_source(source: str | None) -> Literal["live", "needs_privilege", "unknown"]:
+    token = sanitize_source_token(source)
+    if not token:
         return "needs_privilege"
-    if source in _LIVE_SOURCES:
+    if token in _LIVE_SOURCES:
         return "live"
-    if source in _PENDING or source == "ENSURE_FAILED" or source.startswith("ENSURE_FAILED"):
+    if token in _PENDING or token == "ENSURE_FAILED":
         return "needs_privilege"
-    # Unexpected token — treat as not live; never echo it.
     return "unknown"
 
 
@@ -44,9 +62,16 @@ def needs_setup(source: str | None) -> bool:
 
 
 def humanize_source(source: str | None) -> str | None:
-    if not source:
+    """Consumer-facing label only — never returns EMPTY_STUB or raw tokens."""
+    token = sanitize_source_token(source)
+    if not token:
         return None
-    return _LIVE_SOURCES.get(source)
+    if token in _LIVE_SOURCES:
+        return _LIVE_SOURCES[token]
+    for blocked in _BLOCKED_UI_TOKENS:
+        if blocked in str(source or "").upper():
+            return None
+    return None
 
 
 def _session() -> Any:
@@ -67,15 +92,7 @@ def ensure_usage_views() -> str | None:
         rows = session.sql(queries.SQL_ENSURE_VIEWS).collect()
         if not rows:
             return "PENDING_PRIVILEGES"
-        raw = str(rows[0][0])
-        # Never persist exception payloads in session state.
-        if raw.startswith("ENSURE_FAILED") or "Error" in raw:
-            return "ENSURE_FAILED"
-        if raw in _LIVE_SOURCES or raw in _PENDING:
-            return raw
-        if raw in ("EMPTY_STUB",):
-            return "PENDING_PRIVILEGES"
-        return "PENDING_PRIVILEGES"
+        return sanitize_source_token(str(rows[0][0]))
     except Exception:  # noqa: BLE001
         return "ENSURE_FAILED"
 
@@ -84,6 +101,33 @@ def init_usage_session(*, force: bool = False) -> None:
     """Auto-refresh usage views once per browser session (and on force)."""
     if force or "usage_source" not in st.session_state:
         st.session_state["usage_source"] = ensure_usage_views()
+    # Belt-and-suspenders: scrub any leaked internal tokens already in session.
+    st.session_state["usage_source"] = sanitize_source_token(
+        st.session_state.get("usage_source")
+    )
+
+
+def load_persisted_credit_price(default: float = 3.0) -> float:
+    session = _session()
+    if session is None:
+        return default
+    try:
+        rows = session.sql(queries.SQL_GET_CREDIT_PRICE).collect()
+        if rows and rows[0][0] is not None:
+            return float(rows[0][0])
+    except Exception:  # noqa: BLE001
+        pass
+    return default
+
+
+def persist_credit_price(price: float) -> None:
+    session = _session()
+    if session is None:
+        return
+    try:
+        session.sql(queries.sql_set_credit_price(price)).collect()
+    except Exception:  # noqa: BLE001
+        pass
 
 
 @st.cache_data(ttl=900, show_spinner="Loading Cortex usage…")

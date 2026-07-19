@@ -137,6 +137,17 @@ $$;
 GRANT USAGE ON PROCEDURE APP_SCHEMA.ENSURE_ACCOUNT_USAGE_VIEWS()
   TO APPLICATION ROLE APP_USER;
 
+-- ---------------------------------------------------------------------------
+-- Consumer planning prefs (credit $/rate for USD estimates). Stays in-app only.
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS APP_SCHEMA.USER_SETTINGS (
+  SETTING_KEY VARCHAR PRIMARY KEY,
+  SETTING_VALUE VARCHAR,
+  UPDATED_AT TIMESTAMP_LTZ DEFAULT CURRENT_TIMESTAMP()
+);
+
+GRANT SELECT, INSERT, UPDATE ON TABLE APP_SCHEMA.USER_SETTINGS TO APPLICATION ROLE APP_USER;
+
 -- Best-effort create at install (may stub until privileges are granted).
 -- Streamlit calls ENSURE_ACCOUNT_USAGE_VIEWS() again on each session.
 CALL APP_SCHEMA.ENSURE_ACCOUNT_USAGE_VIEWS();

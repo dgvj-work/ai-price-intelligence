@@ -224,8 +224,9 @@ def price_move_insights(
     for _, row in moved.iterrows():
         name = str(row.get("model_name") or row.get("MODEL_NAME") or "")
         pct = float(row.get("change_pct_90d") or 0)
+        # Only surface moves that overlap models in the usage window (no hard-coded vendors).
         overlap = any(x in name.lower() or name.lower() in x for x in used) if used else False
-        if not overlap and abs(pct) < 20:
+        if not overlap:
             continue
         direction = "dropped" if pct < 0 else "rose"
         out.append(
@@ -235,13 +236,9 @@ def price_move_insights(
                 headline=f"Public list price {direction} {abs(pct):.0f}% — {name}",
                 detail=(
                     "From bundled / Marketplace price intelligence. "
-                    + (
-                        "Overlaps models in your Cortex usage window — revisit switch scenarios."
-                        if overlap
-                        else "May not match a Cortex model id; useful competitive context."
-                    )
+                    "Overlaps models in your Cortex usage window — revisit switch scenarios."
                 ),
-                meta={"model": name, "change_pct_90d": pct, "overlap": overlap},
+                meta={"model": name, "change_pct_90d": pct, "overlap": True},
             )
         )
     return out[:5]

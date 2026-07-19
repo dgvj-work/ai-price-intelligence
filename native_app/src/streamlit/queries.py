@@ -3,8 +3,18 @@
 from __future__ import annotations
 
 
+def _safe_days(days: int) -> int:
+    """Clamp to an integer day window — never interpolate untrusted strings into SQL."""
+    try:
+        d = int(days)
+    except (TypeError, ValueError):
+        d = 90
+    return max(1, min(d, 365))
+
+
 def sql_cortex_spend(days: int) -> str:
-    d = int(days)
+    # days is sanitized to int in [1, 365] before f-string interpolation.
+    d = _safe_days(days)
     return f"""
 SELECT
   DATE_TRUNC('day', USAGE_TIME) AS DAY,
@@ -20,7 +30,7 @@ ORDER BY 1
 
 
 def sql_cortex_top(days: int) -> str:
-    d = int(days)
+    d = _safe_days(days)
     return f"""
 SELECT
   FUNCTION_NAME,
@@ -36,7 +46,7 @@ LIMIT 25
 
 
 def sql_metering_fallback(days: int) -> str:
-    d = int(days)
+    d = _safe_days(days)
     return f"""
 SELECT
   DATE_TRUNC('day', START_TIME) AS DAY,
@@ -50,7 +60,7 @@ ORDER BY 1
 
 
 def sql_usage_by_model(days: int) -> str:
-    d = int(days)
+    d = _safe_days(days)
     return f"""
 SELECT
   MODEL_NAME,
@@ -65,6 +75,36 @@ ORDER BY CREDITS DESC
 
 
 SQL_ENSURE_VIEWS = "CALL APP_SCHEMA.ENSURE_ACCOUNT_USAGE_VIEWS()"
+
+SQL_GET_CREDIT_PRICE = """
+SELECT TRY_TO_DOUBLE(SETTING_VALUE) AS CREDIT_PRICE_USD
+FROM APP_SCHEMA.USER_SETTINGS
+WHERE SETTING_KEY = 'credit_price_usd'
+LIMIT 1
+"""
+
+
+def sql_set_credit_price(price: float) -> str:
+    """Persist planning $/credit inside the app schema (not exported)."""
+    p = float(price)
+    if p < 0.01:
+        p = 0.01
+    if p > 100.0:
+        p = 100.0
+    # Numeric literal only — never string-interpolate user text.
+    return f"""
+MERGE INTO APP_SCHEMA.USER_SETTINGS t
+USING (
+  SELECT 'credit_price_usd' AS SETTING_KEY, '{p:.4f}' AS SETTING_VALUE
+) s
+ON t.SETTING_KEY = s.SETTING_KEY
+WHEN MATCHED THEN UPDATE SET
+  SETTING_VALUE = s.SETTING_VALUE,
+  UPDATED_AT = CURRENT_TIMESTAMP()
+WHEN NOT MATCHED THEN INSERT (SETTING_KEY, SETTING_VALUE, UPDATED_AT)
+  VALUES (s.SETTING_KEY, s.SETTING_VALUE, CURRENT_TIMESTAMP())
+"""
+
 
 # Native App reference() bindings (optional Marketplace dataset)
 SQL_REF_MODEL_CURRENT = """

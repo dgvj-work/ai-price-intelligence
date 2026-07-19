@@ -1,5 +1,15 @@
 # Cortex Cost Advisor changelog
 
+## 1.1.1 — 2026-07-19
+
+P0 hardening (Coco review items, applied in-repo):
+
+- Theme: remove Google Fonts `@import`; system font stacks only (no egress).
+- Session: sanitize procedure tokens so `EMPTY_STUB` never reaches the UI.
+- Persist credit $/rate in `APP_SCHEMA.USER_SETTINGS` across sessions.
+- SQL day windows clamped to int `[1, 365]` before f-string interpolation.
+- Price Watch flags only models from the usage window (no hardcoded vendor list).
+
 ## 1.1.0 — 2026-07-19
 
 Product rethink — **advisor, not report**:

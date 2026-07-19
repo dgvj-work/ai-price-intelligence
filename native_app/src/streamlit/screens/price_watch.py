@@ -15,6 +15,14 @@ from session_data import (
 from theme import hero, recommendation_card
 
 
+def _flag_overlap(name: str, used_models: set[str]) -> bool:
+    """True only when the price row overlaps models from the usage window."""
+    if not used_models:
+        return False
+    n = name.lower()
+    return any(m in n or n in m for m in used_models)
+
+
 def render() -> None:
     hero(
         "Price Watch",
@@ -37,16 +45,12 @@ def render() -> None:
         st.caption("Change feed from bound Marketplace dataset.")
         changes = changes.copy()
         changes["FLAGGED_IN_USE"] = (
-            changes["MODEL_ID"].astype(str).str.lower().apply(
-                lambda mid: any(m in mid for m in used_models)
-            )
-            if used_models
-            else False
+            changes["MODEL_ID"].astype(str).apply(lambda mid: _flag_overlap(str(mid), used_models))
         )
         flagged = changes[changes["FLAGGED_IN_USE"] == True]  # noqa: E712
         st.subheader("Moves affecting models you use")
         if flagged.empty:
-            st.caption("No overlap in this window — full feed below.")
+            st.caption("No overlap with your usage in this window — full feed below.")
         else:
             st.dataframe(flagged, use_container_width=True)
         st.subheader("All bound changes")
@@ -67,9 +71,11 @@ def render() -> None:
         return
 
     moved = moved.copy()
-    moved["FLAGGED_IN_USE"] = moved["model_name"].astype(str).str.lower().apply(
-        lambda name: any(m in name or name in m for m in used_models)
-        or any(k in name for k in ("claude", "gpt-4o", "deepseek", "gemini"))
+    # Flag only against usage-window models — no hardcoded vendor name list.
+    moved["FLAGGED_IN_USE"] = moved["model_name"].astype(str).apply(
+        lambda name: _flag_overlap(name, used_models)
     )
     st.dataframe(moved.sort_values("change_pct_90d"), use_container_width=True)
+    if not used_models:
+        st.caption("Connect live usage to flag moves against models you actually call.")
     render_connect_account()

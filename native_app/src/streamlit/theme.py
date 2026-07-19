@@ -4,12 +4,11 @@ from __future__ import annotations
 
 import streamlit as st
 
+# System font stacks only — Native Apps must not @import Google Fonts (egress / review).
 CSS = """
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap');
-
   html, body, [class*="css"] {
-    font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+    font-family: ui-sans-serif, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   }
 
   .cca-hero {
@@ -35,7 +34,7 @@ CSS = """
     max-width: 52rem;
   }
   .cca-kicker {
-    font-family: "IBM Plex Mono", monospace;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
     font-size: 0.72rem;
     text-transform: uppercase;
     letter-spacing: 0.08em;
@@ -62,7 +61,7 @@ CSS = """
   .cca-rec p { margin: 0; color: #334155; font-size: 0.95rem; line-height: 1.45; }
   .cca-tag {
     display: inline-block;
-    font-family: "IBM Plex Mono", monospace;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
     font-size: 0.68rem;
     letter-spacing: 0.06em;
     text-transform: uppercase;
