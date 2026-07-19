@@ -1,8 +1,7 @@
 definition_version: 2
-entity_model_version: 2
 
 entities:
-  cortex_cost_advisor:
+  pkg:
     type: application package
     identifier: cortex_cost_advisor_pkg
     stage: app_src.stage
@@ -13,7 +12,15 @@ entities:
       - src: src/*
         dest: ./src/
     meta:
-      role: accountadmin
-      warehouse: compute_wh
-      database: cortex_cost_advisor_pkg
-      name: cortex_cost_advisor_pkg
+      role: AI_PRICE_ADMIN
+      warehouse: COMPUTE_WH
+
+  app:
+    type: application
+    identifier: cortex_cost_advisor
+    from:
+      target: pkg
+    debug: true
+    meta:
+      role: AI_PRICE_ADMIN
+      warehouse: COMPUTE_WH
