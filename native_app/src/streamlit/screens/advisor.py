@@ -78,6 +78,9 @@ def render() -> None:
         )
 
     total_credits = float(usage["CREDITS"].sum()) if not usage.empty else 0.0
+    spark = None
+    if not spend.empty and "DAY" in spend.columns and "CREDITS" in spend.columns:
+        spark = spend.groupby("DAY", as_index=False)["CREDITS"].sum().sort_values("DAY")["CREDITS"]
     section("At a glance")
     metric_strip(
         [
@@ -96,7 +99,8 @@ def render() -> None:
                 f"{total_credits:,.1f}",
                 "Context only. USD elsewhere uses your contract $/credit input.",
             ),
-        ]
+        ],
+        spark=spark,
     )
     st.caption(
         f"USD uses your sidebar rate (${credit_price:.2f}/credit). "

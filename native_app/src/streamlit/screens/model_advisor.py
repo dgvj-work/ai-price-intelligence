@@ -59,7 +59,7 @@ def render() -> None:
     section("Usage basis")
     usage_view = usage.copy()
     usage_view["USD_EST"] = usage_view["CREDITS"] * credit_price
-    table(usage_view, use_container_width=True, hide_index=True)
+    table(usage_view)
 
     if cortex_prices.empty:
         st.caption("No Cortex rate table available.")
@@ -101,7 +101,7 @@ def render() -> None:
 
     scen = pd.DataFrame(rows)
     scen = scen[scen["YOUR_MODEL"].str.lower() != scen["ALT_MODEL"].str.lower()]
-    table(scen.sort_values("USD_DELTA"), use_container_width=True, hide_index=True)
+    table(scen.sort_values("USD_DELTA"))
     st.caption(
         "Negative USD_DELTA = cheaper alternate at list rates. "
         "Validate quality before migrating. USD = estimate from your $/credit."

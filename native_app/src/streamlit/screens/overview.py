@@ -47,7 +47,7 @@ def render() -> None:
             )
             section("Daily trend")
             spend_trend_chart(metering.groupby("DAY", as_index=False)["CREDITS"].sum())
-            table(metering, use_container_width=True, hide_index=True)
+            table(metering)
             st.caption("*USD estimate uses your sidebar $/credit. Not an invoice.")
             render_connect_account()
             return
@@ -74,7 +74,7 @@ def render() -> None:
     else:
         top_view = top.copy()
         top_view["USD_EST"] = top_view["CREDITS"] * credit_price
-        table(top_view, use_container_width=True, hide_index=True)
+        table(top_view)
 
     st.caption(
         f"Window: {days} days (up to 365). ACCOUNT_USAGE can lag ~45 minutes. "

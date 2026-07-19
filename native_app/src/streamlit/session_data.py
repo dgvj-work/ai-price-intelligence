@@ -13,7 +13,7 @@ import queries
 
 SNAPSHOT_PATH = Path(__file__).resolve().parent / "data" / "price_snapshot.csv"
 
-APP_VERSION = "1.2.0"  # keep in sync with manifest.yml version.label
+APP_VERSION = "1.2.1"  # keep in sync with manifest.yml version.label
 
 # Single source of truth for consumer-facing support links.
 SUPPORT_URL = "https://github.com/dgvj-work/ai-price-intelligence/discussions"
@@ -322,14 +322,18 @@ def mode_banner(mode: DataMode) -> None:
         return
     if mode == "preview":
         st.caption(
-            "Showing **sample recommendations** so you can evaluate the product before "
-            "connecting ACCOUNT_USAGE. Connect when an admin has granted privileges."
+            "Showing **sample** usage so you can evaluate recommendations and charts "
+            "before connecting ACCOUNT_USAGE. After GRANT + Connect, the same screens "
+            "switch to your live Cortex metering."
         )
     elif mode == "sample":
         st.caption(
             "Privileges connected, but no Cortex rows in this window yet. Sample "
-            "recommendations shown. ACCOUNT_USAGE can lag ~45 minutes after new AI calls."
+            "recommendations/charts shown. ACCOUNT_USAGE can lag ~45 minutes after new AI calls."
         )
     else:
         label = humanize_source(st.session_state.get("usage_source"))
-        st.caption(f"Live Cortex metering{f' | {label}' if label else ''}.")
+        st.caption(
+            f"Live Cortex metering{f' | {label}' if label else ''}. "
+            "Charts and recommendations use your account data for this window."
+        )

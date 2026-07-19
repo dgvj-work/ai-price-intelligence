@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import streamlit as st
 
+from charts import price_change_bars, price_change_timeline
 from insights import price_move_insights
 from model_ids import overlaps_used
 from screens.setup import render_connect_account
@@ -41,13 +42,17 @@ def render() -> None:
             lambda mid: overlaps_used(str(mid), used_models)
         )
         flagged = changes[changes["FLAGGED_IN_USE"]]
+
+        section("Price-change timeline", "Each point is a list-price move in the bound feed.")
+        price_change_timeline(changes)
+
         section("Moves affecting models you use")
         if flagged.empty:
             st.caption("No overlap with your usage in this window. Full feed below.")
         else:
-            table(flagged, use_container_width=True, hide_index=True)
+            table(flagged)
         section("All bound changes")
-        table(changes, use_container_width=True, hide_index=True)
+        table(changes)
         render_connect_account()
         return
 
@@ -65,7 +70,7 @@ def render() -> None:
     moved = llm[llm["change_pct_90d"].fillna(0) != 0]
     st.caption("Bundled snapshot flags (bind Marketplace view for accumulating SCD2 history).")
     if moved.empty:
-        table(llm, use_container_width=True)
+        table(llm)
         render_connect_account()
         return
 
@@ -73,11 +78,9 @@ def render() -> None:
     moved["FLAGGED_IN_USE"] = moved["model_name"].astype(str).apply(
         lambda name: overlaps_used(name, used_models)
     )
-    table(
-        moved.sort_values("change_pct_90d"),
-        use_container_width=True,
-        hide_index=True,
-    )
+    section("90-day list-price moves", "Teal = price down; rose = price up.")
+    price_change_bars(moved, label_col="model_name", pct_col="change_pct_90d")
+    table(moved.sort_values("change_pct_90d"))
     if not used_models:
         st.caption("Connect live usage to flag moves against models you actually call.")
     render_connect_account()

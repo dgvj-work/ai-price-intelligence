@@ -1,5 +1,13 @@
 # Cortex Cost Advisor changelog
 
+## 1.2.1 - 2026-07-19
+
+- Price Watch: Altair timeline / diverging % bars (not tables-only).
+- Advisor metric strip: credit sparkline for the analysis window.
+- Sidebar logo: embedded PNG bytes (stage-safe) + assets packaging.
+- Clearer live vs sample banners (charts follow the same data mode).
+- `scripts/e2e_smoke.py` for local + Snowflake smoke checks.
+
 ## 1.2.0 - 2026-07-19
 
 Visual identity beyond default Streamlit alerts:

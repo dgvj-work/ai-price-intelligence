@@ -17,6 +17,9 @@ entities:
       # Dotdirs are easy to miss in globs; theme must ship for Native App Streamlit.
       - src: src/streamlit/.streamlit/*
         dest: ./src/streamlit/.streamlit/
+      # Explicit logo assets (in addition to embedded bytes in _logo_bytes.py).
+      - src: src/streamlit/assets/*
+        dest: ./src/streamlit/assets/
     meta:
       role: AI_PRICE_ADMIN
       warehouse: COMPUTE_WH

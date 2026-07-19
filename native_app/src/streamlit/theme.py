@@ -106,13 +106,25 @@ def recommendation_card(insight, *, lead: bool = False) -> None:
             st.caption(" | ".join(bits))
 
 
-def metric_strip(items: list[tuple[str, str, str | None]]) -> None:
-    """items: (label, value, optional help)."""
+def metric_strip(
+    items: list[tuple[str, str, str | None]],
+    *,
+    spark=None,
+) -> None:
+    """items: (label, value, optional help). Optional spark = pandas Series for mini trend."""
     with panel(border=True):
         cols = st.columns(len(items))
         for col, (label, value, help_text) in zip(cols, items):
             kwargs = {"help": help_text} if help_text else {}
             col.metric(label, value, **kwargs)
+        if spark is not None:
+            try:
+                from charts import sparkline
+
+                st.caption("Credit trend in this window")
+                sparkline(spark)
+            except Exception:  # noqa: BLE001
+                pass
 
 
 def table(df, **kwargs) -> None:
