@@ -59,6 +59,10 @@ def test_setup_script_uses_current_cortex_views() -> None:
     assert "QUERY_HISTORY" not in setup
     # Deprecated view must not be the primary source
     assert "FROM SNOWFLAKE.ACCOUNT_USAGE.CORTEX_FUNCTIONS_USAGE_HISTORY" not in setup
+    # Tokens must use LATERAL FLATTEN join (scalar FLATTEN subquery fails in VIEWs).
+    assert "LEFT JOIN LATERAL FLATTEN(INPUT => m.METRICS)" in setup
+    assert "FROM TABLE(FLATTEN(INPUT => m.METRICS))" not in setup
+    assert "SELECT COUNT(*) INTO :probe_cnt FROM APP_SCHEMA.V_CORTEX_USAGE" in setup
 
 
 def test_manifest_has_dataset_references() -> None:

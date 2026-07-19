@@ -137,20 +137,24 @@ def check_snowflake() -> None:
         _ok(f"ENSURE returned (truncated): {out.strip()[:160]}")
         live = "CORTEX" in upper and "PENDING" not in upper
 
-    if live:
-        out = sql("SELECT COUNT(*) AS ROWS_ FROM CORTEX_COST_ADVISOR.APP_SCHEMA.V_CORTEX_USAGE;")
-        if "Error" in out and "SQL" in out:
-            _fail(f"V_CORTEX_USAGE query failed: {out[:200]}")
-        _ok("V_CORTEX_USAGE query ok")
-        out = sql(
-            """
-            SELECT COUNT(*) AS ROWS_
-            FROM CORTEX_COST_ADVISOR.APP_SCHEMA.V_METERING_HISTORY;
-            """
-        )
-        _ok("V_METERING_HISTORY query ok")
-    else:
-        _ok("skipping live row counts (preview / pending privileges)")
+    # Always probe the view: DDL can succeed while query fails (unsupported subquery).
+    out = sql("SELECT COUNT(*) AS ROWS_ FROM CORTEX_COST_ADVISOR.APP_SCHEMA.V_CORTEX_USAGE;")
+    upper = out.upper()
+    if "UNSUPPORTED SUBQUERY" in upper:
+        _fail(f"V_CORTEX_USAGE has unsupported subquery: {out[:240]}")
+    if "ERROR" in upper and "SQL" in upper and "COMPILATION" in upper:
+        _fail(f"V_CORTEX_USAGE query failed: {out[:240]}")
+    _ok("V_CORTEX_USAGE is queryable")
+
+    out = sql(
+        "SELECT COUNT(*) AS ROWS_ FROM CORTEX_COST_ADVISOR.APP_SCHEMA.V_METERING_HISTORY;"
+    )
+    if "UNSUPPORTED SUBQUERY" in out.upper():
+        _fail(f"V_METERING_HISTORY has unsupported subquery: {out[:240]}")
+    _ok("V_METERING_HISTORY is queryable")
+
+    if not live:
+        _ok("live source still pending privileges (preview expected until GRANT)")
 
     # Snowflake LIST wraps long names across columns; use PATTERN queries.
     charts = sql(

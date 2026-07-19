@@ -1,5 +1,13 @@
 # Cortex Cost Advisor changelog
 
+## 1.2.6 - 2026-07-19
+
+P0: fix `V_CORTEX_USAGE` for `CORTEX_AI_FUNCTIONS_USAGE_HISTORY`. Replace the
+correlated `FLATTEN` scalar subquery (and the nested `LATERAL (SELECT…)` form,
+both fail with "Unsupported subquery type") with `LEFT JOIN LATERAL FLATTEN`
+plus `GROUP BY`. Probe `SELECT COUNT(*)` after CREATE VIEW so Connect cannot
+report live when the view is not queryable.
+
 ## 1.2.5 - 2026-07-19
 
 Preview / Connect UX: make sample-data mode explicit, show GRANT SQL in the

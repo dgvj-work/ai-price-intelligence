@@ -50,25 +50,36 @@ AS
 $$
 DECLARE
   source_used VARCHAR DEFAULT 'PENDING_PRIVILEGES';
+  probe_cnt NUMBER;
 BEGIN
-  -- Cortex usage (primary -> fallback -> empty placeholder until privileges are granted)
+  -- Cortex usage (primary -> fallback -> empty placeholder until privileges are granted).
+  -- Do NOT use a correlated scalar subquery over FLATTEN, and do NOT wrap FLATTEN in
+  -- LATERAL (SELECT ...): both fail at query time ("Unsupported subquery type").
+  -- Use LEFT JOIN LATERAL FLATTEN(...) + GROUP BY (validated queryable in-view).
+  -- Probe SELECT after CREATE so DDL-only success cannot mark the source live.
   BEGIN
     CREATE OR REPLACE VIEW APP_SCHEMA.V_CORTEX_USAGE AS
     SELECT
-      START_TIME AS USAGE_TIME,
-      FUNCTION_NAME,
-      MODEL_NAME,
+      m.START_TIME AS USAGE_TIME,
+      m.FUNCTION_NAME,
+      m.MODEL_NAME,
       COALESCE(
-        (
-          SELECT SUM(f.VALUE:"value"::NUMBER)
-          FROM TABLE(FLATTEN(INPUT => m.METRICS)) f
-          WHERE LOWER(f.VALUE:"key":"unit"::STRING) = 'tokens'
+        SUM(
+          CASE
+            WHEN LOWER(f.VALUE:"key":"unit"::STRING) = 'tokens'
+            THEN f.VALUE:"value"::NUMBER
+            ELSE 0
+          END
         ),
         0
       ) AS TOKENS,
-      CREDITS AS TOKEN_CREDITS
+      MAX(m.CREDITS) AS TOKEN_CREDITS
     FROM SNOWFLAKE.ACCOUNT_USAGE.CORTEX_AI_FUNCTIONS_USAGE_HISTORY m
-    WHERE START_TIME >= DATEADD('day', -365, CURRENT_TIMESTAMP());
+    LEFT JOIN LATERAL FLATTEN(INPUT => m.METRICS) f
+    WHERE m.START_TIME >= DATEADD('day', -365, CURRENT_TIMESTAMP())
+    GROUP BY m.START_TIME, m.FUNCTION_NAME, m.MODEL_NAME, m.QUERY_ID;
+    -- Fail into fallback if the view is not queryable.
+    SELECT COUNT(*) INTO :probe_cnt FROM APP_SCHEMA.V_CORTEX_USAGE;
     source_used := 'CORTEX_AI_FUNCTIONS_USAGE_HISTORY';
   EXCEPTION
     WHEN OTHER THEN
@@ -82,6 +93,7 @@ BEGIN
           COALESCE(TOKEN_CREDITS, 0) AS TOKEN_CREDITS
         FROM SNOWFLAKE.ACCOUNT_USAGE.CORTEX_AISQL_USAGE_HISTORY
         WHERE USAGE_TIME >= DATEADD('day', -365, CURRENT_TIMESTAMP());
+        SELECT COUNT(*) INTO :probe_cnt FROM APP_SCHEMA.V_CORTEX_USAGE;
         source_used := 'CORTEX_AISQL_USAGE_HISTORY';
       EXCEPTION
         WHEN OTHER THEN
