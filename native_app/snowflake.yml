@@ -14,6 +14,9 @@ entities:
         ignore:
           - "**/__pycache__/**"
           - "**/*.pyc"
+      # Dotdirs are easy to miss in globs; theme must ship for Native App Streamlit.
+      - src: src/streamlit/.streamlit/*
+        dest: ./src/streamlit/.streamlit/
     meta:
       role: AI_PRICE_ADMIN
       warehouse: COMPUTE_WH

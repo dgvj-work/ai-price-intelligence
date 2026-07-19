@@ -1,0 +1,16 @@
+# Safe Streamlit theme for Native Apps (no HTML / unsafe_allow_html).
+# FinOps teal accent + cool neutrals; intentional identity without custom CSS.
+
+[theme]
+base = "light"
+primaryColor = "#0f766e"
+backgroundColor = "#f8fafb"
+secondaryBackgroundColor = "#eef4f5"
+textColor = "#0f172a"
+font = "sans serif"
+
+[theme.sidebar]
+backgroundColor = "#0f172a"
+secondaryBackgroundColor = "#1e293b"
+textColor = "#e2e8f0"
+primaryColor = "#14b8a6"

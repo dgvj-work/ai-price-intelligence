@@ -1,5 +1,14 @@
 # Cortex Cost Advisor changelog
 
+## 1.1.9 - 2026-07-19
+
+Safe visual identity (no `unsafe_allow_html`):
+
+- Add `.streamlit/config.toml` FinOps teal theme + dark sidebar (`primaryColor #0f766e`).
+- Explicitly package `.streamlit/` in `snowflake.yml` so the theme ships to the stage.
+- Hero panels with uppercase brand kickers; severity-colored native recommendation alerts.
+- Metric strips grouped in bordered panels.
+
 ## 1.1.8 - 2026-07-19
 
 Support links:

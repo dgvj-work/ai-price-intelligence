@@ -13,7 +13,7 @@ import queries
 
 SNAPSHOT_PATH = Path(__file__).resolve().parent / "data" / "price_snapshot.csv"
 
-APP_VERSION = "1.1.8"  # keep in sync with manifest.yml version.label
+APP_VERSION = "1.1.9"  # keep in sync with manifest.yml version.label
 
 # Single source of truth for consumer-facing support links.
 SUPPORT_URL = "https://github.com/dgvj-work/ai-price-intelligence/discussions"
