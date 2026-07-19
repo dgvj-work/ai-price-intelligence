@@ -1,4 +1,4 @@
-# Cortex Cost Advisor (v1.1.4)
+# Cortex Cost Advisor (v1.1.5)
 
 **Advisor for Cortex model spend** — ranked switch savings, concentration/spike signals, and price context. Not a generic credit report.
 
@@ -8,7 +8,16 @@ FinOps / platform engineers deciding **which Cortex models to allow or migrate**
 
 ## In-app starter guide
 
-After install, open the sidebar tab **Getting started**. It walks through preview → connect live usage → sidebar planning inputs → each page. Preview installs land there first.
+After install, open the sidebar tab **Getting started**. It covers:
+
+- Privilege map (required vs optional vs automatic vs never requested)
+- Exact `ACCOUNT_USAGE` objects unlocked by `IMPORTED PRIVILEGES ON DATABASE SNOWFLAKE`
+- Confirmation that **no** grants on your databases / schemas / tables are needed
+- Warehouse + application role `APP_USER`
+- Optional binds to Price Intelligence `SHARE.VW_*` views (`SELECT` only)
+- Troubleshooting checklist for security review
+
+Preview installs land on **Getting started** first.
 
 ## What you see on Advisor
 

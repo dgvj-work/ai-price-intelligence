@@ -1,5 +1,14 @@
 # Cortex Cost Advisor changelog
 
+## 1.1.5 — 2026-07-19
+
+Getting started depth:
+
+- Full privilege map: required `IMPORTED PRIVILEGES`, warehouse, app role `APP_USER`.
+- Exact `ACCOUNT_USAGE` objects unlocked; clarify **no** consumer DB/schema/table grants.
+- Optional Price Intelligence reference binds (`SELECT` on three `SHARE.VW_*` views).
+- Auto-granted in-app objects table + security-review checklist + troubleshooting.
+
 ## 1.1.4 — 2026-07-19
 
 Consumer onboarding:
