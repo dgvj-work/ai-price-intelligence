@@ -1,4 +1,4 @@
-"""Canonical model-id matching — avoids loose substring false positives."""
+"""Canonical model-id matching - avoids loose substring false positives."""
 
 from __future__ import annotations
 
@@ -19,7 +19,7 @@ def models_match(used: str, candidate: str) -> bool:
     True when used usage model and a price-row id refer to the same model.
 
     - Exact match after normalize, or
-    - Prefix match only if the shorter id is ≥ 10 chars and the longer continues
+    - Prefix match only if the shorter id is >= 10 chars and the longer continues
       with a separator (avoids 'llama' matching 'llama3.1-405b').
     """
     u = normalize_model_id(used)

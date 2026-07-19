@@ -4,7 +4,7 @@ from __future__ import annotations
 
 
 def _safe_days(days: int) -> int:
-    """Clamp to an integer day window — never interpolate untrusted strings into SQL."""
+    """Clamp to an integer day window - never interpolate untrusted strings into SQL."""
     try:
         d = int(days)
     except (TypeError, ValueError):
@@ -83,7 +83,7 @@ WHERE SETTING_KEY = 'credit_price_usd'
 LIMIT 1
 """
 
-# Parameterized MERGE — bind key + value via Snowpark params (no float f-string).
+# Parameterized MERGE - bind key + value via Snowpark params (no float f-string).
 SQL_SET_CREDIT_PRICE = """
 MERGE INTO APP_SCHEMA.USER_SETTINGS t
 USING (

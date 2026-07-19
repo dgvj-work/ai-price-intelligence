@@ -1,4 +1,4 @@
-"""UI helpers using only Streamlit native widgets — no unsafe_allow_html / CSS inject."""
+"""UI helpers using only Streamlit native widgets - no unsafe_allow_html / CSS inject."""
 
 from __future__ import annotations
 
@@ -20,7 +20,7 @@ def hero(title: str, subtitle: str, kicker: str = "Cortex Cost Advisor") -> None
 def recommendation_card(insight, *, lead: bool = False) -> None:
     sev = insight.severity if insight.severity in ("high", "medium", "info") else "info"
     tag = "Primary recommendation" if lead else insight.kind.replace("_", " ").title()
-    header = f"**{tag}** — {insight.headline}"
+    header = f"**{tag}**: {insight.headline}"
     body = insight.detail
     if sev == "high":
         st.success(f"{header}\n\n{body}")

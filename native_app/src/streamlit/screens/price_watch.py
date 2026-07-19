@@ -1,4 +1,4 @@
-"""Price Watch — public list moves that affect models you use."""
+"""Price Watch - public list moves that affect models you use."""
 
 from __future__ import annotations
 
@@ -19,7 +19,7 @@ from theme import hero, recommendation_card
 def render() -> None:
     hero(
         "Price Watch",
-        "Public LLM list-price moves overlaid on models in your Cortex usage — "
+        "Public LLM list-price moves overlaid on models in your Cortex usage. "
         "competitive context Snowsight cost charts do not provide.",
         kicker="Prices",
     )
@@ -43,7 +43,7 @@ def render() -> None:
         flagged = changes[changes["FLAGGED_IN_USE"]]
         st.subheader("Moves affecting models you use")
         if flagged.empty:
-            st.caption("No overlap with your usage in this window — full feed below.")
+            st.caption("No overlap with your usage in this window. Full feed below.")
         else:
             st.dataframe(flagged, use_container_width=True)
         st.subheader("All bound changes")

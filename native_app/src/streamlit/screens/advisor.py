@@ -1,4 +1,4 @@
-"""Advisor home — lead with recommendations, not raw credit tables."""
+"""Advisor home - lead with recommendations, not raw credit tables."""
 
 from __future__ import annotations
 
@@ -25,7 +25,7 @@ def _cortex_price_table():
     cortex = snap[snap["row_type"] == "cortex"].copy()
     if cortex.empty:
         return cortex, False
-    # Select only Cortex rate columns — CSV also has empty LLM columns that collide on rename.
+    # Select only Cortex rate columns - CSV also has empty LLM columns that collide on rename.
     return (
         cortex[["cortex_function", "cortex_model", "credits_per_1m_tokens"]]
         .rename(
@@ -43,9 +43,9 @@ def render() -> None:
     hero(
         "Stop guessing which Cortex model is burning budget",
         "This is not another credit report. We rank model-switch savings, flag "
-        "concentration and spend spikes, and estimate forward Cortex cost — decisions "
+        "concentration and spend spikes, and estimate forward Cortex cost: decisions "
         "Snowsight rollups do not make for you.",
-        kicker=f"Advisor · v{APP_VERSION}",
+        kicker=f"Advisor | v{APP_VERSION}",
     )
 
     days = int(st.session_state.get("days", 90))
@@ -72,17 +72,17 @@ def render() -> None:
         recommendation_card(primary, lead=True)
     else:
         st.info(
-            "**Status** — No switch savings above threshold in this window. "
+            "**Status**: No switch savings above threshold in this window. "
             "Either usage is already on efficient models, or rates/usage are sparse. "
             "Check Spend for detail and Price Watch for external list moves."
         )
 
-    # Decision metrics — advice-shaped, not vanity charts first
+    # Decision metrics - advice-shaped, not vanity charts first
     c1, c2, c3 = st.columns(3)
     c1.metric(
         "Identified switch savings (est. USD)",
         f"${pack['total_switch_savings_usd']:,.0f}",
-        help="Sum of ranked list-rate switch scenarios ≥15% cheaper. Estimate only.",
+        help="Sum of ranked list-rate switch scenarios >=15% cheaper. Estimate only.",
     )
     c2.metric(
         "Switch opportunities",
@@ -97,7 +97,7 @@ def render() -> None:
     )
 
     st.caption(
-        f"USD figures use your sidebar rate (${credit_price:.2f}/credit) — "
+        f"USD figures use your sidebar rate (${credit_price:.2f}/credit). "
         "Snowflake does not expose contracted credit prices to apps. "
         "These are planning estimates, not invoices. "
         + (
@@ -123,7 +123,7 @@ def render() -> None:
 | Nothing built-in for public LLM moves | **Price Watch** overlap against models you used |
 
 Buyer: FinOps / platform engineers deciding **which Cortex models to allow or migrate**.  
-Decision: “Cut or reallocate Cortex spend without reading query history.”
+Decision: "Cut or reallocate Cortex spend without reading query history."
             """
         )
 

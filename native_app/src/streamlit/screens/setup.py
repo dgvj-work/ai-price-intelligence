@@ -1,4 +1,4 @@
-"""Connect ACCOUNT_USAGE — secondary to Advisor value."""
+"""Connect ACCOUNT_USAGE - secondary to Advisor value."""
 
 from __future__ import annotations
 
@@ -37,17 +37,17 @@ def render_connect_account() -> None:
             new_source = ensure_usage_views()
             st.session_state["usage_source"] = new_source
             if needs_setup(new_source):
-                st.warning("Privilege not detected yet — confirm GRANT, then try again.")
+                st.warning("Privilege not detected yet. Confirm GRANT, then try again.")
             else:
                 st.success(humanize_source(new_source) or "Connected")
                 st.rerun()
 
-    with st.expander("Security — exact access"):
+    with st.expander("Security: exact access"):
         st.markdown(
             """
 | | |
 |--|--|
-| Privilege | `IMPORTED PRIVILEGES ON DATABASE SNOWFLAKE` → application |
+| Privilege | `IMPORTED PRIVILEGES ON DATABASE SNOWFLAKE` -> application |
 | Database / schema | `SNOWFLAKE`.`ACCOUNT_USAGE` only (via imported privileges) |
 | Views read | `CORTEX_AI_FUNCTIONS_USAGE_HISTORY` (preferred), `CORTEX_AISQL_USAGE_HISTORY` (fallback), `METERING_HISTORY` (AI/Cortex rows) |
 | Your DBs / schemas / tables | **No grants required or used** |

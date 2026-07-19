@@ -1,4 +1,4 @@
-"""Cortex Cost Advisor — insight-first Streamlit entrypoint."""
+"""Cortex Cost Advisor - insight-first Streamlit entrypoint."""
 
 from __future__ import annotations
 
@@ -37,7 +37,7 @@ SUPPORT_URL = "https://github.com/dgvj-work/ai-price-intelligence/discussions"
 def main() -> None:
     apply_theme()
     st.sidebar.markdown("### Cortex Cost Advisor")
-    st.sidebar.caption(f"v{APP_VERSION} · recommendations, not just reports")
+    st.sidebar.caption(f"v{APP_VERSION} | recommendations, not just reports")
 
     # Thin ACCOUNT_USAGE views are (re)bound silently once per session.
     init_usage_session()
@@ -52,7 +52,7 @@ def main() -> None:
     else:
         label = humanize_source(source)
         st.sidebar.caption(
-            f"Data: live · {label}" if label else "Data: live Cortex metering"
+            f"Data: live | {label}" if label else "Data: live Cortex metering"
         )
 
     # Preview installs land on the starter guide; live installs land on Advisor.
@@ -76,12 +76,12 @@ def main() -> None:
         help=(
             "Snowflake apps cannot read your contracted credit price. "
             "Enter the rate from your invoice or capacity contract. "
-            "Saved inside this app’s schema for next visits — never exported."
+            "Saved inside this app's schema for next visits. Never exported."
         ),
         key="credit_price_input",
     )
     st.sidebar.caption(
-        "USD amounts are **estimates**. Wrong rate ⇒ wrong dollars; credits stay accurate."
+        "USD amounts are **estimates**. Wrong rate means wrong dollars; credits stay accurate."
     )
     if abs(float(credit_price) - float(st.session_state.get("credit_price_usd", 3.0))) > 1e-9:
         persist_credit_price(float(credit_price))
@@ -108,7 +108,7 @@ Support: [GitHub Discussions]({SUPPORT_URL})
     )
 
     if needs_setup(source):
-        if st.sidebar.button("I granted privileges — connect"):
+        if st.sidebar.button("I granted privileges; connect"):
             st.cache_data.clear()
             init_usage_session(force=True)
             st.rerun()

@@ -1,16 +1,16 @@
 # Marketplace listing copy
 
-Support: digvijay.vaghela@yahoo.com · Source: https://github.com/dgvj-work/ai-price-intelligence
+Support: digvijay.vaghela@yahoo.com | Source: https://github.com/dgvj-work/ai-price-intelligence
 
 ---
 
-## Listing A — Dataset
+## Listing A - Dataset
 
 ### Title
 AI Model & Compute Price Intelligence
 
 ### Subtitle
-Weekly LLM, GPU, and Snowflake Cortex prices with full history — public sources, full provenance.
+Weekly LLM, GPU, and Snowflake Cortex prices with full history - public sources, full provenance.
 
 ### Category / tags (suggestions)
 - Category: AI & ML / Data Enrichment
@@ -24,7 +24,7 @@ Weekly LLM, GPU, and Snowflake Cortex prices with full history — public source
 
 Stop screenshotting vendor pricing pages.
 
-**AI Model & Compute Price Intelligence** is a weekly-refreshed Snowflake dataset of public LLM/embedding list prices, quality benchmarks, cloud GPU instance prices, and Snowflake Cortex credit rates — with SCD Type 2 history so you can see what changed and when.
+**AI Model & Compute Price Intelligence** is a weekly-refreshed Snowflake dataset of public LLM/embedding list prices, quality benchmarks, cloud GPU instance prices, and Snowflake Cortex credit rates - with SCD Type 2 history so you can see what changed and when.
 
 **History note:** Price history accumulates from your first successful weekly refresh after publish (it is not a multi-year backfill). `VW_PRICE_CHANGES_90D` fills in as prices change over subsequent weeks.
 
@@ -33,7 +33,7 @@ Every fact row includes `source_url` and `retrieved_at`. We build only from publ
 Use it to:
 
 - Compare GPT-4-class model prices over time
-- Find the cheapest model above a quality bar (e.g. MMLU ≥ 85)
+- Find the cheapest model above a quality bar (e.g. MMLU >= 85)
 - Benchmark H100 on-demand $/GPU-hour across clouds and regions
 - Convert Cortex credits into planning scenarios alongside external API prices
 
@@ -85,13 +85,13 @@ ORDER BY CHANGED_AT DESC;
 
 ---
 
-## Listing B — Native App
+## Listing B - Native App
 
 ### Title
 Cortex Cost Advisor
 
 ### Subtitle
-Ranked Cortex model-switch savings, spend spikes, and price context — FinOps decisions, not another credit chart.
+Ranked Cortex model-switch savings, spend spikes, and price context. FinOps decisions, not another credit chart.
 
 ### Category / tags (suggestions)
 - Category: AI & ML / Cost Management
@@ -103,14 +103,15 @@ Ranked Cortex model-switch savings, spend spikes, and price context — FinOps d
 
 ### Description
 
-**Cortex Cost Advisor** (v1.1.0) is for FinOps / platform teams deciding **which Cortex models to allow or migrate**.
+**Cortex Cost Advisor** (v1.1.6) is for FinOps / platform teams deciding **which Cortex models to allow or migrate**.
 
-On first open, **Advisor** leads with recommendations such as:  
-“Switch model A → B: save ~X credits (~$Y est.)” — plus concentration risk, spend-spike detection, and a simple forward estimate. Preview mode uses sample usage so you see the product before granting privileges.
+On first open, **Advisor** leads with recommendations such as:
+"Switch model A -> B: save ~X credits (~$Y est.)", plus concentration risk, spend-spike detection, and a simple forward estimate. Preview mode uses sample usage so you see the product before granting privileges.
 
-**Not a Snowsight clone.** Account credit rollups stay in Snowflake’s native cost UI. This app adds same-token **switch scenarios**, Cortex-only anomaly/concentration signals, and **Price Watch** against public list moves.
+**Not a Snowsight clone.** Account credit rollups stay in Snowflake's native cost UI. This app adds same-token **switch scenarios**, Cortex-only anomaly/concentration signals, and **Price Watch** against public list moves.
 
-**Pages:** Advisor · Switches · Price Watch · Spend detail · Trust  
+**Pages:** Getting started | Advisor | Switches | Price Watch | Spend detail | Trust
+
 
 USD figures use **your** entered $/credit (apps cannot read contracted rates). Analysis window up to **365 days**.
 

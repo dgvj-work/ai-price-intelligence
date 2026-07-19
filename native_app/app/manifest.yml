@@ -1,9 +1,9 @@
 manifest_version: 1
 
 version:
-  name: v1_1_5
-  label: "1.1.5"
-  comment: "Comprehensive Getting started privilege matrix for consumers"
+  name: v1_1_6
+  label: "1.1.6"
+  comment: "Plain-language UI copy; remove fancy punctuation from consumer text"
 
 artifacts:
   setup_script: setup_script.sql
@@ -19,7 +19,7 @@ privileges:
 
 references:
   - price_intel_model_current:
-      label: "Price Intelligence — current model prices"
+      label: "Price Intelligence: current model prices"
       description: >
         Optional. Bind SHARE.VW_MODEL_CURRENT from the AI Model & Compute Price Intelligence
         Marketplace listing for live LLM list prices. If unbound, the app uses a bundled snapshot.
@@ -29,7 +29,7 @@ references:
       multi_valued: false
       register_callback: app_schema.register_reference
   - price_intel_cortex_current:
-      label: "Price Intelligence — current Cortex rates"
+      label: "Price Intelligence: current Cortex rates"
       description: >
         Optional. Bind SHARE.VW_CORTEX_CURRENT from the AI Model & Compute Price Intelligence
         listing for live Cortex credit rates.
@@ -39,7 +39,7 @@ references:
       multi_valued: false
       register_callback: app_schema.register_reference
   - price_intel_price_changes:
-      label: "Price Intelligence — 90-day price changes"
+      label: "Price Intelligence: 90-day price changes"
       description: >
         Optional. Bind SHARE.VW_PRICE_CHANGES_90D for price-change alerts on models you use.
       privileges:

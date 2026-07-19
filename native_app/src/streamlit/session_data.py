@@ -1,4 +1,4 @@
-"""Shared data helpers for Streamlit screens (not under pages/ — avoids multipage clash)."""
+"""Shared data helpers for Streamlit screens (not under pages/ - avoids multipage clash)."""
 
 from __future__ import annotations
 
@@ -13,9 +13,9 @@ import queries
 
 SNAPSHOT_PATH = Path(__file__).resolve().parent / "data" / "price_snapshot.csv"
 
-APP_VERSION = "1.1.5"  # keep in sync with manifest.yml version.label
+APP_VERSION = "1.1.6"  # keep in sync with manifest.yml version.label
 
-# Internal procedure return values → never shown raw in the UI.
+# Internal procedure return values -> never shown raw in the UI.
 _LIVE_SOURCES = {
     "CORTEX_AI_FUNCTIONS_USAGE_HISTORY": "Cortex AI Functions usage history",
     "CORTEX_AISQL_USAGE_HISTORY": "Cortex AI SQL usage history",
@@ -24,9 +24,9 @@ _PENDING = frozenset({"PENDING_PRIVILEGES", "EMPTY_STUB", "OK"})
 _BLOCKED_UI_TOKENS = ("EMPTY_STUB", "PENDING_PRIVILEGES", "ENSURE_FAILED")
 
 # live = real ACCOUNT_USAGE rows
-# preview = privileges missing — sample data + connect CTA
-# sample = privileges OK but no rows in window — sample data, no connect CTA
-# error = live query failed — sample shown with warning
+# preview = privileges missing - sample data + connect CTA
+# sample = privileges OK but no rows in window - sample data, no connect CTA
+# error = live query failed - sample shown with warning
 DataMode = Literal["live", "preview", "sample", "error"]
 
 
@@ -62,7 +62,7 @@ def needs_setup(source: str | None) -> bool:
 
 
 def humanize_source(source: str | None) -> str | None:
-    """Consumer-facing label only — never returns EMPTY_STUB or raw tokens."""
+    """Consumer-facing label only - never returns EMPTY_STUB or raw tokens."""
     token = sanitize_source_token(source)
     if not token:
         return None
@@ -161,7 +161,7 @@ def persist_credit_price(price: float) -> None:
             pass
 
 
-@st.cache_data(ttl=900, show_spinner="Loading Cortex usage…")
+@st.cache_data(ttl=900, show_spinner="Loading Cortex usage...")
 def _load_cortex_spend_live(days: int) -> tuple[pd.DataFrame, str | None]:
     session = _session()
     if session is None:
@@ -172,7 +172,7 @@ def _load_cortex_spend_live(days: int) -> tuple[pd.DataFrame, str | None]:
         return pd.DataFrame(), f"{type(exc).__name__}"
 
 
-@st.cache_data(ttl=900, show_spinner="Loading top functions…")
+@st.cache_data(ttl=900, show_spinner="Loading top functions...")
 def _load_cortex_top_live(days: int) -> tuple[pd.DataFrame, str | None]:
     session = _session()
     if session is None:
@@ -183,7 +183,7 @@ def _load_cortex_top_live(days: int) -> tuple[pd.DataFrame, str | None]:
         return pd.DataFrame(), f"{type(exc).__name__}"
 
 
-@st.cache_data(ttl=900, show_spinner="Loading metering…")
+@st.cache_data(ttl=900, show_spinner="Loading metering...")
 def _load_metering_live(days: int) -> tuple[pd.DataFrame, str | None]:
     session = _session()
     if session is None:
@@ -268,7 +268,7 @@ def load_snapshot() -> pd.DataFrame:
     return pd.read_csv(SNAPSHOT_PATH)
 
 
-@st.cache_data(ttl=3600, show_spinner="Loading bound dataset…")
+@st.cache_data(ttl=3600, show_spinner="Loading bound dataset...")
 def load_ref_model_current() -> pd.DataFrame:
     session = _session()
     if session is None:
@@ -310,7 +310,7 @@ def mode_banner(mode: DataMode) -> None:
     if mode == "error" or errs:
         keys = ", ".join(sorted(errs.keys())) if errs else "query"
         st.warning(
-            f"**Live data load failed** ({keys}) — showing sample recommendations. "
+            f"**Live data load failed** ({keys}). Showing sample recommendations. "
             "This is not empty usage; a query/timeout/schema error occurred. "
             "Retry later or check warehouse status."
         )
@@ -322,9 +322,9 @@ def mode_banner(mode: DataMode) -> None:
         )
     elif mode == "sample":
         st.caption(
-            "Privileges connected, but no Cortex rows in this window yet — sample "
+            "Privileges connected, but no Cortex rows in this window yet. Sample "
             "recommendations shown. ACCOUNT_USAGE can lag ~45 minutes after new AI calls."
         )
     else:
         label = humanize_source(st.session_state.get("usage_source"))
-        st.caption(f"Live Cortex metering{f' · {label}' if label else ''}.")
+        st.caption(f"Live Cortex metering{f' | {label}' if label else ''}.")

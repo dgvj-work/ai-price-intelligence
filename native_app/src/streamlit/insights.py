@@ -1,5 +1,5 @@
 """
-Recommendation engine — the product moat beyond raw ACCOUNT_USAGE SELECT.
+Recommendation engine - the product moat beyond raw ACCOUNT_USAGE SELECT.
 
 Produces actionable Advisor cards: model-switch savings, concentration risk,
 spend anomalies, forward estimate, and price-move impact. This logic is not
@@ -89,11 +89,11 @@ def switch_recommendations(
                 kind="switch",
                 severity="high" if usd >= 50 or saved / actual >= 0.35 else "medium",
                 headline=(
-                    f"Switch {model} → {best}: save ~{saved:,.2f} credits "
+                    f"Switch {model} -> {best}: save ~{saved:,.2f} credits "
                     f"(~${usd:,.0f} est.) in this window"
                 ),
                 detail=(
-                    f"Same {tokens:,.0f} tokens on {fn}. List-rate scenario only — "
+                    f"Same {tokens:,.0f} tokens on {fn}. List-rate scenario only. "
                     f"validate quality/latency before changing production models. "
                     f"USD uses your entered $/credit (estimate, not an invoice)."
                 ),
@@ -135,7 +135,7 @@ def concentration_insight(usage: pd.DataFrame, credit_price: float) -> Insight |
         detail=(
             f"~{credits:,.2f} credits (~${credits * credit_price:,.0f} est.) concentrated "
             f"on {model}. High concentration increases cost risk if rates rise or quality "
-            f"needs shift — review whether a cheaper tier covers part of the workload."
+            f"needs shift. Review whether a cheaper tier covers part of the workload."
         ),
         savings_credits=0.0,
         savings_usd=0.0,
@@ -195,7 +195,7 @@ def forecast_insight(spend: pd.DataFrame, credit_price: float, horizon_days: int
         ),
         detail=(
             f"Simple trailing 14-day average ({avg:,.2f} credits/day) × {horizon_days}. "
-            f"Not ML forecasting — a planning number FinOps can challenge against budgets. "
+            f"Not ML forecasting. A planning number FinOps can challenge against budgets. "
             f"USD uses your entered $/credit."
         ),
         savings_credits=0.0,
@@ -236,10 +236,10 @@ def price_move_insights(
             Insight(
                 kind="price",
                 severity="info",
-                headline=f"Public list price {direction} {abs(pct):.0f}% — {name}",
+                headline=f"Public list price {direction} {abs(pct):.0f}% ({name})",
                 detail=(
                     "From bundled / Marketplace price intelligence. "
-                    "Overlaps models in your Cortex usage window — revisit switch scenarios."
+                    "Overlaps models in your Cortex usage window. Revisit switch scenarios."
                 ),
                 meta={"model": name, "change_pct_90d": pct, "overlap": True},
             )

@@ -1,4 +1,4 @@
-"""Switch scenarios — full ranked table behind Advisor headlines."""
+"""Switch scenarios - full ranked table behind Advisor headlines."""
 
 from __future__ import annotations
 
@@ -54,7 +54,7 @@ def render() -> None:
         for insight in recs[:5]:
             recommendation_card(insight)
     else:
-        st.caption("No switch ≥15% cheaper than current effective spend in this window.")
+        st.caption("No switch >=15% cheaper than current effective spend in this window.")
 
     st.subheader("Usage basis")
     usage_view = usage.copy()

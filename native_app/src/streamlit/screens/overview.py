@@ -1,4 +1,4 @@
-"""Spend detail — supporting evidence for Advisor recommendations."""
+"""Spend detail - supporting evidence for Advisor recommendations."""
 
 from __future__ import annotations
 
@@ -36,7 +36,7 @@ def render() -> None:
     if mode == "live" and spend.empty and top.empty:
         metering, m_mode = load_metering(days)
         if m_mode == "live" and not metering.empty:
-            st.caption("Function-level Cortex rows empty — AI/Cortex metering fallback.")
+            st.caption("Function-level Cortex rows empty. Using AI/Cortex metering fallback.")
             total_credits = float(metering["CREDITS"].sum())
             c1, c2 = st.columns(2)
             c1.metric("Credits (metering)", f"{total_credits:,.2f}")
@@ -47,7 +47,7 @@ def render() -> None:
                 y="CREDITS",
             )
             st.dataframe(metering, use_container_width=True)
-            st.caption("*USD estimate uses your sidebar $/credit — not an invoice.")
+            st.caption("*USD estimate uses your sidebar $/credit. Not an invoice.")
             render_connect_account()
             return
 
@@ -74,6 +74,6 @@ def render() -> None:
 
     st.caption(
         f"Window: {days} days (up to 365). ACCOUNT_USAGE can lag ~45 minutes. "
-        "*USD uses your contract $/credit input — planning estimate only."
+        "*USD uses your contract $/credit input. Planning estimate only."
     )
     render_connect_account()

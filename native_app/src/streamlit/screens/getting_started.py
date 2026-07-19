@@ -20,13 +20,13 @@ SNOWFLAKE.ACCOUNT_USAGE.METERING_HISTORY                    -- AI_SERVICES / Cor
 
 OPTIONAL_BIND_SQL = """\
 -- After installing AI Model & Compute Price Intelligence, bind in Snowsight:
---   App → Security / References (or Connections) → set each reference below.
--- Or use ALTER APPLICATION … SET REFERENCES (account-specific syntax varies by UI).
+--   App -> Security / References (or Connections) -> set each reference below.
+-- Or use ALTER APPLICATION ... SET REFERENCES (account-specific syntax varies by UI).
 --
--- Reference name                     → Consumer view (from the data listing)
--- price_intel_model_current          → <PRICE_DB>.SHARE.VW_MODEL_CURRENT
--- price_intel_cortex_current         → <PRICE_DB>.SHARE.VW_CORTEX_CURRENT
--- price_intel_price_changes          → <PRICE_DB>.SHARE.VW_PRICE_CHANGES_90D
+-- Reference name                     -> Consumer view (from the data listing)
+-- price_intel_model_current          -> <PRICE_DB>.SHARE.VW_MODEL_CURRENT
+-- price_intel_cortex_current         -> <PRICE_DB>.SHARE.VW_CORTEX_CURRENT
+-- price_intel_price_changes          -> <PRICE_DB>.SHARE.VW_PRICE_CHANGES_90D
 --
 -- Privilege required on each bound view: SELECT only.
 -- Replace <PRICE_DB> with the database name created when you installed the listing.
@@ -36,8 +36,8 @@ OPTIONAL_BIND_SQL = """\
 def render() -> None:
     hero(
         "Getting started",
-        "Complete install-to-value guide: privileges, optional binds, warehouse, and every page.",
-        kicker=f"Starter guide · v{APP_VERSION}",
+        "From install to first recommendations: privileges, optional binds, warehouse, and every page.",
+        kicker=f"Starter guide | v{APP_VERSION}",
     )
 
     source = st.session_state.get("usage_source")
@@ -45,14 +45,14 @@ def render() -> None:
 
     if preview:
         st.info(
-            "**Preview mode** — Advisor uses sample recommendations so you can evaluate "
-            "before any privilege grant. Complete **§2 Required privileges** when ready for live data."
+            "**Preview mode.** Advisor uses sample recommendations so you can evaluate "
+            "before any privilege grant. Complete **section 2 (Required privileges)** when ready for live data."
         )
     else:
         label = humanize_source(source) or "Cortex metering"
         st.success(
-            f"**Live usage connected** — reading `{label}`. "
-            "Optional price-dataset binds are still available under §6."
+            f"**Live usage connected.** Reading `{label}`. "
+            "Optional price-dataset binds are still available under section 6."
         )
 
     st.markdown("### Privilege map (read this first)")
@@ -61,15 +61,15 @@ def render() -> None:
 | Layer | What you grant | Required? | Who runs it |
 |-------|----------------|-----------|-------------|
 | **Snowflake shared DB** | `IMPORTED PRIVILEGES ON DATABASE SNOWFLAKE` **to the application** | **Yes** (for live usage) | `ACCOUNTADMIN` (or a role that can grant on `SNOWFLAKE`) |
-| **Your databases / schemas / tables** | Nothing | No | — |
-| **App schema objects** | Nothing — granted to application role `APP_USER` at install | Automatic | Setup script |
+| **Your databases / schemas / tables** | Nothing | No | - |
+| **App schema objects** | Nothing (granted to application role `APP_USER` at install) | Automatic | Setup script |
 | **Query warehouse** | `USAGE` on a warehouse for the role opening Streamlit | Yes (to run the UI) | Platform admin |
 | **Price Intelligence listing** | Install listing + bind 3 views (`SELECT` via references) | Optional | Admin who installed the data listing |
-| **Network / external access / tasks** | Nothing requested | Never | — |
+| **Network / external access / tasks** | Nothing requested | Never | - |
 
 Native Apps **cannot** accept a grant on a single `ACCOUNT_USAGE` view. The one
 `IMPORTED PRIVILEGES` grant is the supported Snowflake pattern. This app only
-**reads** the Cortex / AI metering objects listed below — never `QUERY_HISTORY`,
+**reads** the Cortex / AI metering objects listed below. Never `QUERY_HISTORY`,
 never SQL text, never your business tables.
         """
     )
@@ -77,7 +77,7 @@ never SQL text, never your business tables.
     st.markdown("### 1. Evaluate in preview (no grants yet)")
     st.markdown(
         """
-Open sidebar → **Advisor**. You should already see:
+Open sidebar -> **Advisor**. You should already see:
 
 - A **primary recommendation** (model switch + estimated credit / USD savings)
 - Concentration risk, spend spikes, and a simple forward planning number
@@ -87,7 +87,7 @@ No database, schema, or table privileges are needed for preview.
         """
     )
 
-    st.markdown("### 2. Required — connect live Cortex usage")
+    st.markdown("### 2. Required: connect live Cortex usage")
     st.markdown(
         """
 **One grant** unlocks live metering. Replace the application name if you renamed it at install.
@@ -99,7 +99,7 @@ No database, schema, or table privileges are needed for preview.
         st.code(GRANT_SQL, language="sql")
         st.caption(
             "Already connected. After reinstall or role changes, re-run the GRANT, then use "
-            "sidebar **I granted privileges — connect** or reopen the app."
+            "sidebar **I granted privileges; connect**, or reopen the app."
         )
 
     with st.expander("What that GRANT actually unlocks (exact objects)", expanded=preview):
@@ -117,13 +117,13 @@ The setup procedure creates **passthrough views inside the app**
 | Database | `SNOWFLAKE` (Snowflake-owned shared database) |
 | Schema | `ACCOUNT_USAGE` |
 | Objects | Three views above only (via imported privileges) |
-| Window | Last **365 days** (UI can narrow to 30–365) |
+| Window | Last **365 days** (UI can narrow to 30-365) |
 | Writes | **None** outside `APP_SCHEMA` |
 | Consumer DBs | **No** `USAGE` / `SELECT` on your databases, schemas, or tables |
 | Not read | `QUERY_HISTORY`, session history, SQL text, stage files |
 
-You do **not** run separate `GRANT SELECT ON VIEW …` statements for those
-`ACCOUNT_USAGE` views — imported privileges cover them for the application.
+You do **not** run separate `GRANT SELECT ON VIEW ...` statements for those
+`ACCOUNT_USAGE` views. Imported privileges cover them for the application.
             """
         )
 
@@ -144,14 +144,14 @@ SHOW GRANTS TO APPLICATION CORTEX_COST_ADVISOR;
         """
 | Item | What consumers need |
 |------|---------------------|
-| **Application role** | Install grants application role **`APP_USER`** access to the Streamlit UI and app views. In Snowsight, grant that application role to the Snowflake roles/users who should open the app (Security → Privileges / Roles, wording varies by UI). |
-| **No extra object grants** | End users do **not** need `SELECT` on `SNOWFLAKE.ACCOUNT_USAGE.*` themselves — the **application** holds imported privileges and exposes thin views to `APP_USER`. |
-| **Warehouse** | Streamlit needs a query warehouse. In Snowsight, set a warehouse on the app (or ensure the user’s default role has `USAGE` on a warehouse). Without it the UI may fail to load data. |
-| **Credits** | Queries run in **your** account warehouse — normal compute billing. |
+| **Application role** | Install grants application role **`APP_USER`** access to the Streamlit UI and app views. In Snowsight, grant that application role to the Snowflake roles/users who should open the app (Security -> Privileges / Roles, wording varies by UI). |
+| **No extra object grants** | End users do **not** need `SELECT` on `SNOWFLAKE.ACCOUNT_USAGE.*` themselves. The **application** holds imported privileges and exposes thin views to `APP_USER`. |
+| **Warehouse** | Streamlit needs a query warehouse. In Snowsight, set a warehouse on the app (or ensure the user's default role has `USAGE` on a warehouse). Without it the UI may fail to load data. |
+| **Credits** | Queries run in **your** account warehouse (normal compute billing). |
         """
     )
 
-    with st.expander("Objects created inside the app (automatic — do not grant these yourself)"):
+    with st.expander("Objects created inside the app (automatic; do not grant these yourself)"):
         st.markdown(
             """
 Created by the install setup script and granted to application role **`APP_USER`**:
@@ -177,9 +177,9 @@ never grant consumer-table access to the app.
 | Control | What it does | Privilege needed |
 |---------|--------------|------------------|
 | **Your credit rate ($ / credit)** | Converts savings to USD estimates; persisted in `APP_SCHEMA.USER_SETTINGS` | None beyond app access |
-| **Analysis window** | 30–365 days of metering via app views | None beyond the §2 GRANT for live data |
+| **Analysis window** | 30-365 days of metering via app views | None beyond the section 2 GRANT for live data |
 
-Wrong rate ⇒ wrong dollars; credit rankings stay usable. Snowflake does **not**
+Wrong rate => wrong dollars; credit rankings stay usable. Snowflake does **not**
 expose your contracted credit price to apps.
         """
     )
@@ -189,8 +189,8 @@ expose your contracted credit price to apps.
         """
 | Page | When to open it |
 |------|-----------------|
-| **Getting started** | This guide — share with every installer |
-| **Advisor** | Daily decisions — ranked switches + risk signals |
+| **Getting started** | This guide. Share with every installer |
+| **Advisor** | Daily decisions: ranked switches + risk signals |
 | **Switches** | Full same-token scenario matrix for FinOps review |
 | **Price Watch** | Public list-price moves on models you used |
 | **Spend detail** | Underlying Cortex credit trend (evidence) |
@@ -198,14 +198,14 @@ expose your contracted credit price to apps.
         """
     )
 
-    st.markdown("### 6. Optional — bind Price Intelligence views")
+    st.markdown("### 6. Optional: bind Price Intelligence views")
     st.markdown(
         """
 For **live** public list rates (instead of the bundled CSV snapshot):
 
 1. Install the companion Marketplace listing **AI Model & Compute Price Intelligence**
    in the same account (creates a database with a `SHARE` schema of secure views).
-2. In Snowsight, open **this app → Security / References** (or Connections) and bind
+2. In Snowsight, open **this app -> Security / References** (or Connections) and bind
    each reference to the matching view. Privilege on each bind: **`SELECT` only**.
         """
     )
@@ -235,7 +235,7 @@ GRANT IMPORTED PRIVILEGES ON DATABASE SNOWFLAKE
   TO APPLICATION CORTEX_COST_ADVISOR;
 ```
 
-Then: open app → **Connect live usage** (or reopen session).
+Then: open app -> **Connect live usage** (or reopen session).
 
 #### Required for any user to run the UI
 
@@ -259,7 +259,7 @@ Then: open app → **Connect live usage** (or reopen session).
 | SPCS / compute pools | None |
 | Secrets / API keys | None |
 
-Version: **v{APP_VERSION}** · Support: [GitHub Discussions]({SUPPORT_URL}) · [Source]({REPO_URL})
+Version: **v{APP_VERSION}** | Support: [GitHub Discussions]({SUPPORT_URL}) | [Source]({REPO_URL})
             """
         )
 
@@ -268,15 +268,15 @@ Version: **v{APP_VERSION}** · Support: [GitHub Discussions]({SUPPORT_URL}) · [
             """
 | Symptom | Likely cause | Fix |
 |---------|--------------|-----|
-| Advisor stays on sample / “preview” | `IMPORTED PRIVILEGES` missing or not yet connected | Re-run §2 GRANT → **Connect live usage** |
+| Advisor stays on sample / "preview" | `IMPORTED PRIVILEGES` missing or not yet connected | Re-run section 2 GRANT -> **Connect live usage** |
 | Connect button still fails | Wrong app name in GRANT, or role lacks grant rights on `SNOWFLAKE` | Confirm app name; use `ACCOUNTADMIN` |
 | UI loads but queries error | No warehouse / no warehouse `USAGE` | Set Streamlit warehouse in Snowsight |
 | Empty recommendations after connect | No Cortex usage in the window, or ACCOUNT_USAGE lag | Widen window; wait ~45 minutes after AI calls |
-| Price Watch looks stale | Optional references unbound | Bind §6 views, or accept bundled snapshot |
+| Price Watch looks stale | Optional references unbound | Bind section 6 views, or accept bundled snapshot |
 | Teammate cannot open app | Missing application role | Grant app role `APP_USER` to their Snowflake role |
             """
         )
 
     st.caption(
-        "Bookmark **Getting started** for new teammates — every privilege and bind lives here."
+        "Bookmark **Getting started** for new teammates. Every privilege and bind lives here."
     )

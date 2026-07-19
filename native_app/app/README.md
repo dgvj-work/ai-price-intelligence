@@ -1,8 +1,8 @@
-# Cortex Cost Advisor (v1.1.5)
+# Cortex Cost Advisor (v1.1.6)
 
-**Advisor for Cortex model spend** — ranked switch savings, concentration/spike signals, and price context. Not a generic credit report.
+**Advisor for Cortex model spend**: ranked switch savings, concentration/spike signals, and price context. Not a generic credit report.
 
-## Who it’s for
+## Who it's for
 
 FinOps / platform engineers deciding **which Cortex models to allow or migrate**.
 
@@ -22,7 +22,7 @@ Preview installs land on **Getting started** first.
 ## What you see on Advisor
 
 A primary recommendation such as  
-“Switch model A → B: save ~X credits (~$Y est.) in this window” — plus concentration, anomalies, and a simple forward estimate.
+"Switch model A -> B: save ~X credits (~$Y est.) in this window", plus concentration, anomalies, and a simple forward estimate.
 
 Preview mode uses sample usage so you can evaluate recommendations before granting privileges.
 
@@ -46,8 +46,8 @@ Then open **Getting started** (or Advisor) and click **Connect live usage**. Vie
 
 Reads Cortex / AI ACCOUNT_USAGE only (up to 365 days). Never QUERY_HISTORY. Zero egress. Un-obfuscated source.
 
-USD figures use **your** entered $/credit — Snowflake does not expose contracted rates to apps.
+USD figures use **your** entered $/credit. Snowflake does not expose contracted rates to apps.
 
 ## Support
 
-Support: https://github.com/dgvj-work/ai-price-intelligence/discussions · `CHANGELOG.md`
+Support: https://github.com/dgvj-work/ai-price-intelligence/discussions | `CHANGELOG.md`

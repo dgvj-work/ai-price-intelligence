@@ -51,7 +51,7 @@ $$
 DECLARE
   source_used VARCHAR DEFAULT 'PENDING_PRIVILEGES';
 BEGIN
-  -- Cortex usage (primary → fallback → empty placeholder until privileges are granted)
+  -- Cortex usage (primary -> fallback -> empty placeholder until privileges are granted)
   BEGIN
     CREATE OR REPLACE VIEW APP_SCHEMA.V_CORTEX_USAGE AS
     SELECT

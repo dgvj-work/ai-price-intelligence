@@ -1,4 +1,4 @@
-"""Trust — buyer, moat, security, and honest limitations."""
+"""Trust - buyer, moat, security, and honest limitations."""
 
 from __future__ import annotations
 
@@ -11,8 +11,8 @@ from theme import hero
 def render() -> None:
     hero(
         "Trust & product intent",
-        "Why grant imported privileges — and what unique decision this app supports.",
-        kicker=f"Trust · v{APP_VERSION}",
+        "Why grant imported privileges, and what unique decision this app supports.",
+        kicker=f"Trust | v{APP_VERSION}",
     )
 
     st.markdown(
@@ -21,7 +21,7 @@ def render() -> None:
 
 ### 1. Unique value vs raw SQL / Snowsight?
 
-Snowsight answers “how many credits did we burn?”  
+Snowsight answers "how many credits did we burn?"  
 This app answers:
 
 - **Which Cortex model should we migrate off** to cut spend (ranked switch savings)?
@@ -41,7 +41,7 @@ That recommendation pack is the product. Credit charts are evidence.
 
 | Control | Detail |
 |---------|--------|
-| Privilege | `IMPORTED PRIVILEGES ON DATABASE SNOWFLAKE` — Native Apps cannot take a single-view grant |
+| Privilege | `IMPORTED PRIVILEGES ON DATABASE SNOWFLAKE` (Native Apps cannot take a single-view grant) |
 | Reads | `CORTEX_AI_FUNCTIONS_USAGE_HISTORY` or `CORTEX_AISQL_USAGE_HISTORY`; AI/Cortex rows in `METERING_HISTORY` |
 | Window | Up to **365 days** (UI selectable) |
 | Never | `QUERY_HISTORY`, SQL text, network egress, SPCS, telemetry |
@@ -49,24 +49,24 @@ That recommendation pack is the product. Credit charts are evidence.
 | Code | Un-obfuscated on GitHub |
 | Preview | Evaluate recommendations on sample data **before** granting |
 
-New teammates: open the sidebar tab **Getting started** for the install-to-value walkthrough.
+New teammates: open the sidebar tab **Getting started** for the setup walkthrough.
 
 Publisher: **Digvijay Vaghela**  
 Support: [GitHub Discussions](https://github.com/dgvj-work/ai-price-intelligence/discussions)  
 Repo: https://github.com/dgvj-work/ai-price-intelligence  
-SLA: best-effort community support (free listing — no contractual uptime SLA in v{APP_VERSION})
+SLA: best-effort community support (free listing; no contractual uptime SLA in v{APP_VERSION})
 
-## Architecture (no manual “refresh product”)
+## Architecture (no manual "refresh product")
 
 Passthrough views over ACCOUNT_USAGE are created when privileges exist and rebound
 **silently on session start**. We intentionally do **not** require `EXECUTE TASK`
-to materialize history — that would expand the privilege surface. Streamlit caches
+to materialize history, because that would expand the privilege surface. Streamlit caches
 query results briefly; reopen the app after new Cortex activity (ACCOUNT_USAGE lag ~45m).
 
 ## Honest limitations
 
 - Switch savings use **list Cortex credit rates**, not your negotiated quality constraints.
-- USD requires **your** $/credit — Snowflake does not expose contracted rates to apps.
+- USD requires **your** $/credit. Snowflake does not expose contracted rates to apps.
 - Not a substitute for Snowflake budgets / resource monitors for account-wide FinOps.
 - Forward estimate is trailing-average math, not a trained forecast model.
 
