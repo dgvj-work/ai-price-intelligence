@@ -15,6 +15,11 @@ SNAPSHOT_PATH = Path(__file__).resolve().parent / "data" / "price_snapshot.csv"
 
 APP_VERSION = "1.1.8"  # keep in sync with manifest.yml version.label
 
+# Single source of truth for consumer-facing support links.
+SUPPORT_URL = "https://github.com/dgvj-work/ai-price-intelligence/discussions"
+REPO_URL = "https://github.com/dgvj-work/ai-price-intelligence"
+SUPPORT_EMAIL = "digvijay.vaghela@yahoo.com"
+
 # Internal procedure return values -> never shown raw in the UI.
 _LIVE_SOURCES = {
     "CORTEX_AI_FUNCTIONS_USAGE_HISTORY": "Cortex AI Functions usage history",

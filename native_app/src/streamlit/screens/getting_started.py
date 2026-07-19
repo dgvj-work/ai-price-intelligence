@@ -5,12 +5,15 @@ from __future__ import annotations
 import streamlit as st
 
 from screens.setup import GRANT_SQL, render_connect_account
-from session_data import APP_VERSION, humanize_source, needs_setup
+from session_data import (
+    APP_VERSION,
+    REPO_URL,
+    SUPPORT_EMAIL,
+    SUPPORT_URL,
+    humanize_source,
+    needs_setup,
+)
 from theme import hero, panel, section
-
-SUPPORT_URL = "https://github.com/dgvj-work/ai-price-intelligence/discussions"
-REPO_URL = "https://github.com/dgvj-work/ai-price-intelligence"
-SUPPORT_EMAIL = "digvijay.vaghela@yahoo.com"
 
 # Exact ACCOUNT_USAGE objects the setup procedure wraps (read-only via imported privileges).
 ACCOUNT_USAGE_OBJECTS = """\
@@ -290,10 +293,11 @@ Version: **v{APP_VERSION}** | Support: [GitHub Discussions]({SUPPORT_URL}) | [So
             )
         with c2:
             st.link_button(
-                "Email the publisher",
+                f"Email {SUPPORT_EMAIL}",
                 f"mailto:{SUPPORT_EMAIL}?subject=Cortex%20Cost%20Advisor%20-%20hello",
                 use_container_width=True,
             )
+        st.caption(f"Publisher email: `{SUPPORT_EMAIL}`")
         st.caption(
             "Tip for FinOps teams: say which company/account you installed on. "
             "That helps prioritize features. Marketplace install analytics also appear "

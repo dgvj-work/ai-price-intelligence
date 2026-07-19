@@ -7,6 +7,8 @@ import streamlit as st
 from screens import about, advisor, getting_started, model_advisor, overview, price_watch
 from session_data import (
     APP_VERSION,
+    SUPPORT_EMAIL,
+    SUPPORT_URL,
     humanize_source,
     init_usage_session,
     load_persisted_credit_price,
@@ -30,8 +32,6 @@ PAGES = {
     "Spend detail": overview.render,
     "Trust": about.render,
 }
-
-SUPPORT_URL = "https://github.com/dgvj-work/ai-price-intelligence/discussions"
 
 
 def main() -> None:
@@ -106,6 +106,7 @@ def main() -> None:
         st.caption("For FinOps / platform teams")
         st.markdown("Decide which Cortex models to allow or migrate.")
         st.caption("Publisher: Digvijay Vaghela")
+        st.caption(SUPPORT_EMAIL)
         st.markdown(f"[GitHub Discussions]({SUPPORT_URL})")
 
     PAGES[page]()

@@ -2,6 +2,11 @@
 
 ## 1.1.8 - 2026-07-19
 
+Support links:
+
+- Enable GitHub Discussions on the repo (fixes `/discussions` 404).
+- Show publisher email explicitly as `digvijay.vaghela@yahoo.com` (sidebar, Trust, Getting started).
+
 Visual polish (native Streamlit only, no HTML/CSS inject):
 
 - Bordered recommendation panels, clearer section hierarchy, quieter dataframes.

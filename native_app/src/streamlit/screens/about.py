@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import streamlit as st
 
-from session_data import APP_VERSION
+from session_data import APP_VERSION, SUPPORT_EMAIL, SUPPORT_URL
 from theme import hero
 
 
@@ -52,8 +52,8 @@ That recommendation pack is the product. Credit charts are evidence.
 New teammates: open the sidebar tab **Getting started** for the setup walkthrough.
 
 Publisher: **Digvijay Vaghela**  
-Support: [GitHub Discussions](https://github.com/dgvj-work/ai-price-intelligence/discussions)  
-Email: digvijay.vaghela@yahoo.com  
+Support: [GitHub Discussions]({SUPPORT_URL})  
+Email: {SUPPORT_EMAIL}  
 Repo: https://github.com/dgvj-work/ai-price-intelligence  
 SLA: best-effort community support (free listing; no contractual uptime SLA in v{APP_VERSION})
 
