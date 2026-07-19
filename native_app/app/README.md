@@ -1,59 +1,44 @@
-# Cortex Cost Advisor (v1.0.0)
+# Cortex Cost Advisor (v1.0.1)
 
-A **free, read-only** Snowflake Native App that helps you understand Cortex / AI SQL spend and compare model pricing scenarios.
+A **free, read-only** Snowflake Native App for **Cortex / AI FinOps** — model-level spend, switch scenarios, and public list-price watch — with **zero data egress**.
 
-## Quick setup after install
+## First open (no admin grant yet)
 
-1. As `ACCOUNTADMIN`, grant imported privileges (Snowsight → app **Privileges**, or SQL):
+The app opens in **Preview mode** with labeled sample Cortex charts so you can evaluate Overview, Model Advisor, and Price Watch immediately. Sample data is not your billed usage.
+
+## Connect live usage (one admin step)
+
+1. As `ACCOUNTADMIN`:
 
 ```sql
 GRANT IMPORTED PRIVILEGES ON DATABASE SNOWFLAKE TO APPLICATION CORTEX_COST_ADVISOR;
 ```
 
-2. Open the app → **Overview** → click **Configure** (or **Refresh usage data** in the sidebar).
-3. ACCOUNT_USAGE can lag live Cortex activity by up to ~45 minutes.
+Or: Snowsight → app → **Privileges** → grant Imported privileges on SNOWFLAKE.
 
-## What this app reads
+2. Open the app (views refresh automatically) or click **Connect live usage** on Overview.
 
-With **Imported Privileges on the SNOWFLAKE database**, the app reads:
+ACCOUNT_USAGE can lag live Cortex activity by up to ~45 minutes.
 
-- `SNOWFLAKE.ACCOUNT_USAGE.CORTEX_AI_FUNCTIONS_USAGE_HISTORY` (preferred)
-- or `SNOWFLAKE.ACCOUNT_USAGE.CORTEX_AISQL_USAGE_HISTORY` (fallback)
-- AI/Cortex-related rows from `SNOWFLAKE.ACCOUNT_USAGE.METERING_HISTORY` (last 90 days)
+## Why not only Snowsight?
 
-It does **not** read `QUERY_HISTORY` or any query text.
+| Native Snowsight cost tools | This app |
+|-----------------------------|----------|
+| Account / warehouse credit rollups, budgets | Cortex **function + model** breakdown |
+| No model-switch planning | **Model Advisor** scenarios |
+| No public LLM price overlay | **Price Watch** |
 
-Snowflake Native Apps expose ACCOUNT_USAGE via this privilege only — there is no supported per-view grant to an application.
+## What is read (after grant)
 
-### Optional Marketplace dataset
+- `CORTEX_AI_FUNCTIONS_USAGE_HISTORY` (preferred) or `CORTEX_AISQL_USAGE_HISTORY`
+- AI/Cortex-related rows from `METERING_HISTORY` (≤ 90 days)
 
-Bind these references (Snowsight → app privileges / references) to the **AI Model & Compute Price Intelligence** listing for live prices:
+Never: `QUERY_HISTORY`, SQL text, network egress, writes outside the app schema.
 
-- `price_intel_model_current` → `…SHARE.VW_MODEL_CURRENT`
-- `price_intel_cortex_current` → `…SHARE.VW_CORTEX_CURRENT`
-- `price_intel_price_changes` → `…SHARE.VW_PRICE_CHANGES_90D`
-
-If unbound, Model Advisor / Price Watch use a bundled CSV snapshot so the app still works standalone.
-
-## Pages
-
-| Page | Purpose |
-|------|---------|
-| Overview | Credits, USD estimate, trend, top functions |
-| Model Advisor | Switch-cost scenarios for models you used |
-| Price Watch | List-price moves flagged against your usage |
-| About / Trust | Permissions, latency, and privacy posture |
-
-## What this app never does
-
-- No writes outside the application’s own schema
-- No external access integrations, external functions, or network calls
-- No Snowpark Container Services
-- No telemetry or data leaving your Snowflake account
-- No unbounded history scans (queries capped at 90 days)
+Optional: bind **AI Model & Compute Price Intelligence** views for weekly live prices; otherwise a bundled snapshot is used.
 
 ## Trust
 
-All application code is un-obfuscated and inspectable.  
-Source: https://github.com/dgvj-work/ai-price-intelligence  
-Support: digvijay.vaghela@yahoo.com
+Un-obfuscated source: https://github.com/dgvj-work/ai-price-intelligence  
+Support: digvijay.vaghela@yahoo.com  
+Changelog: `CHANGELOG.md`

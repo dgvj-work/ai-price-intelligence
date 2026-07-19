@@ -1,33 +1,38 @@
-"""Price Watch — recent price changes affecting models you use."""
+"""Price Watch — list-price moves flagged against models you use (live or preview)."""
 
 from __future__ import annotations
 
 import streamlit as st
 
+from screens.setup import render_connect_account
 from session_data import (
-    empty_state,
     load_ref_price_changes,
     load_snapshot,
     load_usage_by_model,
+    mode_banner,
 )
 
 
 def render() -> None:
     st.title("Price Watch")
-    st.caption(
-        "Recent public list-price moves (up to 90 days). Rows are highlighted when "
-        "they overlap Cortex models you used in the selected window."
+    st.markdown(
+        """
+**Differentiator vs Snowsight:** overlay **public LLM list-price moves** on the models
+your account actually called — not a generic credit chart.
+        """
     )
 
     days = int(st.session_state.get("days", 90))
-    usage = load_usage_by_model(days)
+    usage, mode = load_usage_by_model(days)
+    mode_banner(mode)
+
     used_models: set[str] = set()
     if not usage.empty:
         used_models = {str(m).lower() for m in usage["MODEL_NAME"].dropna().unique()}
 
     changes = load_ref_price_changes()
     if not changes.empty:
-        st.success("Using bound Marketplace dataset reference `price_intel_price_changes`.")
+        st.caption("Change feed from your bound Marketplace price dataset.")
         changes = changes.copy()
         changes["FLAGGED_IN_USE"] = (
             changes["MODEL_ID"].astype(str).str.lower().apply(
@@ -39,30 +44,46 @@ def render() -> None:
         flagged = changes[changes["FLAGGED_IN_USE"] == True]  # noqa: E712
         st.subheader("Changes affecting models you use")
         if flagged.empty:
-            empty_state(
-                "No recent list-price changes overlap your Cortex models in this window."
+            st.info(
+                "No recent list-price changes overlap your Cortex models in this window. "
+                "Full feed below."
             )
         else:
             st.dataframe(flagged, use_container_width=True)
         st.subheader("All bound changes (90d)")
         st.dataframe(changes, use_container_width=True)
+        render_connect_account()
         return
 
     snap = load_snapshot()
     llm = snap[snap["row_type"] == "llm"].copy()
     moved = llm[llm["change_pct_90d"].fillna(0) != 0]
-    st.info(
-        "Dataset reference `price_intel_price_changes` is not bound. "
-        "Showing bundled snapshot flags. Bind `SHARE.VW_PRICE_CHANGES_90D` for full "
-        "SCD2 history (history accumulates weekly from your first dataset publish)."
+    st.caption(
+        "Change flags from the bundled price snapshot. Bind the Marketplace "
+        "90-day price-changes view for full SCD2 history as it accumulates weekly."
     )
+
     if moved.empty:
-        empty_state(
-            "No non-zero change flags in the bundled snapshot yet. "
-            "After the dataset has run for a few weeks, bind the Marketplace view for real diffs."
+        st.info(
+            "No non-zero 90-day change flags in the bundled snapshot yet. "
+            "Showing current list prices so you can still explore the page."
         )
         st.dataframe(llm, use_container_width=True)
+        render_connect_account()
         return
+
     moved = moved.copy()
-    moved["FLAGGED_IN_USE"] = moved["model_name"].astype(str).str.lower().isin(used_models)
+    # Preview usage is Cortex-centric; also flag well-known public models in snapshot.
+    moved["FLAGGED_IN_USE"] = moved["model_name"].astype(str).str.lower().apply(
+        lambda name: any(m in name or name in m for m in used_models)
+        or any(k in name for k in ("claude", "gpt-4o", "deepseek", "gemini"))
+    )
+    st.subheader("Notable list-price moves")
     st.dataframe(moved.sort_values("change_pct_90d"), use_container_width=True)
+    st.caption(
+        "FLAGGED_IN_USE highlights overlap with your usage window "
+        + ("(preview sample models)" if mode == "preview" else "(live Cortex models)")
+        + "."
+    )
+
+    render_connect_account()

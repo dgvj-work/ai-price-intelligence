@@ -103,7 +103,7 @@ Free, read-only Streamlit app: your Cortex spend, model-switch savings, and pric
 
 ### Description
 
-**Cortex Cost Advisor** (v1.0.0) turns Snowflake account-usage metadata into a clear AI spend picture — without sending anything outside your account. After install, Overview walks admins through a one-click **Configure** flow (grant SQL + refresh).
+**Cortex Cost Advisor** (v1.0.1) turns Snowflake account-usage metadata into a clear AI spend picture — without sending anything outside your account. On first open it shows **labeled preview charts** (sample Cortex spend) so consumers see value immediately; admins then use **Connect live usage** (grant SQL + one click) to switch to ACCOUNT_USAGE.
 
 **Pages**
 

@@ -1,4 +1,4 @@
-"""Post-install setup guidance shown when ACCOUNT_USAGE access is not ready."""
+"""Connect-your-account guidance — never the only thing on screen."""
 
 from __future__ import annotations
 
@@ -8,98 +8,67 @@ from session_data import ensure_usage_views, humanize_source, needs_setup
 
 
 GRANT_SQL = """\
--- Run as ACCOUNTADMIN (or a role that can grant on the SNOWFLAKE database)
+-- Run as ACCOUNTADMIN (or a role that can grant on DATABASE SNOWFLAKE)
 GRANT IMPORTED PRIVILEGES ON DATABASE SNOWFLAKE TO APPLICATION CORTEX_COST_ADVISOR;
 """
 
 
-def render_setup_panel(*, compact: bool = False) -> bool:
-    """
-    Guided configure experience for first-run / missing privileges.
-
-    Returns True when the panel was shown (caller should usually stop rendering
-    data-dependent content).
-    """
+def render_connect_account() -> None:
+    """Calm, actionable connect section when privileges are not yet granted."""
     source = st.session_state.get("usage_source")
     if not needs_setup(source):
-        return False
+        return
 
-    st.subheader("Configure Cortex Cost Advisor")
-    if not compact:
-        st.markdown(
-            """
-This app stays entirely inside your Snowflake account. To show **your** Cortex /
-AI spend, an account admin must grant read access to Snowflake’s ACCOUNT_USAGE
-metering views — the same pattern used by other FinOps / cost Native Apps.
-            """
-        )
-
-    st.markdown("#### What you’ll unlock")
-    c1, c2, c3 = st.columns(3)
-    with c1:
-        st.markdown("**Overview**")
-        st.caption("Credits, USD estimate, and spend trend for Cortex / AI functions.")
-    with c2:
-        st.markdown("**Model Advisor**")
-        st.caption("Compare your token volumes against alternate Cortex model rates.")
-    with c3:
-        st.markdown("**Price Watch**")
-        st.caption("Flag list-price moves that affect models you already use.")
-
-    st.markdown("#### Setup steps")
+    st.divider()
+    st.subheader("Connect your account (one admin step)")
     st.markdown(
         """
-1. Open this app in Snowsight → **Privileges** (or Security), and grant  
-   **Imported privileges on the SNOWFLAKE database**.  
-   Or run the SQL below as `ACCOUNTADMIN`.
-2. Click **Configure** below to create the usage views.
-3. Wait a few minutes if you just started using Cortex — ACCOUNT_USAGE can lag  
-   by up to ~45 minutes.
+Preview charts above use **sample data**. To see **your** Cortex spend and power
+Model Advisor / Price Watch from real usage, an account admin grants read access
+to Snowflake’s metering views — then click **Connect**.
         """
     )
 
-    with st.expander("Admin SQL (copy / paste)", expanded=True):
+    step1, step2 = st.columns(2)
+    with step1:
+        st.markdown("**1. Grant privilege**")
+        st.caption("Snowsight → this app → Privileges → grant Imported privileges on SNOWFLAKE, or run:")
         st.code(GRANT_SQL, language="sql")
-
-    with st.expander("Why this privilege? (security)"):
-        st.markdown(
-            """
-**What it allows:** read-only access to ACCOUNT_USAGE views needed for Cortex /
-AI metering (`CORTEX_AI_FUNCTIONS_USAGE_HISTORY` or `CORTEX_AISQL_USAGE_HISTORY`,
-plus AI-related rows in `METERING_HISTORY`).
-
-**What it does not allow:** the app never reads `QUERY_HISTORY` or SQL text,
-never writes outside its own schema, and never calls the public internet.
-
-**Why not a narrower grant?** Snowflake’s Native App model exposes this as the
-`IMPORTED PRIVILEGES ON SNOWFLAKE DB` privilege. There is no supported way to
-grant a single ACCOUNT_USAGE view to an application; the privilege is the
-documented, audit-friendly mechanism. Your org can review the un-obfuscated
-setup script and Streamlit source before granting.
-            """
+    with step2:
+        st.markdown("**2. Connect**")
+        st.caption(
+            "Creates read-only views inside the app. Safe to re-run. "
+            "ACCOUNT_USAGE can lag live Cortex calls by up to ~45 minutes."
         )
-
-    col_a, col_b = st.columns([1, 2])
-    with col_a:
-        if st.button("Configure", type="primary", use_container_width=True):
+        if st.button("Connect live usage", type="primary", key="connect_live_usage"):
             st.cache_data.clear()
             new_source = ensure_usage_views()
             st.session_state["usage_source"] = new_source
             if needs_setup(new_source):
-                st.error(
-                    "Still waiting on privileges or live usage data. "
-                    "Confirm the grant, then try Configure again. "
-                    f"({humanize_source(new_source) or 'not ready'})"
+                st.warning(
+                    "Privilege not detected yet. Confirm the GRANT as ACCOUNTADMIN, "
+                    "wait a few seconds, then click Connect again."
                 )
             else:
                 st.success(
-                    f"Configured — reading {humanize_source(new_source)}."
+                    "Connected — "
+                    + (humanize_source(new_source) or "live metering available")
+                    + ". Reloading…"
                 )
                 st.rerun()
-    with col_b:
-        st.caption(
-            "Safe to re-run anytime. If Cortex isn’t enabled yet, Overview stays empty "
-            "until AI functions produce ACCOUNT_USAGE rows."
-        )
 
-    return True
+    with st.expander("Security details — what this grant allows"):
+        st.markdown(
+            """
+| Topic | Detail |
+|-------|--------|
+| **Privilege** | `IMPORTED PRIVILEGES ON DATABASE SNOWFLAKE` |
+| **Views read** | `CORTEX_AI_FUNCTIONS_USAGE_HISTORY` (preferred) or `CORTEX_AISQL_USAGE_HISTORY`; AI/Cortex rows in `METERING_HISTORY` |
+| **Not read** | `QUERY_HISTORY`, SQL text, your business tables |
+| **Egress** | None — no network, external access, containers, or telemetry |
+| **Writes** | Only inside the app’s own schema |
+| **Why not narrower?** | Native Apps cannot be granted a single ACCOUNT_USAGE view; this is Snowflake’s documented mechanism |
+
+Full trust matrix: **About / Trust**.
+            """
+        )

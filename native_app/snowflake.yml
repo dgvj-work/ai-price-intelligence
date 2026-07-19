@@ -11,6 +11,9 @@ entities:
         dest: ./
       - src: src/*
         dest: ./src/
+        ignore:
+          - "**/__pycache__/**"
+          - "**/*.pyc"
     meta:
       role: AI_PRICE_ADMIN
       warehouse: COMPUTE_WH

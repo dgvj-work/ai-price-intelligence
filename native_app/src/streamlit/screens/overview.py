@@ -1,76 +1,95 @@
-"""Overview — Cortex spend, trends, top functions."""
+"""Overview — value first, then metrics (live or preview), then optional connect."""
 
 from __future__ import annotations
 
 import streamlit as st
 
-from screens.setup import render_setup_panel
+from screens.setup import render_connect_account
 from session_data import (
-    empty_state,
-    humanize_source,
     load_cortex_spend,
     load_cortex_top,
     load_metering,
+    mode_banner,
 )
 
 
-def render() -> None:
-    st.title("Overview")
-    st.caption(
-        "Your Cortex / AI spend from Snowflake ACCOUNT_USAGE — credits, trends, "
-        "and top functions. Window capped at 90 days."
+def _value_prop() -> None:
+    st.title("Cortex Cost Advisor")
+    st.markdown(
+        """
+Snowflake’s built-in cost UI shows **account-wide** credits. This app is different:
+it is built for **Cortex / AI function** FinOps — model-level spend, switch scenarios,
+and public list-price moves that affect the models you already call.
+        """
     )
+    a, b, c = st.columns(3)
+    with a:
+        st.markdown("**Overview**")
+        st.caption("Cortex credits, USD estimate, trend, and top functions/models.")
+    with b:
+        st.markdown("**Model Advisor**")
+        st.caption("“Same tokens, different Cortex model — what would credits be?”")
+    with c:
+        st.markdown("**Price Watch**")
+        st.caption("Public LLM list-price moves, flagged against models you use.")
 
-    if render_setup_panel():
-        return
+
+def _why_not_snowsight() -> None:
+    with st.expander("Why install this instead of only using Snowsight cost tools?"):
+        st.markdown(
+            """
+| Snowsight / native tooling | Cortex Cost Advisor |
+|----------------------------|---------------------|
+| Account & warehouse credit rollups, budgets, resource monitors | **Cortex function + model** credit breakdown |
+| Not built for “switch model X → Y” planning | **Model Advisor** scenarios from your token volumes |
+| No public LLM price-change overlay | **Price Watch** against Marketplace or bundled rates |
+| Data stays in Snowflake | Same — **zero egress**, read-only, inspectable code |
+
+Use Snowsight for platform FinOps. Use this app when Cortex is a material line item
+and you need model-level decisions.
+            """
+        )
+
+
+def render() -> None:
+    _value_prop()
 
     days = int(st.session_state.get("days", 90))
     credit_price = float(st.session_state.get("credit_price_usd", 3.0))
-    source_label = humanize_source(st.session_state.get("usage_source"))
-    if source_label:
-        st.caption(f"Reading: {source_label}")
 
-    st.info(
-        "**Data lag:** ACCOUNT_USAGE metering can lag up to ~45 minutes behind "
-        "live activity. Use **Refresh usage data** in the sidebar after new Cortex calls. "
-        "Also explore **Model Advisor** (switch-cost scenarios) and **Price Watch** "
-        "(list-price moves on models you use)."
-    )
+    spend, spend_mode = load_cortex_spend(days)
+    top, top_mode = load_cortex_top(days)
+    if spend_mode == "live" or top_mode == "live":
+        mode = "live"
+    elif spend_mode == "sample" or top_mode == "sample":
+        mode = "sample"
+    else:
+        mode = "preview"
+    mode_banner(mode)
 
-    spend = load_cortex_spend(days)
-    top = load_cortex_top(days)
-
-    if spend.empty and top.empty:
-        metering = load_metering(days)
-        if metering.empty:
-            empty_state(
-                f"No Cortex / AI usage found in the last {days} days. "
-                "If Cortex is enabled, run AI functions and check back after the "
-                "ACCOUNT_USAGE lag (~45 minutes). Model Advisor and Price Watch still "
-                "work with the bundled price snapshot."
+    # Prefer Cortex detail; if live but empty, try metering before falling back
+    # (load_* already falls back to preview when privileges missing).
+    if mode == "live" and spend.empty and top.empty:
+        metering, m_mode = load_metering(days)
+        if m_mode == "live" and not metering.empty:
+            st.caption(
+                "Cortex function detail is empty in this window — showing AI/Cortex "
+                "metering service types instead. ACCOUNT_USAGE can lag ~45 minutes."
             )
-            with st.expander("What the other pages do"):
-                st.markdown(
-                    """
-- **Model Advisor** — estimate credits if the same token volume ran on another Cortex model.
-- **Price Watch** — recent public list-price changes, highlighted when they match models you use.
-- **About / Trust** — exactly what is read, why the privilege is needed, and what never happens.
-                    """
-                )
+            total_credits = float(metering["CREDITS"].sum())
+            c1, c2 = st.columns(2)
+            c1.metric("Credits (metering)", f"{total_credits:,.2f}")
+            c2.metric("USD estimate", f"${total_credits * credit_price:,.2f}")
+            st.subheader("Spend trend")
+            st.line_chart(
+                metering.groupby("DAY", as_index=False)["CREDITS"].sum(),
+                x="DAY",
+                y="CREDITS",
+            )
+            st.dataframe(metering, use_container_width=True)
+            _why_not_snowsight()
+            render_connect_account()
             return
-        st.warning(
-            "Detailed Cortex AI function rows are empty — showing metering fallback "
-            "(AI_SERVICES / Cortex-related service types)."
-        )
-        total_credits = float(metering["CREDITS"].sum())
-        c1, c2 = st.columns(2)
-        c1.metric("Credits (metering)", f"{total_credits:,.2f}")
-        c2.metric("USD estimate", f"${total_credits * credit_price:,.2f}")
-        st.line_chart(
-            metering.groupby("DAY", as_index=False)["CREDITS"].sum(), x="DAY", y="CREDITS"
-        )
-        st.dataframe(metering, use_container_width=True)
-        return
 
     total_credits = float(spend["CREDITS"].sum()) if not spend.empty else float(top["CREDITS"].sum())
     total_tokens = float(spend["TOKENS"].sum()) if not spend.empty else float(top["TOKENS"].sum())
@@ -87,8 +106,16 @@ def render() -> None:
 
     st.subheader("Top functions / models")
     if top.empty:
-        empty_state("No per-function breakdown available.")
+        st.info("No per-function breakdown in this window yet.")
     else:
-        top = top.copy()
-        top["USD_EST"] = top["CREDITS"] * credit_price
-        st.dataframe(top, use_container_width=True)
+        top_view = top.copy()
+        top_view["USD_EST"] = top_view["CREDITS"] * credit_price
+        st.dataframe(top_view, use_container_width=True)
+
+    st.caption(
+        "Window capped at 90 days. ACCOUNT_USAGE metering can lag live activity by up to ~45 minutes. "
+        "USD uses the credit price from the sidebar (session-only; default $3.00)."
+    )
+
+    _why_not_snowsight()
+    render_connect_account()
