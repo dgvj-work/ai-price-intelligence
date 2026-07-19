@@ -17,7 +17,7 @@ After install, open the sidebar tab **Getting started**. It covers:
 - Optional binds to Price Intelligence `SHARE.VW_*` views (`SELECT` only)
 - Troubleshooting checklist for security review
 
-Preview installs land on **Getting started** first.
+Every open lands on **Getting started** first (preview or live).
 
 ## What you see on Advisor
 

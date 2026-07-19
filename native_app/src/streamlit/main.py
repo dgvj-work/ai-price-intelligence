@@ -75,11 +75,9 @@ def main() -> None:
             st.success(connection_status_label(source))
 
         page_names = list(PAGES.keys())
-        # Preserve nav choice across reruns; default only when unset.
+        # Always open on Getting started (privileges / trust first). Preserve later nav choices.
         if "main_nav" not in st.session_state:
-            st.session_state["main_nav"] = (
-                "Getting started" if needs_setup(source) else "Advisor"
-            )
+            st.session_state["main_nav"] = "Getting started"
         page = st.radio(
             "Navigate",
             page_names,
@@ -141,7 +139,7 @@ def main() -> None:
                 result = connect_live_usage()
                 if result["connected"]:
                     st.success(result["message"])
-                    st.session_state["main_nav"] = "Advisor"
+                    st.session_state["main_nav"] = "Getting started"
                     st.rerun()
                 else:
                     st.error(result["message"])
