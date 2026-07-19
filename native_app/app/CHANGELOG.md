@@ -1,5 +1,10 @@
 # Cortex Cost Advisor changelog
 
+## 1.2.2 - 2026-07-19
+
+- Sidebar brand: text monogram (◈) instead of broken st.image in SiS.
+- Getting started / Trust: drop inline code ticks that rendered as neon-green monospace.
+
 ## 1.2.1 - 2026-07-19
 
 - Price Watch: Altair timeline / diverging % bars (not tables-only).

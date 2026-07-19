@@ -145,7 +145,7 @@ def render() -> None:
             """
 | What you can do alone | What Advisor adds |
 |----------------------|-------------------|
-| `SELECT` credits from ACCOUNT_USAGE | **Ranked switch recommendations** with $ impact |
+| **SELECT** credits from ACCOUNT_USAGE | **Ranked switch recommendations** with $ impact |
 | Snowsight account credit charts | **Concentration + spike detection** on Cortex only |
 | Manual spreadsheet model compare | **Same-token scenarios** against Cortex list rates |
 | Nothing built-in for public LLM moves | **Price Watch** overlap against models you used |

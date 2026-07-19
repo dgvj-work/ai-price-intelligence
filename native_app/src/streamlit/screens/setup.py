@@ -47,11 +47,11 @@ def render_connect_account() -> None:
             """
 | | |
 |--|--|
-| Privilege | `IMPORTED PRIVILEGES ON DATABASE SNOWFLAKE` -> application |
-| Database / schema | `SNOWFLAKE`.`ACCOUNT_USAGE` only (via imported privileges) |
-| Views read | `CORTEX_AI_FUNCTIONS_USAGE_HISTORY` (preferred), `CORTEX_AISQL_USAGE_HISTORY` (fallback), `METERING_HISTORY` (AI/Cortex rows) |
+| Privilege | **IMPORTED PRIVILEGES ON DATABASE SNOWFLAKE** -> application |
+| Database / schema | **SNOWFLAKE**.**ACCOUNT_USAGE** only (via imported privileges) |
+| Views read | **CORTEX_AI_FUNCTIONS_USAGE_HISTORY** (preferred), **CORTEX_AISQL_USAGE_HISTORY** (fallback), **METERING_HISTORY** (AI/Cortex rows) |
 | Your DBs / schemas / tables | **No grants required or used** |
-| Not read | `QUERY_HISTORY`, SQL text, stages |
+| Not read | **QUERY_HISTORY**, SQL text, stages |
 | Egress / tasks / SPCS | None |
 | Why this privilege | Native Apps cannot take a single ACCOUNT_USAGE view grant |
 | Details | Full matrix on **Getting started** |
