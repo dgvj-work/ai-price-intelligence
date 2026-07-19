@@ -49,6 +49,8 @@ That recommendation pack is the product. Credit charts are evidence.
 | Code | Un-obfuscated on GitHub |
 | Preview | Evaluate recommendations on sample data **before** granting |
 
+New teammates: open the sidebar tab **Getting started** for the install-to-value walkthrough.
+
 Publisher: **Digvijay Vaghela**  
 Support: [GitHub Discussions](https://github.com/dgvj-work/ai-price-intelligence/discussions)  
 Repo: https://github.com/dgvj-work/ai-price-intelligence  

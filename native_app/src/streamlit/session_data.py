@@ -13,7 +13,7 @@ import queries
 
 SNAPSHOT_PATH = Path(__file__).resolve().parent / "data" / "price_snapshot.csv"
 
-APP_VERSION = "1.1.3"  # keep in sync with manifest.yml version.label
+APP_VERSION = "1.1.4"  # keep in sync with manifest.yml version.label
 
 # Internal procedure return values → never shown raw in the UI.
 _LIVE_SOURCES = {

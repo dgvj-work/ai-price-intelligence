@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import streamlit as st
 
-from screens import about, advisor, model_advisor, overview, price_watch
+from screens import about, advisor, getting_started, model_advisor, overview, price_watch
 from session_data import (
     APP_VERSION,
     humanize_source,
@@ -23,6 +23,7 @@ st.set_page_config(
 )
 
 PAGES = {
+    "Getting started": getting_started.render,
     "Advisor": advisor.render,
     "Switches": model_advisor.render,
     "Price Watch": price_watch.render,
@@ -54,7 +55,16 @@ def main() -> None:
             f"Data: live · {label}" if label else "Data: live Cortex metering"
         )
 
-    page = st.sidebar.radio("Navigate", list(PAGES.keys()), index=0)
+    # Preview installs land on the starter guide; live installs land on Advisor.
+    # key= keeps the user's later sidebar choice across reruns.
+    page_names = list(PAGES.keys())
+    default_page = "Getting started" if needs_setup(source) else "Advisor"
+    page = st.sidebar.radio(
+        "Navigate",
+        page_names,
+        index=page_names.index(default_page),
+        key="main_nav",
+    )
 
     st.sidebar.markdown("#### Planning inputs")
     credit_price = st.sidebar.number_input(

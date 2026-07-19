@@ -1,4 +1,4 @@
-# Cortex Cost Advisor (v1.1.3)
+# Cortex Cost Advisor (v1.1.4)
 
 **Advisor for Cortex model spend** — ranked switch savings, concentration/spike signals, and price context. Not a generic credit report.
 
@@ -6,9 +6,13 @@
 
 FinOps / platform engineers deciding **which Cortex models to allow or migrate**.
 
-## What you see first
+## In-app starter guide
 
-On **Advisor**: a primary recommendation such as  
+After install, open the sidebar tab **Getting started**. It walks through preview → connect live usage → sidebar planning inputs → each page. Preview installs land there first.
+
+## What you see on Advisor
+
+A primary recommendation such as  
 “Switch model A → B: save ~X credits (~$Y est.) in this window” — plus concentration, anomalies, and a simple forward estimate.
 
 Preview mode uses sample usage so you can evaluate recommendations before granting privileges.
@@ -19,7 +23,7 @@ Preview mode uses sample usage so you can evaluate recommendations before granti
 GRANT IMPORTED PRIVILEGES ON DATABASE SNOWFLAKE TO APPLICATION CORTEX_COST_ADVISOR;
 ```
 
-Then open the app (views bind on session start) or click **Connect live usage**.
+Then open **Getting started** (or Advisor) and click **Connect live usage**. Views also bind on session start once the GRANT exists.
 
 ## Why not only Snowsight / raw SQL?
 

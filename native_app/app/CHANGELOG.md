@@ -1,5 +1,13 @@
 # Cortex Cost Advisor changelog
 
+## 1.1.4 — 2026-07-19
+
+Consumer onboarding:
+
+- New sidebar tab **Getting started** — install-to-value walkthrough, GRANT SQL, page map, FAQ.
+- Preview mode opens on Getting started; live usage opens on Advisor.
+- Connect-live CTA lives on the starter guide (and still on Advisor).
+
 ## 1.1.3 — 2026-07-19
 
 Marketplace scan hardening:
