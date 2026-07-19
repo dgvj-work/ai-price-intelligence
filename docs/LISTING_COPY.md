@@ -103,23 +103,23 @@ Free, read-only Streamlit app: your Cortex spend, model-switch savings, and pric
 
 ### Description
 
-**Cortex Cost Advisor** turns Snowflake account-usage metadata into a clear AI spend picture — without sending anything outside your account.
+**Cortex Cost Advisor** (v1.0.0) turns Snowflake account-usage metadata into a clear AI spend picture — without sending anything outside your account. After install, Overview walks admins through a one-click **Configure** flow (grant SQL + refresh).
 
 **Pages**
 
-1. **Overview** — Cortex credits + USD estimate (you set credit price; default $3.00), trend, top functions/models, 30/60/90-day windows.
+1. **Overview** — Cortex credits + USD estimate (you set credit price; default $3.00), trend, top functions/models, 30/60/90-day windows. Notes ACCOUNT_USAGE lag (~45 minutes).
 2. **Model Advisor** — for models you actually use, estimate credits if the same tokens ran on alternative Cortex models. Uses bound Marketplace dataset references when available; otherwise a bundled snapshot.
 3. **Price Watch** — recent price changes, flagged when they overlap your active models.
-4. **About / Trust** — plain-language privacy posture.
+4. **About / Trust** — security & permissions: why `IMPORTED PRIVILEGES ON SNOWFLAKE DB` is required, what is read, and what never happens.
 
 ### Privacy / trust (prominently display)
 
-> This app is **read-only** and **self-contained**. It requests **Imported Privileges on the SNOWFLAKE database** so it can read Cortex AI function usage + metering views inside your account.  
+> This app is **read-only** and **self-contained**. It requests **Imported Privileges on the SNOWFLAKE database** so it can read Cortex AI function usage + metering views inside your account. Snowflake Native Apps do not support granting a single ACCOUNT_USAGE view; this privilege is the documented mechanism.  
 > It does **not** read QUERY_HISTORY / SQL text.  
 > It does **not** use external access integrations, external functions, network calls, Snowpark Container Services, or telemetry.  
 > It does **not** write outside the application’s own schema.  
 > Nothing leaves your Snowflake account. Application code is un-obfuscated and inspectable.  
-> Queries are capped at 90 days.
+> Queries are capped at 90 days. ACCOUNT_USAGE can lag live activity by up to ~45 minutes.
 
 Optional: bind Marketplace dataset references (`VW_MODEL_CURRENT`, `VW_CORTEX_CURRENT`, `VW_PRICE_CHANGES_90D`) for live weekly prices. Without bindings, the app still works using a bundled snapshot.
 

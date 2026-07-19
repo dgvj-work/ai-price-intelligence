@@ -49,9 +49,9 @@ EXECUTE AS OWNER
 AS
 $$
 DECLARE
-  source_used VARCHAR DEFAULT 'EMPTY_STUB';
+  source_used VARCHAR DEFAULT 'PENDING_PRIVILEGES';
 BEGIN
-  -- Cortex usage (primary → fallback → empty)
+  -- Cortex usage (primary → fallback → empty placeholder until privileges are granted)
   BEGIN
     CREATE OR REPLACE VIEW APP_SCHEMA.V_CORTEX_USAGE AS
     SELECT
@@ -93,7 +93,7 @@ BEGIN
             CAST(NULL AS NUMBER) AS TOKENS,
             CAST(NULL AS NUMBER) AS TOKEN_CREDITS
           WHERE 1 = 0;
-          source_used := 'EMPTY_STUB';
+          source_used := 'PENDING_PRIVILEGES';
       END;
   END;
 

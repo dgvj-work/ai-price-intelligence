@@ -4,18 +4,38 @@ from __future__ import annotations
 
 import streamlit as st
 
-from session_data import empty_state, load_cortex_spend, load_cortex_top, load_metering
+from screens.setup import render_setup_panel
+from session_data import (
+    empty_state,
+    humanize_source,
+    load_cortex_spend,
+    load_cortex_top,
+    load_metering,
+)
 
 
 def render() -> None:
     st.title("Overview")
-    st.caption("Cortex / AI spend from ACCOUNT_USAGE (window capped at 90 days).")
+    st.caption(
+        "Your Cortex / AI spend from Snowflake ACCOUNT_USAGE — credits, trends, "
+        "and top functions. Window capped at 90 days."
+    )
+
+    if render_setup_panel():
+        return
 
     days = int(st.session_state.get("days", 90))
     credit_price = float(st.session_state.get("credit_price_usd", 3.0))
-    source = st.session_state.get("usage_source")
-    if source:
-        st.caption(f"Usage view source: `{source}`")
+    source_label = humanize_source(st.session_state.get("usage_source"))
+    if source_label:
+        st.caption(f"Reading: {source_label}")
+
+    st.info(
+        "**Data lag:** ACCOUNT_USAGE metering can lag up to ~45 minutes behind "
+        "live activity. Use **Refresh usage data** in the sidebar after new Cortex calls. "
+        "Also explore **Model Advisor** (switch-cost scenarios) and **Price Watch** "
+        "(list-price moves on models you use)."
+    )
 
     spend = load_cortex_spend(days)
     top = load_cortex_top(days)
@@ -24,15 +44,22 @@ def render() -> None:
         metering = load_metering(days)
         if metering.empty:
             empty_state(
-                "No Cortex usage found in the last "
-                f"{days} days. Grant **Imported Privileges on SNOWFLAKE DB**, then use "
-                "**Refresh usage views** in the sidebar. "
-                "If this is a new account or Cortex isn’t enabled yet, run AI functions and "
-                "check back (ACCOUNT_USAGE can lag)."
+                f"No Cortex / AI usage found in the last {days} days. "
+                "If Cortex is enabled, run AI functions and check back after the "
+                "ACCOUNT_USAGE lag (~45 minutes). Model Advisor and Price Watch still "
+                "work with the bundled price snapshot."
             )
+            with st.expander("What the other pages do"):
+                st.markdown(
+                    """
+- **Model Advisor** — estimate credits if the same token volume ran on another Cortex model.
+- **Price Watch** — recent public list-price changes, highlighted when they match models you use.
+- **About / Trust** — exactly what is read, why the privilege is needed, and what never happens.
+                    """
+                )
             return
         st.warning(
-            "Cortex AI function usage views are empty — showing metering fallback "
+            "Detailed Cortex AI function rows are empty — showing metering fallback "
             "(AI_SERVICES / Cortex-related service types)."
         )
         total_credits = float(metering["CREDITS"].sum())

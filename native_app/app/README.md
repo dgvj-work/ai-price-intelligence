@@ -1,18 +1,29 @@
-# Cortex Cost Advisor
+# Cortex Cost Advisor (v1.0.0)
 
 A **free, read-only** Snowflake Native App that helps you understand Cortex / AI SQL spend and compare model pricing scenarios.
 
+## Quick setup after install
+
+1. As `ACCOUNTADMIN`, grant imported privileges (Snowsight → app **Privileges**, or SQL):
+
+```sql
+GRANT IMPORTED PRIVILEGES ON DATABASE SNOWFLAKE TO APPLICATION CORTEX_COST_ADVISOR;
+```
+
+2. Open the app → **Overview** → click **Configure** (or **Refresh usage data** in the sidebar).
+3. ACCOUNT_USAGE can lag live Cortex activity by up to ~45 minutes.
+
 ## What this app reads
 
-With your approval of **Imported Privileges on the SNOWFLAKE database**, the app reads:
+With **Imported Privileges on the SNOWFLAKE database**, the app reads:
 
-- `SNOWFLAKE.ACCOUNT_USAGE.CORTEX_AI_FUNCTIONS_USAGE_HISTORY` (preferred; data from 2026-01-05+)
+- `SNOWFLAKE.ACCOUNT_USAGE.CORTEX_AI_FUNCTIONS_USAGE_HISTORY` (preferred)
 - or `SNOWFLAKE.ACCOUNT_USAGE.CORTEX_AISQL_USAGE_HISTORY` (fallback)
 - AI/Cortex-related rows from `SNOWFLAKE.ACCOUNT_USAGE.METERING_HISTORY` (last 90 days)
 
 It does **not** read `QUERY_HISTORY` or any query text.
 
-After you grant imported privileges, open the app once — it calls `ENSURE_ACCOUNT_USAGE_VIEWS()` so usage views are created against the live ACCOUNT_USAGE objects.
+Snowflake Native Apps expose ACCOUNT_USAGE via this privilege only — there is no supported per-view grant to an application.
 
 ### Optional Marketplace dataset
 
@@ -23,6 +34,15 @@ Bind these references (Snowsight → app privileges / references) to the **AI Mo
 - `price_intel_price_changes` → `…SHARE.VW_PRICE_CHANGES_90D`
 
 If unbound, Model Advisor / Price Watch use a bundled CSV snapshot so the app still works standalone.
+
+## Pages
+
+| Page | Purpose |
+|------|---------|
+| Overview | Credits, USD estimate, trend, top functions |
+| Model Advisor | Switch-cost scenarios for models you used |
+| Price Watch | List-price moves flagged against your usage |
+| About / Trust | Permissions, latency, and privacy posture |
 
 ## What this app never does
 

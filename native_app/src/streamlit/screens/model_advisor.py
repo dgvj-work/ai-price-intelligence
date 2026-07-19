@@ -16,7 +16,9 @@ from session_data import (
 def render() -> None:
     st.title("Model Advisor")
     st.caption(
-        "Compare your Cortex token volumes against alternative Cortex model credit rates."
+        "Answer: “If the same tokens had run on another Cortex model, what would "
+        "credits look like?” Uses your ACCOUNT_USAGE volumes × list rates "
+        "(live dataset when bound, otherwise bundled snapshot)."
     )
 
     days = int(st.session_state.get("days", 90))

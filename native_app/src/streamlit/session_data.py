@@ -12,6 +12,36 @@ import queries
 
 SNAPSHOT_PATH = Path(__file__).resolve().parent / "data" / "price_snapshot.csv"
 
+# Consumer-facing labels for ENSURE_ACCOUNT_USAGE_VIEWS() return values.
+# Internal sentinel PENDING_PRIVILEGES (and legacy EMPTY_STUB) are never shown raw.
+_SOURCE_LABELS = {
+    "CORTEX_AI_FUNCTIONS_USAGE_HISTORY": "Cortex AI Functions usage history",
+    "CORTEX_AISQL_USAGE_HISTORY": "Cortex AI SQL usage history",
+    "PENDING_PRIVILEGES": None,
+    "EMPTY_STUB": None,
+}
+
+
+def humanize_source(source: str | None) -> str | None:
+    if not source:
+        return None
+    if source.startswith("ENSURE_FAILED"):
+        return "Waiting for privileges or ACCOUNT_USAGE access"
+    if source in _SOURCE_LABELS:
+        return _SOURCE_LABELS[source]
+    return source
+
+
+def needs_setup(source: str | None) -> bool:
+    """True when privileges are missing or usage views could not be created."""
+    if source is None:
+        return True
+    if source in ("PENDING_PRIVILEGES", "EMPTY_STUB"):
+        return True
+    if source.startswith("ENSURE_FAILED"):
+        return True
+    return False
+
 
 def _session() -> Any:
     try:

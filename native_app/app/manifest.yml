@@ -1,24 +1,21 @@
 manifest_version: 1
 
 version:
-  name: v0_1
-  label: "0.1.0"
+  name: v1_0
+  label: "1.0.0"
   comment: "Cortex Cost Advisor — read-only Cortex spend & price intelligence"
 
 artifacts:
   setup_script: setup_script.sql
   readme: README.md
-  default_streamlit: src/streamlit/main.py
+  default_streamlit: app_schema.cortex_cost_advisor
   extension_code: true
 
 privileges:
   - IMPORTED PRIVILEGES ON SNOWFLAKE DB:
       description: >
-        Read-only access to Snowflake ACCOUNT_USAGE metering views so Cortex Cost Advisor
-        can show your Cortex / AI function spend and trends inside this account.
-        The app never writes outside its own schema, never calls the public internet,
-        never reads QUERY_HISTORY, and never exfiltrates data.
-        After granting this privilege, open the app once so it can refresh its usage views.
+        Read-only ACCOUNT_USAGE access so Cortex Cost Advisor can show Cortex/AI spend
+        in this account. No writes outside the app, no internet, no QUERY_HISTORY.
 
 references:
   - price_intel_model_current:

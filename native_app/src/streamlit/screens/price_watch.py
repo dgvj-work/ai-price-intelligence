@@ -14,7 +14,10 @@ from session_data import (
 
 def render() -> None:
     st.title("Price Watch")
-    st.caption("Recent list-price moves, highlighted when they match your usage.")
+    st.caption(
+        "Recent public list-price moves (up to 90 days). Rows are highlighted when "
+        "they overlap Cortex models you used in the selected window."
+    )
 
     days = int(st.session_state.get("days", 90))
     usage = load_usage_by_model(days)
