@@ -1,0 +1,100 @@
+"""All SQL isolated here. History capped at 90 days in app views + day window."""
+
+from __future__ import annotations
+
+
+def sql_cortex_spend(days: int) -> str:
+    d = int(days)
+    return f"""
+SELECT
+  DATE_TRUNC('day', USAGE_TIME) AS DAY,
+  FUNCTION_NAME,
+  MODEL_NAME,
+  SUM(COALESCE(TOKENS, 0)) AS TOKENS,
+  SUM(COALESCE(TOKEN_CREDITS, 0)) AS CREDITS
+FROM APP_SCHEMA.V_CORTEX_USAGE
+WHERE USAGE_TIME >= DATEADD('day', -{d}, CURRENT_TIMESTAMP())
+GROUP BY 1, 2, 3
+ORDER BY 1
+"""
+
+
+def sql_cortex_top(days: int) -> str:
+    d = int(days)
+    return f"""
+SELECT
+  FUNCTION_NAME,
+  MODEL_NAME,
+  SUM(COALESCE(TOKEN_CREDITS, 0)) AS CREDITS,
+  SUM(COALESCE(TOKENS, 0)) AS TOKENS
+FROM APP_SCHEMA.V_CORTEX_USAGE
+WHERE USAGE_TIME >= DATEADD('day', -{d}, CURRENT_TIMESTAMP())
+GROUP BY 1, 2
+ORDER BY CREDITS DESC
+LIMIT 25
+"""
+
+
+def sql_metering_fallback(days: int) -> str:
+    d = int(days)
+    return f"""
+SELECT
+  DATE_TRUNC('day', START_TIME) AS DAY,
+  SERVICE_TYPE,
+  SUM(COALESCE(CREDITS_USED, 0)) AS CREDITS
+FROM APP_SCHEMA.V_METERING_HISTORY
+WHERE START_TIME >= DATEADD('day', -{d}, CURRENT_TIMESTAMP())
+GROUP BY 1, 2
+ORDER BY 1
+"""
+
+
+def sql_usage_by_model(days: int) -> str:
+    d = int(days)
+    return f"""
+SELECT
+  MODEL_NAME,
+  FUNCTION_NAME,
+  SUM(COALESCE(TOKENS, 0)) AS TOKENS,
+  SUM(COALESCE(TOKEN_CREDITS, 0)) AS CREDITS
+FROM APP_SCHEMA.V_CORTEX_USAGE
+WHERE USAGE_TIME >= DATEADD('day', -{d}, CURRENT_TIMESTAMP())
+GROUP BY 1, 2
+ORDER BY CREDITS DESC
+"""
+
+
+SQL_ENSURE_VIEWS = "CALL APP_SCHEMA.ENSURE_ACCOUNT_USAGE_VIEWS()"
+
+# Native App reference() bindings (optional Marketplace dataset)
+SQL_REF_MODEL_CURRENT = """
+SELECT
+  MODEL_ID,
+  MODEL_NAME,
+  PROVIDER_NAME,
+  PRICE_INPUT_USD_PER_1M_TOKENS,
+  PRICE_OUTPUT_USD_PER_1M_TOKENS
+FROM REFERENCE('price_intel_model_current')
+ORDER BY MODEL_NAME
+"""
+
+SQL_REF_CORTEX_CURRENT = """
+SELECT FUNCTION_NAME, MODEL_NAME, CREDITS_PER_1M_TOKENS
+FROM REFERENCE('price_intel_cortex_current')
+ORDER BY FUNCTION_NAME, MODEL_NAME
+"""
+
+SQL_REF_PRICE_CHANGES = """
+SELECT
+  MODEL_ID,
+  CHANGED_AT,
+  OLD_INPUT_USD_PER_1M,
+  NEW_INPUT_USD_PER_1M,
+  INPUT_PCT_CHANGE,
+  OLD_OUTPUT_USD_PER_1M,
+  NEW_OUTPUT_USD_PER_1M,
+  OUTPUT_PCT_CHANGE
+FROM REFERENCE('price_intel_price_changes')
+ORDER BY CHANGED_AT DESC
+LIMIT 200
+"""

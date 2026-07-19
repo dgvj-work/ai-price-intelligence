@@ -1,0 +1,80 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ai-price-intelligence"
+version = "0.1.0"
+description = "AI Model & Compute Price Intelligence dataset + Cortex Cost Advisor native app"
+readme = "README.md"
+license = { text = "Apache-2.0" }
+requires-python = ">=3.11"
+authors = [{ name = "AI Price Intelligence Contributors" }]
+dependencies = [
+  "pydantic>=2.7,<3",
+  "pydantic-settings>=2.3,<3",
+  "PyYAML>=6.0,<7",
+  "httpx>=0.27,<1",
+  "tenacity>=8.3,<10",
+  "pandas>=2.2,<3",
+  "pyarrow>=15,<20",
+  "snowflake-connector-python[secure-local-storage]>=3.10,<4",
+  "cryptography>=42,<46",
+  "click>=8.1,<9",
+  "python-dateutil>=2.9,<3",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.2,<9",
+  "pytest-cov>=5.0,<6",
+  "ruff>=0.5,<1",
+  "mypy>=1.10,<2",
+  "types-PyYAML>=6.0,<7",
+  "types-python-dateutil>=2.9,<3",
+  "types-requests>=2.32,<3",
+]
+app = [
+  "streamlit>=1.35,<2",
+]
+
+[project.scripts]
+ai-price-refresh = "ingestion.run_refresh:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["ingestion*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["ingestion", "warehouse", "tests", "native_app"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+mypy_path = "."
+packages = ["ingestion"]
+exclude = ["native_app/", "warehouse/"]
+
+[[tool.mypy.overrides]]
+module = [
+  "snowflake.*",
+  "pandas.*",
+  "pyarrow.*",
+  "tenacity.*",
+]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --cov=ingestion.normalize --cov=ingestion.scd2 --cov-report=term-missing --cov-fail-under=85"
+
+[tool.coverage.run]
+source = ["ingestion"]
+omit = ["ingestion/sources/aws_pricing.py", "ingestion/sources/azure_pricing.py", "ingestion/sources/gcp_pricing.py"]

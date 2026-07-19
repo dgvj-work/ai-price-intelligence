@@ -1,0 +1,52 @@
+manifest_version: 1
+
+version:
+  name: v0_1
+  label: "0.1.0"
+  comment: "Cortex Cost Advisor — read-only Cortex spend & price intelligence"
+
+artifacts:
+  setup_script: setup_script.sql
+  readme: README.md
+  default_streamlit: src/streamlit/main.py
+  extension_code: true
+
+privileges:
+  - IMPORTED PRIVILEGES ON SNOWFLAKE DB:
+      description: >
+        Read-only access to Snowflake ACCOUNT_USAGE metering views so Cortex Cost Advisor
+        can show your Cortex / AI function spend and trends inside this account.
+        The app never writes outside its own schema, never calls the public internet,
+        never reads QUERY_HISTORY, and never exfiltrates data.
+        After granting this privilege, open the app once so it can refresh its usage views.
+
+references:
+  - price_intel_model_current:
+      label: "Price Intelligence — current model prices"
+      description: >
+        Optional. Bind SHARE.VW_MODEL_CURRENT from the AI Model & Compute Price Intelligence
+        Marketplace listing for live LLM list prices. If unbound, the app uses a bundled snapshot.
+      privileges:
+        - SELECT
+      object_type: VIEW
+      multi_valued: false
+      register_callback: app_schema.register_reference
+  - price_intel_cortex_current:
+      label: "Price Intelligence — current Cortex rates"
+      description: >
+        Optional. Bind SHARE.VW_CORTEX_CURRENT from the AI Model & Compute Price Intelligence
+        listing for live Cortex credit rates.
+      privileges:
+        - SELECT
+      object_type: VIEW
+      multi_valued: false
+      register_callback: app_schema.register_reference
+  - price_intel_price_changes:
+      label: "Price Intelligence — 90-day price changes"
+      description: >
+        Optional. Bind SHARE.VW_PRICE_CHANGES_90D for price-change alerts on models you use.
+      privileges:
+        - SELECT
+      object_type: VIEW
+      multi_valued: false
+      register_callback: app_schema.register_reference

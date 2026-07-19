@@ -1,0 +1,83 @@
+# VERIFY BEFORE FIRST PUBLISH — curated GPU fallback when cloud APIs are unavailable.
+# Prices are approximate public on-demand USD per *instance*-hour; normalize divides by gpu_count.
+instances:
+  - instance_id: aws:p5.48xlarge
+    cloud: aws
+    instance_name: p5.48xlarge
+    gpu_model: H100
+    gpu_count: 8
+    vram_gb: 640
+    region_scope: regional
+  - instance_id: aws:p4d.24xlarge
+    cloud: aws
+    instance_name: p4d.24xlarge
+    gpu_model: A100
+    gpu_count: 8
+    vram_gb: 320
+    region_scope: regional
+  - instance_id: aws:g5.12xlarge
+    cloud: aws
+    instance_name: g5.12xlarge
+    gpu_model: A10G
+    gpu_count: 4
+    vram_gb: 96
+    region_scope: regional
+  - instance_id: azure:Standard_ND96isr_H100_v5
+    cloud: azure
+    instance_name: Standard_ND96isr_H100_v5
+    gpu_model: H100
+    gpu_count: 8
+    vram_gb: 640
+    region_scope: regional
+  - instance_id: azure:Standard_NC24ads_A100_v4
+    cloud: azure
+    instance_name: Standard_NC24ads_A100_v4
+    gpu_model: A100
+    gpu_count: 1
+    vram_gb: 80
+    region_scope: regional
+  - instance_id: gcp:a3-highgpu-8g
+    cloud: gcp
+    instance_name: a3-highgpu-8g
+    gpu_model: H100
+    gpu_count: 8
+    vram_gb: 640
+    region_scope: regional
+
+prices:
+  - instance_id: aws:p5.48xlarge
+    region: us-east-1
+    price_on_demand_usd_hr: 98.32
+    prices_are_instance_hour: true
+    source_url: https://aws.amazon.com/ec2/instance-types/p5/
+    retrieved_at: "2026-07-01T00:00:00"
+  - instance_id: aws:p4d.24xlarge
+    region: us-east-1
+    price_on_demand_usd_hr: 32.77
+    prices_are_instance_hour: true
+    source_url: https://aws.amazon.com/ec2/instance-types/p4/
+    retrieved_at: "2026-07-01T00:00:00"
+  - instance_id: aws:g5.12xlarge
+    region: us-east-1
+    price_on_demand_usd_hr: 5.67
+    prices_are_instance_hour: true
+    source_url: https://aws.amazon.com/ec2/instance-types/g5/
+    retrieved_at: "2026-07-01T00:00:00"
+  - instance_id: azure:Standard_ND96isr_H100_v5
+    region: eastus
+    price_on_demand_usd_hr: 98.32
+    prices_are_instance_hour: true
+    source_url: https://azure.microsoft.com/pricing/details/virtual-machines/linux/
+    retrieved_at: "2026-07-01T00:00:00"
+  - instance_id: azure:Standard_NC24ads_A100_v4
+    region: eastus
+    price_on_demand_usd_hr: 3.67
+    prices_are_instance_hour: true
+    source_url: https://azure.microsoft.com/pricing/details/virtual-machines/linux/
+    retrieved_at: "2026-07-01T00:00:00"
+  - instance_id: gcp:a3-highgpu-8g
+    region: us-central1
+    price_on_demand_usd_hr: 88.32
+    prices_are_instance_hour: true
+    source_url: https://cloud.google.com/compute/gpus-pricing
+    retrieved_at: "2026-07-01T00:00:00"

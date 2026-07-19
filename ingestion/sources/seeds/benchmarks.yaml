@@ -1,0 +1,177 @@
+# VERIFY BEFORE FIRST PUBLISH — public leaderboard / report scores.
+benchmarks:
+  - model_id: openai:gpt-4o
+    benchmark_name: MMLU
+    score: 88.7
+    score_type: pct
+    eval_date: 2024-05-13
+    source_url: https://openai.com/index/hello-gpt-4o/
+    retrieved_at: "2026-07-01T00:00:00"
+  - model_id: openai:gpt-4o
+    benchmark_name: HumanEval
+    score: 90.2
+    score_type: pass@1
+    eval_date: 2024-05-13
+    source_url: https://openai.com/index/hello-gpt-4o/
+    retrieved_at: "2026-07-01T00:00:00"
+  - model_id: openai:o3-mini
+    benchmark_name: GPQA
+    score: 79.7
+    score_type: pct
+    eval_date: 2025-01-31
+    source_url: https://openai.com/index/openai-o3-mini/
+    retrieved_at: "2026-07-01T00:00:00"
+  - model_id: anthropic:claude-sonnet-4
+    benchmark_name: MMLU
+    score: 88.5
+    score_type: pct
+    eval_date: 2025-05-22
+    source_url: https://www.anthropic.com/news/claude-4
+    retrieved_at: "2026-07-01T00:00:00"
+  - model_id: anthropic:claude-sonnet-4
+    benchmark_name: SWE-bench
+    score: 72.7
+    score_type: pct
+    eval_date: 2025-05-22
+    source_url: https://www.anthropic.com/news/claude-4
+    retrieved_at: "2026-07-01T00:00:00"
+  - model_id: google:gemini-2-5-pro
+    benchmark_name: MMLU
+    score: 89.0
+    score_type: pct
+    eval_date: 2025-03-25
+    source_url: https://deepmind.google/technologies/gemini/
+    retrieved_at: "2026-07-01T00:00:00"
+  - model_id: google:gemini-2-5-flash
+    benchmark_name: MMLU
+    score: 85.0
+    score_type: pct
+    eval_date: 2025-04-17
+    source_url: https://deepmind.google/technologies/gemini/
+    retrieved_at: "2026-07-01T00:00:00"
+  - model_id: meta:llama-3-3-70b
+    benchmark_name: MMLU
+    score: 86.0
+    score_type: pct
+    eval_date: 2024-12-06
+    source_url: https://ai.meta.com/blog/llama-3-3/
+    retrieved_at: "2026-07-01T00:00:00"
+  - model_id: deepseek:deepseek-reasoner
+    benchmark_name: GPQA
+    score: 71.5
+    score_type: pct
+    eval_date: 2025-01-20
+    source_url: https://github.com/deepseek-ai/DeepSeek-R1
+    retrieved_at: "2026-07-01T00:00:00"
+  - model_id: xai:grok-3
+    benchmark_name: LMArena-Elo
+    score: 1402
+    score_type: elo
+    eval_date: 2025-02-19
+    source_url: https://lmarena.ai/
+    retrieved_at: "2026-07-01T00:00:00"
+  - model_id: mistral:mistral-large-2411
+    benchmark_name: MMLU
+    score: 84.0
+    score_type: pct
+    eval_date: 2024-11-18
+    source_url: https://mistral.ai/news/mistral-large-2407/
+    retrieved_at: "2026-07-01T00:00:00"
+  - model_id: amazon:nova-pro
+    benchmark_name: MMLU
+    score: 85.5
+    score_type: pct
+    eval_date: 2024-12-03
+    source_url: https://aws.amazon.com/ai/generative-ai/nova/
+    retrieved_at: "2026-07-01T00:00:00"
+  - model_id: openai:gpt-4o-mini
+    benchmark_name: MMLU
+    score: 82.0
+    score_type: pct
+    eval_date: 2024-07-18
+    source_url: https://openai.com/index/gpt-4o-mini-advancing-cost-efficient-intelligence/
+    retrieved_at: "2026-07-01T00:00:00"
+  - model_id: openai:gpt-4-1
+    benchmark_name: MMLU
+    score: 90.2
+    score_type: pct
+    eval_date: 2025-04-14
+    source_url: https://openai.com/index/gpt-4-1/
+    retrieved_at: "2026-07-01T00:00:00"
+  - model_id: openai:gpt-4-1-mini
+    benchmark_name: MMLU
+    score: 87.5
+    score_type: pct
+    eval_date: 2025-04-14
+    source_url: https://openai.com/index/gpt-4-1/
+    retrieved_at: "2026-07-01T00:00:00"
+  - model_id: anthropic:claude-opus-4
+    benchmark_name: MMLU
+    score: 89.5
+    score_type: pct
+    eval_date: 2025-05-22
+    source_url: https://www.anthropic.com/news/claude-4
+    retrieved_at: "2026-07-01T00:00:00"
+  - model_id: anthropic:claude-opus-4
+    benchmark_name: SWE-bench
+    score: 72.5
+    score_type: pct
+    eval_date: 2025-05-22
+    source_url: https://www.anthropic.com/news/claude-4
+    retrieved_at: "2026-07-01T00:00:00"
+  - model_id: anthropic:claude-haiku-3-5
+    benchmark_name: MMLU
+    score: 78.0
+    score_type: pct
+    eval_date: 2024-10-22
+    source_url: https://www.anthropic.com/pricing
+    retrieved_at: "2026-07-01T00:00:00"
+  - model_id: google:gemini-2-0-flash
+    benchmark_name: MMLU
+    score: 83.5
+    score_type: pct
+    eval_date: 2024-12-11
+    source_url: https://deepmind.google/technologies/gemini/
+    retrieved_at: "2026-07-01T00:00:00"
+  - model_id: deepseek:deepseek-chat
+    benchmark_name: MMLU
+    score: 87.1
+    score_type: pct
+    eval_date: 2024-12-26
+    source_url: https://api-docs.deepseek.com/
+    retrieved_at: "2026-07-01T00:00:00"
+  - model_id: cohere:command-r-plus
+    benchmark_name: MMLU
+    score: 75.7
+    score_type: pct
+    eval_date: 2024-04-04
+    source_url: https://cohere.com/blog/command-r-plus-microsoft-azure
+    retrieved_at: "2026-07-01T00:00:00"
+  - model_id: cohere:command-r
+    benchmark_name: MMLU
+    score: 68.2
+    score_type: pct
+    eval_date: 2024-03-11
+    source_url: https://cohere.com/blog/command-r
+    retrieved_at: "2026-07-01T00:00:00"
+  - model_id: mistral:ministral-8b
+    benchmark_name: MMLU
+    score: 65.0
+    score_type: pct
+    eval_date: 2024-10-16
+    source_url: https://mistral.ai/news/ministraux/
+    retrieved_at: "2026-07-01T00:00:00"
+  - model_id: amazon:nova-lite
+    benchmark_name: MMLU
+    score: 78.0
+    score_type: pct
+    eval_date: 2024-12-03
+    source_url: https://aws.amazon.com/ai/generative-ai/nova/
+    retrieved_at: "2026-07-01T00:00:00"
+  - model_id: meta:llama-4-scout
+    benchmark_name: MMLU
+    score: 84.0
+    score_type: pct
+    eval_date: 2025-04-05
+    source_url: https://ai.meta.com/blog/llama-4-multimodal-intelligence/
+    retrieved_at: "2026-07-01T00:00:00"

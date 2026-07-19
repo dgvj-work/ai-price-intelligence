@@ -1,0 +1,301 @@
+# VERIFY BEFORE FIRST PUBLISH — curated model catalog (source of truth).
+providers:
+  - provider_id: openai
+    name: OpenAI
+    type: llm_api
+    website: https://openai.com
+  - provider_id: anthropic
+    name: Anthropic
+    type: llm_api
+    website: https://www.anthropic.com
+  - provider_id: google
+    name: Google
+    type: llm_api
+    website: https://ai.google.dev
+  - provider_id: meta
+    name: Meta
+    type: llm_api
+    website: https://ai.meta.com
+  - provider_id: mistral
+    name: Mistral AI
+    type: llm_api
+    website: https://mistral.ai
+  - provider_id: cohere
+    name: Cohere
+    type: llm_api
+    website: https://cohere.com
+  - provider_id: deepseek
+    name: DeepSeek
+    type: llm_api
+    website: https://www.deepseek.com
+  - provider_id: xai
+    name: xAI
+    type: llm_api
+    website: https://x.ai
+  - provider_id: amazon
+    name: Amazon
+    type: llm_api
+    website: https://aws.amazon.com/ai/
+  - provider_id: snowflake
+    name: Snowflake
+    type: data_platform
+    website: https://www.snowflake.com
+  - provider_id: aws
+    name: Amazon Web Services
+    type: cloud
+    website: https://aws.amazon.com
+  - provider_id: azure
+    name: Microsoft Azure
+    type: cloud
+    website: https://azure.microsoft.com
+  - provider_id: gcp
+    name: Google Cloud
+    type: cloud
+    website: https://cloud.google.com
+
+models:
+  - model_id: openai:gpt-4o
+    provider_id: openai
+    model_name: gpt-4o
+    family: gpt-4o
+    modality: multimodal
+    context_window_tokens: 128000
+    max_output_tokens: 16384
+    supports_tools: true
+    supports_vision: true
+    license: proprietary
+    release_date: 2024-05-13
+    is_active: true
+  - model_id: openai:gpt-4o-mini
+    provider_id: openai
+    model_name: gpt-4o-mini
+    family: gpt-4o
+    modality: multimodal
+    context_window_tokens: 128000
+    max_output_tokens: 16384
+    supports_tools: true
+    supports_vision: true
+    license: proprietary
+    release_date: 2024-07-18
+    is_active: true
+  - model_id: openai:o3-mini
+    provider_id: openai
+    model_name: o3-mini
+    family: o-series
+    modality: text
+    context_window_tokens: 200000
+    max_output_tokens: 100000
+    supports_tools: true
+    supports_vision: false
+    license: proprietary
+    release_date: 2025-01-31
+    is_active: true
+  - model_id: openai:text-embedding-3-large
+    provider_id: openai
+    model_name: text-embedding-3-large
+    family: embeddings
+    modality: embedding
+    context_window_tokens: 8191
+    supports_tools: false
+    supports_vision: false
+    license: proprietary
+    is_active: true
+  - model_id: anthropic:claude-sonnet-4
+    provider_id: anthropic
+    model_name: claude-sonnet-4
+    family: claude-4
+    modality: multimodal
+    context_window_tokens: 200000
+    max_output_tokens: 64000
+    supports_tools: true
+    supports_vision: true
+    license: proprietary
+    release_date: 2025-05-22
+    is_active: true
+  - model_id: anthropic:claude-haiku-3-5
+    provider_id: anthropic
+    model_name: claude-3-5-haiku
+    family: claude-3.5
+    modality: multimodal
+    context_window_tokens: 200000
+    max_output_tokens: 8192
+    supports_tools: true
+    supports_vision: true
+    license: proprietary
+    release_date: 2024-10-22
+    is_active: true
+  - model_id: google:gemini-2-5-pro
+    provider_id: google
+    model_name: gemini-2.5-pro
+    family: gemini-2.5
+    modality: multimodal
+    context_window_tokens: 1000000
+    max_output_tokens: 65536
+    supports_tools: true
+    supports_vision: true
+    license: proprietary
+    is_active: true
+  - model_id: google:gemini-2-5-flash
+    provider_id: google
+    model_name: gemini-2.5-flash
+    family: gemini-2.5
+    modality: multimodal
+    context_window_tokens: 1000000
+    max_output_tokens: 65536
+    supports_tools: true
+    supports_vision: true
+    license: proprietary
+    is_active: true
+  - model_id: meta:llama-3-3-70b
+    provider_id: meta
+    model_name: llama-3.3-70b-instruct
+    family: llama-3.3
+    modality: text
+    context_window_tokens: 128000
+    max_output_tokens: 8192
+    supports_tools: true
+    supports_vision: false
+    license: open_weights
+    is_active: true
+  - model_id: mistral:mistral-large-2411
+    provider_id: mistral
+    model_name: mistral-large-2411
+    family: mistral-large
+    modality: text
+    context_window_tokens: 128000
+    supports_tools: true
+    supports_vision: false
+    license: proprietary
+    is_active: true
+  - model_id: cohere:command-r-plus
+    provider_id: cohere
+    model_name: command-r-plus
+    family: command-r
+    modality: text
+    context_window_tokens: 128000
+    supports_tools: true
+    supports_vision: false
+    license: proprietary
+    is_active: true
+  - model_id: deepseek:deepseek-chat
+    provider_id: deepseek
+    model_name: deepseek-chat
+    family: deepseek-v3
+    modality: text
+    context_window_tokens: 64000
+    supports_tools: true
+    supports_vision: false
+    license: proprietary
+    is_active: true
+  - model_id: deepseek:deepseek-reasoner
+    provider_id: deepseek
+    model_name: deepseek-reasoner
+    family: deepseek-r1
+    modality: text
+    context_window_tokens: 64000
+    supports_tools: false
+    supports_vision: false
+    license: proprietary
+    is_active: true
+  - model_id: xai:grok-3
+    provider_id: xai
+    model_name: grok-3
+    family: grok-3
+    modality: multimodal
+    context_window_tokens: 131072
+    supports_tools: true
+    supports_vision: true
+    license: proprietary
+    is_active: true
+  - model_id: amazon:nova-pro
+    provider_id: amazon
+    model_name: amazon-nova-pro
+    family: nova
+    modality: multimodal
+    context_window_tokens: 300000
+    supports_tools: true
+    supports_vision: true
+    license: proprietary
+    is_active: true
+  - model_id: amazon:nova-lite
+    provider_id: amazon
+    model_name: amazon-nova-lite
+    family: nova
+    modality: multimodal
+    context_window_tokens: 300000
+    supports_tools: true
+    supports_vision: true
+    license: proprietary
+    is_active: true
+  - model_id: openai:gpt-4-1
+    provider_id: openai
+    model_name: gpt-4.1
+    family: gpt-4.1
+    modality: multimodal
+    context_window_tokens: 1047576
+    max_output_tokens: 32768
+    supports_tools: true
+    supports_vision: true
+    license: proprietary
+    is_active: true
+  - model_id: openai:gpt-4-1-mini
+    provider_id: openai
+    model_name: gpt-4.1-mini
+    family: gpt-4.1
+    modality: multimodal
+    context_window_tokens: 1047576
+    supports_tools: true
+    supports_vision: true
+    license: proprietary
+    is_active: true
+  - model_id: anthropic:claude-opus-4
+    provider_id: anthropic
+    model_name: claude-opus-4
+    family: claude-4
+    modality: multimodal
+    context_window_tokens: 200000
+    max_output_tokens: 32000
+    supports_tools: true
+    supports_vision: true
+    license: proprietary
+    is_active: true
+  - model_id: google:gemini-2-0-flash
+    provider_id: google
+    model_name: gemini-2.0-flash
+    family: gemini-2.0
+    modality: multimodal
+    context_window_tokens: 1000000
+    supports_tools: true
+    supports_vision: true
+    license: proprietary
+    is_active: true
+  - model_id: mistral:ministral-8b
+    provider_id: mistral
+    model_name: ministral-8b-latest
+    family: ministral
+    modality: text
+    context_window_tokens: 128000
+    supports_tools: true
+    supports_vision: false
+    license: proprietary
+    is_active: true
+  - model_id: cohere:command-r
+    provider_id: cohere
+    model_name: command-r
+    family: command-r
+    modality: text
+    context_window_tokens: 128000
+    supports_tools: true
+    supports_vision: false
+    license: proprietary
+    is_active: true
+  - model_id: meta:llama-4-scout
+    provider_id: meta
+    model_name: llama-4-scout
+    family: llama-4
+    modality: multimodal
+    context_window_tokens: 10000000
+    supports_tools: true
+    supports_vision: true
+    license: open_weights
+    is_active: true
