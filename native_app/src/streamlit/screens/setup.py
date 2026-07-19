@@ -4,17 +4,22 @@ from __future__ import annotations
 
 import streamlit as st
 
-from session_data import ensure_usage_views, humanize_source, needs_setup
+from session_data import (
+    GRANT_SQL as GRANT_ONE_LINER,
+    connect_live_usage,
+    last_connect_result,
+    needs_setup,
+)
 
-GRANT_SQL = """\
+GRANT_SQL = f"""\
 -- ACCOUNTADMIN (or a role that can grant on DATABASE SNOWFLAKE)
 -- Required once for live Cortex metering. Rename the app if you installed under another name.
 -- This is the only database-level privilege the app needs. No grants on your DBs/schemas/tables.
-GRANT IMPORTED PRIVILEGES ON DATABASE SNOWFLAKE TO APPLICATION CORTEX_COST_ADVISOR;
+{GRANT_ONE_LINER}
 """
 
 
-def render_connect_account() -> None:
+def render_connect_account(*, compact: bool = False) -> None:
     source = st.session_state.get("usage_source")
     if not needs_setup(source):
         return
@@ -23,24 +28,36 @@ def render_connect_account() -> None:
     st.subheader("Connect live Cortex usage")
     st.markdown(
         "Recommendations above use **sample** usage so you can evaluate the product. "
-        "To rank switches on **your** models, grant read access to ACCOUNT_USAGE metering."
+        "The Connect button only **rebinds views after** an admin GRANT. "
+        "It cannot grant privileges by itself."
     )
+
+    attempt = last_connect_result()
+    if attempt and not attempt.get("connected"):
+        st.warning(attempt["message"])
+
     left, right = st.columns(2)
     with left:
-        st.markdown("**Admin GRANT**")
-        st.code(GRANT_SQL, language="sql")
+        st.markdown("**Step 1 — Admin GRANT** (Worksheet as ACCOUNTADMIN)")
+        st.code(GRANT_ONE_LINER if compact else GRANT_SQL, language="sql")
+        st.caption(
+            "Open Projects -> Worksheets, set role to **ACCOUNTADMIN**, run the GRANT, "
+            "then come back here. Being ACCOUNTADMIN on the app page is not the same as "
+            "running the GRANT in a worksheet."
+        )
     with right:
-        st.markdown("**Then connect**")
-        st.caption("Creates passthrough views inside the app. No scheduled tasks; no extra privileges.")
+        st.markdown("**Step 2 — Connect in this app**")
+        st.caption(
+            "Creates passthrough views inside the app. No scheduled tasks; no extra privileges."
+        )
         if st.button("Connect live usage", type="primary", key="connect_live_usage"):
-            st.cache_data.clear()
-            new_source = ensure_usage_views()
-            st.session_state["usage_source"] = new_source
-            if needs_setup(new_source):
-                st.warning("Privilege not detected yet. Confirm GRANT, then try again.")
-            else:
-                st.success(humanize_source(new_source) or "Connected")
+            result = connect_live_usage()
+            if result["connected"]:
+                st.success(result["message"])
                 st.rerun()
+            else:
+                st.error(result["message"])
+                st.code(GRANT_ONE_LINER, language="sql")
 
     with st.expander("Security: exact access"):
         st.markdown(

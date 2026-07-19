@@ -1,9 +1,9 @@
 manifest_version: 1
 
 version:
-  name: v1_2_3
-  label: "1.2.3"
-  comment: "Configurable switch threshold; pinned deps; in-app diagnostics"
+  name: v1_2_5
+  label: "1.2.5"
+  comment: "Clearer preview vs live status; Connect shows GRANT-needed feedback"
 
 artifacts:
   setup_script: setup_script.sql

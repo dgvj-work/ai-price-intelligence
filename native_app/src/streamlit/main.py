@@ -8,10 +8,13 @@ from insights import SWITCH_MIN_SAVINGS_PCT
 from screens import about, advisor, getting_started, model_advisor, overview, price_watch
 from session_data import (
     APP_VERSION,
+    GRANT_SQL,
     SUPPORT_EMAIL,
     SUPPORT_URL,
-    humanize_source,
+    connect_live_usage,
+    connection_status_label,
     init_usage_session,
+    last_connect_result,
     load_persisted_credit_price,
     load_persisted_min_savings_pct,
     needs_setup,
@@ -60,17 +63,26 @@ def main() -> None:
         st.divider()
         st.caption("Data status")
         if needs_setup(source):
-            st.warning("Preview sample")
+            st.warning(connection_status_label(source))
+            st.caption(
+                "Advisor is usable now on **sample** data. "
+                "Live metering needs a one-time ACCOUNTADMIN GRANT."
+            )
+            attempt = last_connect_result()
+            if attempt and not attempt.get("connected"):
+                st.caption(attempt["message"])
         else:
-            label = humanize_source(source)
-            st.success(f"Live | {label}" if label else "Live Cortex metering")
+            st.success(connection_status_label(source))
 
         page_names = list(PAGES.keys())
-        default_page = "Getting started" if needs_setup(source) else "Advisor"
+        # Preserve nav choice across reruns; default only when unset.
+        if "main_nav" not in st.session_state:
+            st.session_state["main_nav"] = (
+                "Getting started" if needs_setup(source) else "Advisor"
+            )
         page = st.radio(
             "Navigate",
             page_names,
-            index=page_names.index(default_page),
             key="main_nav",
         )
 
@@ -120,10 +132,17 @@ def main() -> None:
 
         if needs_setup(source):
             st.divider()
-            if st.button("I granted privileges; connect", use_container_width=True):
-                st.cache_data.clear()
-                init_usage_session(force=True)
-                st.rerun()
+            st.markdown("#### Connect live data")
+            st.caption("Step 1: run GRANT in a Worksheet (ACCOUNTADMIN)")
+            st.code(GRANT_SQL, language="sql")
+            if st.button("Step 2: Connect live usage", use_container_width=True, type="primary"):
+                result = connect_live_usage()
+                if result["connected"]:
+                    st.success(result["message"])
+                    st.session_state["main_nav"] = "Advisor"
+                    st.rerun()
+                else:
+                    st.error(result["message"])
 
         st.divider()
         st.caption("Support")

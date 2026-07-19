@@ -110,7 +110,7 @@ How to capture: open Streamlit → sidebar **Advisor** (or **Switches**) → ful
 
 ### Description
 
-**Cortex Cost Advisor** (v1.2.3) is for FinOps / platform teams deciding **which Cortex models to allow or migrate**.
+**Cortex Cost Advisor** (v1.2.4) is for FinOps / platform teams deciding **which Cortex models to allow or migrate**.
 
 On first open (after connect), **Advisor** leads with recommendations such as:
 "Switch model A -> B: save ~X credits (~$Y est.)", plus concentration risk, spend-spike detection, and a simple forward estimate. Preview mode uses sample usage so you see the product before granting privileges. Min switch savings % is configurable (default 15%; many teams use 25%+).

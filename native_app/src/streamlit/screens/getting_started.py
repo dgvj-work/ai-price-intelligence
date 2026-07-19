@@ -10,7 +10,9 @@ from session_data import (
     REPO_URL,
     SUPPORT_EMAIL,
     SUPPORT_URL,
+    connection_status_label,
     humanize_source,
+    last_connect_result,
     needs_setup,
 )
 from theme import hero, panel, section
@@ -48,10 +50,22 @@ def render() -> None:
     preview = needs_setup(source)
 
     with panel():
+        st.markdown(f"**Status:** {connection_status_label(source)}")
         if preview:
             st.info(
-                "**Preview mode.** Advisor uses sample recommendations so you can evaluate "
-                "before any privilege grant. Complete **section 2 (Required privileges)** when ready for live data."
+                "**Preview mode is working.** Advisor / Switches / charts use **synthetic sample** "
+                "usage so you can evaluate the product before any privilege grant. "
+                "That is intentional — not a broken install."
+            )
+            attempt = last_connect_result()
+            if attempt and not attempt.get("connected"):
+                st.warning(
+                    "**Last Connect attempt:** privileges still missing. "
+                    + str(attempt.get("message") or "")
+                )
+            st.markdown(
+                "To use **your** Cortex spend: complete **section 2** "
+                "(Worksheet GRANT as ACCOUNTADMIN), then click **Connect live usage**."
             )
         else:
             label = humanize_source(source) or "Cortex metering"
@@ -100,7 +114,7 @@ No database, schema, or table privileges are needed for preview.
         st.code(GRANT_SQL, language="sql")
         st.caption(
             "Already connected. After reinstall or role changes, re-run the GRANT, then use "
-            "sidebar **I granted privileges; connect**, or reopen the app."
+            "sidebar **Step 2: Connect live usage**, or reopen the app."
         )
 
     with st.expander("What that GRANT actually unlocks (exact objects)", expanded=preview):

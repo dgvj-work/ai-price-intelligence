@@ -1,5 +1,16 @@
 # Cortex Cost Advisor changelog
 
+## 1.2.5 - 2026-07-19
+
+Preview / Connect UX: make sample-data mode explicit, show GRANT SQL in the
+sidebar, and surface clear feedback when Connect finds privileges still missing
+(apps cannot self-grant IMPORTED PRIVILEGES).
+
+## 1.2.4 - 2026-07-19
+
+Fix Streamlit load failure: Snowflake warehouse Anaconda rejects pip-style
+`>=` / `<` pins. Use `=` and `*` ranges in `environment.yml`.
+
 ## 1.2.3 - 2026-07-19
 
 Marketplace review hardening:

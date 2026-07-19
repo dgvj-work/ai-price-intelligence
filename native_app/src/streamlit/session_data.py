@@ -13,7 +13,7 @@ import queries
 
 SNAPSHOT_PATH = Path(__file__).resolve().parent / "data" / "price_snapshot.csv"
 
-APP_VERSION = "1.2.3"  # keep in sync with manifest.yml version.label
+APP_VERSION = "1.2.5"  # keep in sync with manifest.yml version.label
 
 # Single source of truth for consumer-facing support links.
 SUPPORT_URL = "https://github.com/dgvj-work/ai-price-intelligence/discussions"
@@ -25,7 +25,7 @@ _LIVE_SOURCES = {
     "CORTEX_AI_FUNCTIONS_USAGE_HISTORY": "Cortex AI Functions usage history",
     "CORTEX_AISQL_USAGE_HISTORY": "Cortex AI SQL usage history",
 }
-_PENDING = frozenset({"PENDING_PRIVILEGES", "EMPTY_STUB", "OK"})
+_PENDING = frozenset({"PENDING_PRIVILEGES", "EMPTY_STUB"})
 _BLOCKED_UI_TOKENS = ("EMPTY_STUB", "PENDING_PRIVILEGES", "ENSURE_FAILED")
 
 # live = real ACCOUNT_USAGE rows
@@ -33,6 +33,11 @@ _BLOCKED_UI_TOKENS = ("EMPTY_STUB", "PENDING_PRIVILEGES", "ENSURE_FAILED")
 # sample = privileges OK but no rows in window - sample data, no connect CTA
 # error = live query failed - sample shown with warning
 DataMode = Literal["live", "preview", "sample", "error"]
+
+GRANT_SQL = (
+    "GRANT IMPORTED PRIVILEGES ON DATABASE SNOWFLAKE "
+    "TO APPLICATION CORTEX_COST_ADVISOR;"
+)
 
 
 def sanitize_source_token(source: str | None) -> str | None:
@@ -47,7 +52,7 @@ def sanitize_source_token(source: str | None) -> str | None:
     if raw.startswith("ENSURE_FAILED") or raw == "ENSURE_FAILED":
         return "ENSURE_FAILED"
     if raw in _PENDING:
-        return "PENDING_PRIVILEGES" if raw == "EMPTY_STUB" else raw
+        return "PENDING_PRIVILEGES"
     return "PENDING_PRIVILEGES"
 
 
@@ -77,6 +82,17 @@ def humanize_source(source: str | None) -> str | None:
         if blocked in str(source or "").upper():
             return None
     return None
+
+
+def connection_status_label(source: str | None) -> str:
+    """Short human status for sidebar / Getting started."""
+    if not needs_setup(source):
+        label = humanize_source(source) or "Cortex metering"
+        return f"Live · {label}"
+    token = sanitize_source_token(source)
+    if token == "ENSURE_FAILED":
+        return "Connect failed · procedure error"
+    return "Preview · sample data (not live yet)"
 
 
 def _session() -> Any:
@@ -111,8 +127,48 @@ def ensure_usage_views() -> str | None:
         if not rows:
             return "PENDING_PRIVILEGES"
         return sanitize_source_token(str(rows[0][0]))
-    except Exception:  # noqa: BLE001
+    except Exception as exc:  # noqa: BLE001
+        record_diagnostic("ensure_failed", f"{type(exc).__name__}:{exc}")
         return "ENSURE_FAILED"
+
+
+def connect_live_usage() -> dict[str, Any]:
+    """
+    Rebind ACCOUNT_USAGE views and record a clear connect attempt for the UI.
+
+    Returns a small dict: connected (bool), source, message.
+    Does not grant privileges (apps cannot self-grant IMPORTED PRIVILEGES).
+    """
+    st.cache_data.clear()
+    source = ensure_usage_views()
+    st.session_state["usage_source"] = source
+    connected = not needs_setup(source)
+    if connected:
+        label = humanize_source(source) or "Cortex metering"
+        message = f"Connected to live usage ({label}). Recommendations now use your account."
+    elif sanitize_source_token(source) == "ENSURE_FAILED":
+        message = (
+            "Connect failed while creating app views. Check warehouse status, "
+            "then try again. If it persists, open Getting started."
+        )
+    else:
+        message = (
+            "Still on preview sample. The app does not have "
+            "IMPORTED PRIVILEGES ON DATABASE SNOWFLAKE yet. "
+            "Run the GRANT in a Worksheet as ACCOUNTADMIN, then click Connect again."
+        )
+    result = {
+        "connected": connected,
+        "source": source,
+        "message": message,
+    }
+    st.session_state["last_connect_result"] = result
+    return result
+
+
+def last_connect_result() -> dict[str, Any] | None:
+    raw = st.session_state.get("last_connect_result")
+    return dict(raw) if isinstance(raw, dict) else None
 
 
 def init_usage_session(*, force: bool = False) -> None:
@@ -386,11 +442,15 @@ def mode_banner(mode: DataMode) -> None:
             )
         return
     if mode == "preview":
-        st.caption(
-            "Showing **sample** usage so you can evaluate recommendations and charts "
-            "before connecting ACCOUNT_USAGE. After GRANT + Connect, the same screens "
-            "switch to your live Cortex metering."
+        st.info(
+            "**Preview mode (sample data).** Numbers and recommendations are synthetic "
+            "so you can evaluate the product. They are **not** your account spend. "
+            "To go live: ACCOUNTADMIN runs the GRANT on Getting started, then click "
+            "**Connect live usage** (sidebar or below)."
         )
+        attempt = last_connect_result()
+        if attempt and not attempt.get("connected"):
+            st.warning(attempt.get("message") or "Connect did not find privileges yet.")
     elif mode == "sample":
         st.caption(
             "Privileges connected, but no Cortex rows in this window yet. Sample "

@@ -2,8 +2,8 @@ name: sf_env
 channels:
   - snowflake
 dependencies:
-  # Pin major ranges so Snowflake channel upgrades do not silently break the app.
-  - streamlit>=1.30,<2
-  - pandas>=2.0,<3
-  - snowflake-snowpark-python>=1.11,<2
-  - altair>=5.0,<6
+  # Warehouse/SiS Anaconda only accepts `=` pins and `*` ranges (not pip-style >=,<).
+  - streamlit=1.35.0
+  - pandas=2.*
+  - snowflake-snowpark-python=1.*
+  - altair=5.*
