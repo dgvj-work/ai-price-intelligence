@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import streamlit as st
 
+from charts import spend_trend_chart
 from screens.setup import render_connect_account
 from session_data import load_cortex_spend, load_cortex_top, load_metering, mode_banner
 from theme import hero, metric_strip, section, table
@@ -45,11 +46,7 @@ def render() -> None:
                 ]
             )
             section("Daily trend")
-            st.line_chart(
-                metering.groupby("DAY", as_index=False)["CREDITS"].sum(),
-                x="DAY",
-                y="CREDITS",
-            )
+            spend_trend_chart(metering.groupby("DAY", as_index=False)["CREDITS"].sum())
             table(metering, use_container_width=True, hide_index=True)
             st.caption("*USD estimate uses your sidebar $/credit. Not an invoice.")
             render_connect_account()
@@ -69,7 +66,7 @@ def render() -> None:
     if not spend.empty:
         daily = spend.groupby("DAY", as_index=False)["CREDITS"].sum()
         section("Daily trend")
-        st.line_chart(daily, x="DAY", y="CREDITS")
+        spend_trend_chart(daily)
 
     section("Top functions / models")
     if top.empty:

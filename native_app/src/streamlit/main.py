@@ -15,7 +15,7 @@ from session_data import (
     needs_setup,
     persist_credit_price,
 )
-from theme import apply_theme
+from theme import apply_theme, brand_header
 
 st.set_page_config(
     page_title="Cortex Cost Advisor",
@@ -38,9 +38,8 @@ def main() -> None:
     apply_theme()
 
     with st.sidebar:
-        st.markdown("### Cortex Cost Advisor")
+        brand_header()
         st.caption(f"v{APP_VERSION}")
-        st.caption("Recommendations, not just reports")
 
         # Thin ACCOUNT_USAGE views are (re)bound silently once per session.
         init_usage_session()
@@ -103,10 +102,9 @@ def main() -> None:
                 st.rerun()
 
         st.divider()
-        st.caption("For FinOps / platform teams")
-        st.markdown("Decide which Cortex models to allow or migrate.")
-        st.caption("Publisher: Digvijay Vaghela")
-        st.caption(SUPPORT_EMAIL)
+        st.caption("Publisher")
+        st.markdown("Digvijay Vaghela")
+        st.markdown(f"[{SUPPORT_EMAIL}](mailto:{SUPPORT_EMAIL})")
         st.markdown(f"[GitHub Discussions]({SUPPORT_URL})")
 
     PAGES[page]()

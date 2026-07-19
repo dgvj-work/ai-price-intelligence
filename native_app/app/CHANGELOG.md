@@ -1,5 +1,15 @@
 # Cortex Cost Advisor changelog
 
+## 1.2.0 - 2026-07-19
+
+Visual identity beyond default Streamlit alerts:
+
+- Branded **Altair** spend trend + switch-savings charts (teal palette; falls back if Altair missing).
+- Sidebar **logo** mark + clearer publisher contact (mailto link, not a form field).
+- Primary recommendation: bordered panel with savings metrics (not `st.success` chrome).
+- Secondary findings: compact bordered panels (visually quieter than primary).
+- Declare `altair` in Streamlit `environment.yml`.
+
 ## 1.1.9 - 2026-07-19
 
 Safe visual identity (no `unsafe_allow_html`):

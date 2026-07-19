@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import streamlit as st
 
+from charts import switch_savings_bars
 from insights import build_advisor_pack
 from screens.setup import render_connect_account
 from session_data import (
@@ -107,10 +108,26 @@ def render() -> None:
         )
     )
 
+    switches = pack.get("switches") or []
+    if switches:
+        section("Top switch savings", "Ranked list-rate scenarios for this window.")
+        bar_rows = []
+        for insight in switches[:6]:
+            meta = getattr(insight, "meta", None) or {}
+            frm = meta.get("from_model", "?")
+            to = meta.get("to_model", "?")
+            bar_rows.append(
+                {
+                    "label": f"{frm} -> {to}",
+                    "usd": float(getattr(insight, "savings_usd", 0) or 0),
+                    "credits": float(getattr(insight, "savings_credits", 0) or 0),
+                }
+            )
+        switch_savings_bars(bar_rows)
+
     if pack["secondary"]:
-        section("More findings", "Additional signals behind the primary recommendation.")
+        section("More findings", "Supporting signals (compact). Primary recommendation is above.")
         secondary = pack["secondary"][:6]
-        # Pair findings for a calmer scan; odd last item spans full width.
         for i in range(0, len(secondary), 2):
             left, right = st.columns(2)
             with left:

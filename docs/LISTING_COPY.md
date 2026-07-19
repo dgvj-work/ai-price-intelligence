@@ -103,7 +103,7 @@ Ranked Cortex model-switch savings, spend spikes, and price context. FinOps deci
 
 ### Description
 
-**Cortex Cost Advisor** (v1.1.6) is for FinOps / platform teams deciding **which Cortex models to allow or migrate**.
+**Cortex Cost Advisor** (v1.2.0) is for FinOps / platform teams deciding **which Cortex models to allow or migrate**.
 
 On first open, **Advisor** leads with recommendations such as:
 "Switch model A -> B: save ~X credits (~$Y est.)", plus concentration risk, spend-spike detection, and a simple forward estimate. Preview mode uses sample usage so you see the product before granting privileges.

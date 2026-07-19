@@ -53,7 +53,7 @@ New teammates: open the sidebar tab **Getting started** for the setup walkthroug
 
 Publisher: **Digvijay Vaghela**  
 Support: [GitHub Discussions]({SUPPORT_URL})  
-Email: {SUPPORT_EMAIL}  
+Contact: [{SUPPORT_EMAIL}](mailto:{SUPPORT_EMAIL})  
 Repo: https://github.com/dgvj-work/ai-price-intelligence  
 SLA: best-effort community support (free listing; no contractual uptime SLA in v{APP_VERSION})
 

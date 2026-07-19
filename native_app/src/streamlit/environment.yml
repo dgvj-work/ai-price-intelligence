@@ -5,3 +5,4 @@ dependencies:
   - streamlit
   - pandas
   - snowflake-snowpark-python
+  - altair

@@ -293,11 +293,11 @@ Version: **v{APP_VERSION}** | Support: [GitHub Discussions]({SUPPORT_URL}) | [So
             )
         with c2:
             st.link_button(
-                f"Email {SUPPORT_EMAIL}",
+                "Email publisher",
                 f"mailto:{SUPPORT_EMAIL}?subject=Cortex%20Cost%20Advisor%20-%20hello",
                 use_container_width=True,
             )
-        st.caption(f"Publisher email: `{SUPPORT_EMAIL}`")
+        st.markdown(f"Contact: [{SUPPORT_EMAIL}](mailto:{SUPPORT_EMAIL})")
         st.caption(
             "Tip for FinOps teams: say which company/account you installed on. "
             "That helps prioritize features. Marketplace install analytics also appear "

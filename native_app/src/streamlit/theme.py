@@ -6,16 +6,32 @@ Brand colors live in `.streamlit/config.toml` (primary teal / cool neutrals).
 from __future__ import annotations
 
 from contextlib import contextmanager
+from pathlib import Path
 from typing import Iterator
 
 import streamlit as st
 
 BRAND = "Cortex Cost Advisor"
+_LOGO = Path(__file__).resolve().parent / "assets" / "logo.png"
 
 
 def apply_theme() -> None:
     """Theme is applied via `.streamlit/config.toml` at runtime."""
     return
+
+
+def brand_header(*, compact: bool = False) -> None:
+    """Sidebar / page brand mark + name."""
+    cols = st.columns([1, 4] if not compact else [1, 5])
+    with cols[0]:
+        if _LOGO.is_file():
+            st.image(str(_LOGO), width=40 if compact else 48)
+        else:
+            st.markdown("◈")
+    with cols[1]:
+        st.markdown(f"**{BRAND}**")
+        if not compact:
+            st.caption("FinOps recommendations for Cortex")
 
 
 @contextmanager
@@ -46,34 +62,43 @@ def section(title: str, subtitle: str | None = None) -> None:
 
 
 def recommendation_card(insight, *, lead: bool = False) -> None:
+    """
+    Primary: full bordered panel + savings metrics (distinct from Streamlit alerts).
+    Secondary: compact bordered panel with severity caption only.
+    """
     sev = insight.severity if insight.severity in ("high", "medium", "info") else "info"
     tag = "Primary recommendation" if lead else insight.kind.replace("_", " ").title()
     sev_label = {"high": "High impact", "medium": "Worth review", "info": "Context"}[sev]
 
-    meta_bits: list[str] = []
-    if getattr(insight, "savings_credits", None) is not None:
-        meta_bits.append(f"~{insight.savings_credits:,.2f} credits")
-    if getattr(insight, "savings_usd", None) is not None:
-        meta_bits.append(f"~${insight.savings_usd:,.0f} est.")
-    meta = (" | ".join(meta_bits) + "\n\n") if meta_bits else ""
+    credits = getattr(insight, "savings_credits", None)
+    usd = getattr(insight, "savings_usd", None)
 
-    body = (
-        f"**{tag}**  ·  {sev_label}\n\n"
-        f"**{insight.headline}**\n\n"
-        f"{insight.detail}"
-    )
-    # Prefer ASCII separator (avoid middle-dot AI tell)
-    body = body.replace("  ·  ", " | ")
-    if meta_bits:
-        body = f"{body}\n\n{meta.strip()}"
+    if lead:
+        with panel(border=True):
+            st.caption(f"{tag}  |  {sev_label}")
+            st.markdown(f"### {insight.headline}")
+            st.write(insight.detail)
+            if credits is not None or usd is not None:
+                m1, m2 = st.columns(2)
+                if credits is not None:
+                    m1.metric("Credits you could save", f"{credits:,.2f}")
+                if usd is not None:
+                    m2.metric("USD estimate", f"${usd:,.0f}")
+            st.caption("List-rate scenario. Validate quality before changing production models.")
+        return
 
-    # Severity color via native Streamlit alerts (theme primary tints widgets).
-    if sev == "high" or lead:
-        st.success(body)
-    elif sev == "medium":
-        st.warning(body)
-    else:
-        st.info(body)
+    # Secondary: quieter, no alert chrome
+    with panel(border=True):
+        st.caption(f"{tag}  |  {sev_label}")
+        st.markdown(f"**{insight.headline}**")
+        st.caption(insight.detail)
+        bits: list[str] = []
+        if credits is not None:
+            bits.append(f"~{credits:,.2f} credits")
+        if usd is not None:
+            bits.append(f"~${usd:,.0f} est.")
+        if bits:
+            st.caption(" | ".join(bits))
 
 
 def metric_strip(items: list[tuple[str, str, str | None]]) -> None:
