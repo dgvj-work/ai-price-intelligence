@@ -6,13 +6,14 @@ Brand colors live in `.streamlit/config.toml` (primary teal / cool neutrals).
 from __future__ import annotations
 
 from contextlib import contextmanager
-from pathlib import Path
+from io import BytesIO
 from typing import Iterator
 
 import streamlit as st
 
+from _logo_bytes import LOGO_PNG
+
 BRAND = "Cortex Cost Advisor"
-_LOGO = Path(__file__).resolve().parent / "assets" / "logo.png"
 
 
 def apply_theme() -> None:
@@ -21,12 +22,16 @@ def apply_theme() -> None:
 
 
 def brand_header(*, compact: bool = False) -> None:
-    """Sidebar / page brand mark + name."""
+    """Sidebar / page brand mark + name.
+
+    Logo is embedded as PNG bytes so Native App / stage deploys never show a
+    broken image (symlink or missing file paths are common on SiS stages).
+    """
     cols = st.columns([1, 4] if not compact else [1, 5])
     with cols[0]:
-        if _LOGO.is_file():
-            st.image(str(_LOGO), width=40 if compact else 48)
-        else:
+        try:
+            st.image(BytesIO(LOGO_PNG), width=40 if compact else 48)
+        except Exception:  # noqa: BLE001
             st.markdown("◈")
     with cols[1]:
         st.markdown(f"**{BRAND}**")
