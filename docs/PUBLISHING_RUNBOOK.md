@@ -90,38 +90,58 @@ SELECT COUNT(*) FROM AI_PRICE_INTEL.SHARE.VW_MODEL_CURRENT;
 6. Private share to a second test account first (`ALTER SHARE ... ADD ACCOUNTS = ...`) and validate selects.
 7. Submit for Marketplace review / publish.
 
-## 5) Native app — local + security scan
+## 5) Native app: local + security scan
 
 ```bash
 cd native_app
-snow app run
-# or: snow app deploy
+snow app run -c ai_price
+# or: snow app deploy -c ai_price
 ```
 
-Set package distribution external to trigger automated security scan:
+### Named version + DEFAULT release directive (done for v1.1.6)
 
-```sql
-ALTER APPLICATION PACKAGE cortex_cost_advisor_pkg
-  SET DISTRIBUTION = EXTERNAL;
-```
-
-Then:
-
-1. Push a **named** version/patch (required for Marketplace; `UNVERSIONED` is only for local `snow app run` debug):
+Marketplace consumers install from a **named** version (not stage/`UNVERSIONED` from `snow app run`):
 
 ```bash
 cd native_app
 snow app deploy -c ai_price
-snow app version create v1_1_2 -c ai_price --label "1.1.2" --skip-git-check --force --no-interactive
-snow app release-directive set DEFAULT -c ai_price --version v1_1_2 --patch 0
+snow app version create V1_1_6 -c ai_price --label "1.1.6" --skip-git-check --force --no-interactive
 ```
 
+```sql
+ALTER APPLICATION PACKAGE CORTEX_COST_ADVISOR_PKG
+  MODIFY RELEASE CHANNEL DEFAULT ADD VERSION V1_1_6;
+
+ALTER APPLICATION PACKAGE CORTEX_COST_ADVISOR_PKG
+  MODIFY RELEASE CHANNEL DEFAULT
+  SET DEFAULT RELEASE DIRECTIVE VERSION = V1_1_6 PATCH = 0;
+
+-- Optional cleanup of unused versions (release-channels packages):
+ALTER APPLICATION PACKAGE CORTEX_COST_ADVISOR_PKG DEREGISTER VERSION V1_1_2;
+```
+
+Current package state: **DEFAULT** and **ALPHA** directives point at **V1_1_6** patch 0.
+
+### EXTERNAL distribution (security scan)
+
+```sql
+ALTER APPLICATION PACKAGE CORTEX_COST_ADVISOR_PKG
+  SET DISTRIBUTION = EXTERNAL;
+```
+
+**Hard blocker on trial accounts:** Snowflake returns `093171` (cannot set EXTERNAL in trial orgs/accounts). Use a **non-trial provider account** (or convert the trial), then re-run the statement and wait for `review_status = APPROVED`.
+
+Note: a local `snow app run` install stays stage-based and cannot `UPGRADE USING VERSION`. Validate Marketplace path by installing from the release directive on a second account.
+
+Then:
+
+1. On a non-trial account: set `DISTRIBUTION = EXTERNAL` and wait for security APPROVED.
 2. **Private share** the app to a second test account.
-3. Install on the test account from the release directive (not an `UNVERSIONED` debug install). Grant **Imported Privileges on SNOWFLAKE DB**, open Streamlit, use **Connect live usage** / reopen the app (views bind on session). Verify **Advisor** preview → connect → live (empty Cortex spend is OK).
+3. Install from the release directive (not an `UNVERSIONED` debug install). Grant **Imported Privileges on SNOWFLAKE DB**, open Streamlit, use **Connect live usage** / reopen the app. Verify **Getting started** + **Advisor** preview -> connect -> live (empty Cortex spend is OK).
 4. Optionally mount the data listing and bind references:
-   - `price_intel_model_current` → `…SHARE.VW_MODEL_CURRENT`
-   - `price_intel_cortex_current` → `…SHARE.VW_CORTEX_CURRENT`
-   - `price_intel_price_changes` → `…SHARE.VW_PRICE_CHANGES_90D`
+   - `price_intel_model_current` -> `<PRICE_DB>.SHARE.VW_MODEL_CURRENT`
+   - `price_intel_cortex_current` -> `<PRICE_DB>.SHARE.VW_CORTEX_CURRENT`
+   - `price_intel_price_changes` -> `<PRICE_DB>.SHARE.VW_PRICE_CHANGES_90D`
 5. Set a Streamlit query warehouse in Snowsight if the app prompts for one.
 6. Submit the **app listing** (Listing B copy). Emphasize the privacy paragraph.
 
