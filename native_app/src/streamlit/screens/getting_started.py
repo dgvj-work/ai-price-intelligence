@@ -55,7 +55,7 @@ def render() -> None:
             st.info(
                 "**Preview mode is working.** Advisor / Switches / charts use **synthetic sample** "
                 "usage so you can evaluate the product before any privilege grant. "
-                "That is intentional — not a broken install."
+                "That is intentional, not a broken install."
             )
             attempt = last_connect_result()
             if attempt and not attempt.get("connected"):
@@ -74,21 +74,44 @@ def render() -> None:
                 "Optional price-dataset binds are still available under section 6."
             )
 
+    section(
+        "What privilege do you need? (read this first)",
+        "One statement. Outside this app. Connect cannot do it for you.",
+    )
+    st.markdown(
+        """
+**For live Cortex metering, grant exactly this (once):**
+
+`GRANT IMPORTED PRIVILEGES ON DATABASE SNOWFLAKE TO APPLICATION CORTEX_COST_ADVISOR;`
+
+| Question | Answer |
+|----------|--------|
+| **What** | **IMPORTED PRIVILEGES** on Snowflake's shared **SNOWFLAKE** database, **to the application** (not to a user) |
+| **Who** | **ACCOUNTADMIN** (or a role that can grant on DATABASE SNOWFLAKE) |
+| **Where** | Snowsight **Projects -> Worksheets** with that role active, then run the SQL |
+| **What Connect does** | Only rebinds app views **after** the GRANT exists. **Connect cannot grant privileges.** |
+| **Your DBs / tables** | **Nothing.** No grants on consumer databases, schemas, or tables |
+| **QUERY_HISTORY / SQL text** | **Never requested** |
+| **Why this shape** | Native Apps cannot take a grant on a single ACCOUNT_USAGE view; imported privileges is Snowflake's supported pattern |
+
+Rename the app name in the GRANT if you installed under a different name.
+        """
+    )
+    st.code(GRANT_SQL, language="sql")
+
     section("Privilege map", "Required vs optional vs automatic vs never requested.")
     st.markdown(
         """
 | Layer | What you grant | Required? | Who runs it |
 |-------|----------------|-----------|-------------|
-| Snowflake shared DB | IMPORTED PRIVILEGES ON DATABASE SNOWFLAKE to the application | Yes (for live usage) | ACCOUNTADMIN (or a role that can grant on SNOWFLAKE) |
+| Snowflake shared DB | IMPORTED PRIVILEGES ON DATABASE SNOWFLAKE to the application | Yes (for live usage) | ACCOUNTADMIN in a Worksheet |
 | Your databases / schemas / tables | Nothing | No | - |
 | App schema objects | Nothing (granted to application role APP_USER at install) | Automatic | Setup script |
 | Query warehouse | USAGE on a warehouse for the role opening Streamlit | Yes (to run the UI) | Platform admin |
 | Price Intelligence listing | Install listing + bind 3 views (SELECT via references) | Optional | Admin who installed the data listing |
 | Network / external access / tasks | Nothing requested | Never | - |
 
-Native Apps cannot accept a grant on a single ACCOUNT_USAGE view. The one
-IMPORTED PRIVILEGES grant is the supported Snowflake pattern. This app only
-reads the Cortex / AI metering objects listed below. Never QUERY_HISTORY,
+This app only reads the Cortex / AI metering objects listed below. Never QUERY_HISTORY,
 never SQL text, never your business tables.
         """
     )
@@ -106,7 +129,19 @@ No database, schema, or table privileges are needed for preview.
         """
     )
 
-    section("2. Required: connect live Cortex usage", "One grant unlocks live metering.")
+    section(
+        "2. Required: connect live Cortex usage",
+        "Worksheet GRANT first, then Connect in the app.",
+    )
+    st.markdown(
+        """
+**Two steps (order matters):**
+
+1. **Outside the app:** run the GRANT in a Worksheet as **ACCOUNTADMIN** (see callout above).
+2. **In the app:** click **Connect live usage** so views rebind. If you skip step 1, Connect
+   correctly stays on preview and tells you privileges are still missing.
+        """
+    )
     st.caption("Replace the application name if you renamed it at install.")
     if preview:
         render_connect_account()

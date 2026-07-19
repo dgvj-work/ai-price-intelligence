@@ -3,7 +3,7 @@ manifest_version: 1
 version:
   name: v1_2_5
   label: "1.2.5"
-  comment: "Clearer preview vs live status; Connect shows GRANT-needed feedback"
+  comment: "Privilege callout: one GRANT, Connect cannot self-grant"
 
 artifacts:
   setup_script: setup_script.sql

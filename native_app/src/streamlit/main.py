@@ -133,7 +133,9 @@ def main() -> None:
         if needs_setup(source):
             st.divider()
             st.markdown("#### Connect live data")
-            st.caption("Step 1: run GRANT in a Worksheet (ACCOUNTADMIN)")
+            st.caption(
+                "Connect cannot grant privileges. Step 1 must be a Worksheet as ACCOUNTADMIN."
+            )
             st.code(GRANT_SQL, language="sql")
             if st.button("Step 2: Connect live usage", use_container_width=True, type="primary"):
                 result = connect_live_usage()
