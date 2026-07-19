@@ -91,11 +91,11 @@ ORDER BY CHANGED_AT DESC;
 Cortex Cost Advisor
 
 ### Subtitle
-Free, read-only Streamlit app: your Cortex spend, model-switch savings, and price-change alerts.
+Ranked Cortex model-switch savings, spend spikes, and price context — FinOps decisions, not another credit chart.
 
 ### Category / tags (suggestions)
 - Category: AI & ML / Cost Management
-- Tags: `cortex`, `finops`, `native-app`, `streamlit`, `read-only`
+- Tags: `cortex`, `finops`, `native-app`, `recommendations`, `read-only`
 
 ### Listing images (attach in Provider Studio)
 - `docs/screenshots/app-overview.png`
@@ -103,25 +103,26 @@ Free, read-only Streamlit app: your Cortex spend, model-switch savings, and pric
 
 ### Description
 
-**Cortex Cost Advisor** (v1.0.1) turns Snowflake account-usage metadata into a clear AI spend picture — without sending anything outside your account. On first open it shows **labeled preview charts** (sample Cortex spend) so consumers see value immediately; admins then use **Connect live usage** (grant SQL + one click) to switch to ACCOUNT_USAGE.
+**Cortex Cost Advisor** (v1.1.0) is for FinOps / platform teams deciding **which Cortex models to allow or migrate**.
 
-**Pages**
+On first open, **Advisor** leads with recommendations such as:  
+“Switch model A → B: save ~X credits (~$Y est.)” — plus concentration risk, spend-spike detection, and a simple forward estimate. Preview mode uses sample usage so you see the product before granting privileges.
 
-1. **Overview** — Cortex credits + USD estimate (you set credit price; default $3.00), trend, top functions/models, 30/60/90-day windows. Notes ACCOUNT_USAGE lag (~45 minutes).
-2. **Model Advisor** — for models you actually use, estimate credits if the same tokens ran on alternative Cortex models. Uses bound Marketplace dataset references when available; otherwise a bundled snapshot.
-3. **Price Watch** — recent price changes, flagged when they overlap your active models.
-4. **About / Trust** — security & permissions: why `IMPORTED PRIVILEGES ON SNOWFLAKE DB` is required, what is read, and what never happens.
+**Not a Snowsight clone.** Account credit rollups stay in Snowflake’s native cost UI. This app adds same-token **switch scenarios**, Cortex-only anomaly/concentration signals, and **Price Watch** against public list moves.
+
+**Pages:** Advisor · Switches · Price Watch · Spend detail · Trust  
+
+USD figures use **your** entered $/credit (apps cannot read contracted rates). Analysis window up to **365 days**.
 
 ### Privacy / trust (prominently display)
 
-> This app is **read-only** and **self-contained**. It requests **Imported Privileges on the SNOWFLAKE database** so it can read Cortex AI function usage + metering views inside your account. Snowflake Native Apps do not support granting a single ACCOUNT_USAGE view; this privilege is the documented mechanism.  
-> It does **not** read QUERY_HISTORY / SQL text.  
-> It does **not** use external access integrations, external functions, network calls, Snowpark Container Services, or telemetry.  
-> It does **not** write outside the application’s own schema.  
-> Nothing leaves your Snowflake account. Application code is un-obfuscated and inspectable.  
-> Queries are capped at 90 days. ACCOUNT_USAGE can lag live activity by up to ~45 minutes.
+> Read-only. Requests **Imported Privileges on SNOWFLAKE** to read Cortex AI usage + AI/Cortex metering (Native Apps cannot take a single-view grant).  
+> Does **not** read QUERY_HISTORY / SQL text.  
+> No network, external access, SPCS, or telemetry.  
+> Un-obfuscated source. Preview recommendations before granting.  
+> ACCOUNT_USAGE can lag ~45 minutes.
 
-Optional: bind Marketplace dataset references (`VW_MODEL_CURRENT`, `VW_CORTEX_CURRENT`, `VW_PRICE_CHANGES_90D`) for live weekly prices. Without bindings, the app still works using a bundled snapshot.
+Optional: bind Marketplace price dataset views for weekly rates; otherwise bundled snapshot.
 
 **Support:** digvijay.vaghela@yahoo.com  
 **Source:** https://github.com/dgvj-work/ai-price-intelligence

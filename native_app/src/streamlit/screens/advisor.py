@@ -1,0 +1,136 @@
+"""Advisor home — lead with recommendations, not raw credit tables."""
+
+from __future__ import annotations
+
+import streamlit as st
+
+from insights import build_advisor_pack
+from screens.setup import render_connect_account
+from session_data import (
+    APP_VERSION,
+    load_cortex_spend,
+    load_ref_cortex_current,
+    load_snapshot,
+    load_usage_by_model,
+    mode_banner,
+)
+from theme import hero, recommendation_card
+
+
+def _cortex_price_table():
+    prices = load_ref_cortex_current()
+    if not prices.empty:
+        return prices, True
+    snap = load_snapshot()
+    cortex = snap[snap["row_type"] == "cortex"].copy()
+    if cortex.empty:
+        return cortex, False
+    # Select only Cortex rate columns — CSV also has empty LLM columns that collide on rename.
+    return (
+        cortex[["cortex_function", "cortex_model", "credits_per_1m_tokens"]]
+        .rename(
+            columns={
+                "cortex_function": "FUNCTION_NAME",
+                "cortex_model": "MODEL_NAME",
+                "credits_per_1m_tokens": "CREDITS_PER_1M_TOKENS",
+            }
+        ),
+        False,
+    )
+
+
+def render() -> None:
+    hero(
+        "Stop guessing which Cortex model is burning budget",
+        "This is not another credit report. We rank model-switch savings, flag "
+        "concentration and spend spikes, and estimate forward Cortex cost — decisions "
+        "Snowsight rollups do not make for you.",
+        kicker=f"Advisor · v{APP_VERSION}",
+    )
+
+    days = int(st.session_state.get("days", 90))
+    credit_price = float(st.session_state.get("credit_price_usd", 3.0))
+
+    usage, mode = load_usage_by_model(days)
+    spend, _ = load_cortex_spend(days)
+    prices, from_dataset = _cortex_price_table()
+    snap = load_snapshot()
+    llm = snap[snap["row_type"] == "llm"] if not snap.empty else snap
+
+    mode_banner(mode)
+
+    pack = build_advisor_pack(
+        usage=usage,
+        spend=spend,
+        cortex_prices=prices,
+        llm_snapshot=llm,
+        credit_price=credit_price,
+    )
+
+    primary = pack["primary"]
+    if primary is not None:
+        recommendation_card(primary, lead=True)
+    else:
+        st.markdown(
+            """
+<div class="cca-rec info">
+  <div class="cca-tag">Status</div>
+  <h3>No switch savings above threshold in this window</h3>
+  <p>Either usage is already on efficient models, or rates/usage are sparse.
+  Check Spend for detail and Price Watch for external list moves.</p>
+</div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    # Decision metrics — advice-shaped, not vanity charts first
+    c1, c2, c3 = st.columns(3)
+    c1.metric(
+        "Identified switch savings (est. USD)",
+        f"${pack['total_switch_savings_usd']:,.0f}",
+        help="Sum of ranked list-rate switch scenarios ≥15% cheaper. Estimate only.",
+    )
+    c2.metric(
+        "Switch opportunities",
+        f"{len(pack['switches'])}",
+        help="Models where an alternate Cortex list rate beats your effective spend.",
+    )
+    total_credits = float(usage["CREDITS"].sum()) if not usage.empty else 0.0
+    c3.metric(
+        f"Cortex credits ({days}d)",
+        f"{total_credits:,.1f}",
+        help="Context only. USD elsewhere uses your contract $/credit input.",
+    )
+
+    st.caption(
+        f"USD figures use your sidebar rate (${credit_price:.2f}/credit) — "
+        "Snowflake does not expose contracted credit prices to apps. "
+        "These are planning estimates, not invoices. "
+        + (
+            "Rates: Marketplace dataset."
+            if from_dataset
+            else "Rates: bundled Cortex credit snapshot."
+        )
+    )
+
+    if pack["secondary"]:
+        st.subheader("More findings")
+        for insight in pack["secondary"][:6]:
+            recommendation_card(insight)
+
+    with st.expander("How this differs from raw SQL / Snowsight"):
+        st.markdown(
+            """
+| What you can do alone | What Advisor adds |
+|----------------------|-------------------|
+| `SELECT` credits from ACCOUNT_USAGE | **Ranked switch recommendations** with $ impact |
+| Snowsight account credit charts | **Concentration + spike detection** on Cortex only |
+| Manual spreadsheet model compare | **Same-token scenarios** against Cortex list rates |
+| Nothing built-in for public LLM moves | **Price Watch** overlap against models you used |
+
+Buyer: FinOps / platform engineers deciding **which Cortex models to allow or migrate**.  
+Decision: “Cut or reallocate Cortex spend without reading query history.”
+            """
+        )
+
+    render_connect_account()

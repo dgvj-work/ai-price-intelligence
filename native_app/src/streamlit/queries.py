@@ -1,4 +1,4 @@
-"""All SQL isolated here. History capped at 90 days in app views + day window."""
+"""All SQL isolated here. App views retain up to 365 days; UI applies the day window."""
 
 from __future__ import annotations
 

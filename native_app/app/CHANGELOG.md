@@ -1,16 +1,21 @@
 # Cortex Cost Advisor changelog
 
+## 1.1.0 — 2026-07-19
+
+Product rethink — **advisor, not report**:
+
+- New **Advisor** home: ranked model-switch savings, concentration risk, spend spikes, forward estimate, price-move context.
+- Recommendation engine (`insights.py`) — logic beyond raw ACCOUNT_USAGE SELECT.
+- Navigation: Advisor → Switches → Price Watch → Spend detail → Trust.
+- Analysis window up to **365 days** (views + UI).
+- Credit rate input reframed as **your contract $/credit** (estimates only; apps cannot read negotiated rates).
+- Silent session bind of passthrough views; removed “refresh” as a primary product control.
+- Custom FinOps styling; Trust page answers buyer / moat / privilege questions.
+
 ## 1.0.1 — 2026-07-19
 
-Marketplace quality release:
-
-- **Preview mode** with sample Cortex spend so Overview / Model Advisor / Price Watch show value on first open (before privileges).
-- Guided **Connect your account** flow with copy-paste GRANT SQL (no error-only empty state).
-- Removed consumer-visible internal labels (`EMPTY_STUB` and similar).
-- Auto-refresh ACCOUNT_USAGE views on session start; manual refresh moved under Advanced.
-- Clear **why this vs Snowsight**, security matrix, publisher/support/update cadence on About / Trust and sidebar.
-- Version label **1.0.1**.
+Preview-on-install sample data, guided connect, hide internal stubs, 1.0.x labeling.
 
 ## 1.0.0 — 2026-07-18
 
-Initial Marketplace-oriented package: setup panel, privilege description length fix, `default_streamlit` object path, version 1.0.0 labeling.
+Initial Marketplace-oriented package.

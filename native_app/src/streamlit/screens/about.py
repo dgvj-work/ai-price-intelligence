@@ -1,75 +1,74 @@
-"""About / Trust — credibility, security matrix, changelog pointer."""
+"""Trust — buyer, moat, security, and honest limitations."""
 
 from __future__ import annotations
 
 import streamlit as st
 
 from session_data import APP_VERSION
+from theme import hero
 
 
 def render() -> None:
-    st.title("About / Trust")
-    st.caption(f"Cortex Cost Advisor v{APP_VERSION} · Free · Read-only Native App")
+    hero(
+        "Trust & product intent",
+        "Why grant imported privileges — and what unique decision this app supports.",
+        kicker=f"Trust · v{APP_VERSION}",
+    )
 
     st.markdown(
-        """
-## Who built this
+        f"""
+## The three questions (answered)
 
-Independent open-source project by **Digvijay Vaghela**.  
-Repository (un-obfuscated source): https://github.com/dgvj-work/ai-price-intelligence  
-Support email: **digvijay.vaghela@yahoo.com** (best-effort response; no paid SLA in v1)
+### 1. Unique value vs raw SQL / Snowsight?
 
-**Update cadence:** App patches as needed; optional Marketplace price dataset refreshes **weekly**.  
-**Changelog:** see `CHANGELOG.md` in the application package / GitHub repo.
+Snowsight answers “how many credits did we burn?”  
+This app answers:
 
-## Why this app exists
+- **Which Cortex model should we migrate off** to cut spend (ranked switch savings)?
+- **Is spend dangerously concentrated** on one model?
+- **Which days spiked** vs your own median?
+- **What is a simple forward planning number** for the next 30 days?
+- **Did public list prices move** on models overlapping your usage?
 
-Snowflake already offers cost management, budgets, and resource monitors. Those tools
-answer “how many credits did the account burn?”  
+That recommendation pack is the product. Credit charts are evidence.
 
-Cortex Cost Advisor answers:
+### 2. Who is the buyer, and what decision?
 
-1. **Which Cortex functions/models** drove spend?
-2. **What if** the same tokens ran on a cheaper Cortex model? (**Model Advisor**)
-3. **Did public list prices move** on models we care about? (**Price Watch**)
+**Buyer:** FinOps lead or platform engineer owning Snowflake Cortex costs.  
+**Decision:** allow-list / migrate Cortex models and challenge AI spend without reading `QUERY_HISTORY`.
 
-## Security & permissions (read before granting)
+### 3. Why trust a Marketplace app with `IMPORTED PRIVILEGES`?
 
-### Required privilege
+| Control | Detail |
+|---------|--------|
+| Privilege | `IMPORTED PRIVILEGES ON DATABASE SNOWFLAKE` — Native Apps cannot take a single-view grant |
+| Reads | `CORTEX_AI_FUNCTIONS_USAGE_HISTORY` or `CORTEX_AISQL_USAGE_HISTORY`; AI/Cortex rows in `METERING_HISTORY` |
+| Window | Up to **365 days** (UI selectable) |
+| Never | `QUERY_HISTORY`, SQL text, network egress, SPCS, telemetry |
+| Writes | App schema only |
+| Code | Un-obfuscated on GitHub |
+| Preview | Evaluate recommendations on sample data **before** granting |
 
-`GRANT IMPORTED PRIVILEGES ON DATABASE SNOWFLAKE TO APPLICATION CORTEX_COST_ADVISOR;`
+Publisher: **Digvijay Vaghela** · digvijay.vaghela@yahoo.com  
+Repo: https://github.com/dgvj-work/ai-price-intelligence  
+SLA: best-effort email (free listing — no contractual uptime SLA in v{APP_VERSION})
 
-| Question | Answer |
-|----------|--------|
-| What is read? | `ACCOUNT_USAGE.CORTEX_AI_FUNCTIONS_USAGE_HISTORY` (preferred) or `CORTEX_AISQL_USAGE_HISTORY`; AI/Cortex-related rows from `METERING_HISTORY` |
-| Query window | Last **90 days** only |
-| QUERY_HISTORY / SQL text? | **Never** |
-| Customer tables? | **Never** (unless you optionally bind Marketplace price views) |
-| Data leaving Snowflake? | **No** — no network access, external functions, external access integrations, SPCS, or telemetry |
-| Writes? | Only objects inside the application’s own schemas |
-| Why whole SNOWFLAKE DB privilege? | Snowflake Native Apps do not support granting a single ACCOUNT_USAGE view to an app; this privilege is the documented, auditable mechanism |
+## Architecture (no manual “refresh product”)
 
-### Optional references
+Passthrough views over ACCOUNT_USAGE are created when privileges exist and rebound
+**silently on session start**. We intentionally do **not** require `EXECUTE TASK`
+to materialize history — that would expand the privilege surface. Streamlit caches
+query results briefly; reopen the app after new Cortex activity (ACCOUNT_USAGE lag ~45m).
 
-Bind views from **AI Model & Compute Price Intelligence** for live weekly prices.
-Without bindings, Model Advisor / Price Watch use a **bundled CSV snapshot** — the app
-works standalone.
+## Honest limitations
 
-### Preview mode
+- Switch savings use **list Cortex credit rates**, not your negotiated quality constraints.
+- USD requires **your** $/credit — Snowflake does not expose contracted rates to apps.
+- Not a substitute for Snowflake budgets / resource monitors for account-wide FinOps.
+- Forward estimate is trailing-average math, not a trained forecast model.
 
-Until the privilege is granted (or if Cortex has produced no rows yet), Overview /
-Model Advisor / Price Watch show **labeled sample data** so you can evaluate UX and
-value before approving account-level access. Sample data is never billed usage.
+## Changelog
 
-## What never happens
-
-- No egress from your Snowflake account  
-- No obfuscated application code  
-- No unbounded history scans  
-
-## Support expectations
-
-Email support for install, privilege, and data-binding questions. This free listing
-does not include a contractual uptime SLA.
+See `CHANGELOG.md` in the application package (v{APP_VERSION}).
         """
     )

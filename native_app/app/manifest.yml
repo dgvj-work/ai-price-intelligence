@@ -1,9 +1,9 @@
 manifest_version: 1
 
 version:
-  name: v1_0_1
-  label: "1.0.1"
-  comment: "Cortex Cost Advisor — preview-on-install, guided connect, read-only FinOps"
+  name: v1_1_0
+  label: "1.1.0"
+  comment: "Cortex Cost Advisor — insight-first switch recommendations & FinOps decisions"
 
 artifacts:
   setup_script: setup_script.sql

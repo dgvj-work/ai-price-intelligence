@@ -13,7 +13,7 @@ import queries
 
 SNAPSHOT_PATH = Path(__file__).resolve().parent / "data" / "price_snapshot.csv"
 
-APP_VERSION = "1.0.1"  # keep in sync with manifest.yml version.label
+APP_VERSION = "1.1.0"  # keep in sync with manifest.yml version.label
 
 # Internal procedure return values → never shown raw in the UI.
 _LIVE_SOURCES = {
@@ -212,18 +212,15 @@ def empty_state(message: str) -> None:
 
 def mode_banner(mode: DataMode) -> None:
     if mode == "preview":
-        st.info(
-            "**Preview mode** — sample Cortex spend so you can evaluate the product "
-            "immediately. Connect your account (section below) to replace this with live "
-            "ACCOUNT_USAGE data. Sample rows are not your billed usage."
+        st.caption(
+            "Showing **sample recommendations** so you can evaluate the product before "
+            "connecting ACCOUNT_USAGE. Connect when an admin has granted privileges."
         )
     elif mode == "sample":
-        st.info(
-            "**Connected — no Cortex rows in this window yet.** Showing sample charts so "
-            "the product stays usable. Run Cortex / AI functions, wait up to ~45 minutes "
-            "for ACCOUNT_USAGE lag, then reopen the app (views refresh automatically)."
+        st.caption(
+            "Privileges connected, but no Cortex rows in this window yet — sample "
+            "recommendations shown. ACCOUNT_USAGE can lag ~45 minutes after new AI calls."
         )
     else:
         label = humanize_source(st.session_state.get("usage_source"))
-        suffix = f" ({label})" if label else ""
-        st.success(f"**Live mode** — reading your account’s Cortex / AI metering{suffix}.")
+        st.caption(f"Live Cortex metering{f' · {label}' if label else ''}.")

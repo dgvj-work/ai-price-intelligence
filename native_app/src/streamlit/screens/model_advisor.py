@@ -1,10 +1,11 @@
-"""Model Advisor — switch scenarios (live usage or preview)."""
+"""Switch scenarios — full ranked table behind Advisor headlines."""
 
 from __future__ import annotations
 
 import pandas as pd
 import streamlit as st
 
+from insights import switch_recommendations
 from screens.setup import render_connect_account
 from session_data import (
     load_ref_cortex_current,
@@ -12,15 +13,15 @@ from session_data import (
     load_usage_by_model,
     mode_banner,
 )
+from theme import hero, recommendation_card
 
 
 def render() -> None:
-    st.title("Model Advisor")
-    st.markdown(
-        """
-**Differentiator vs Snowsight:** estimate credits if the **same token volume** had run
-on another Cortex model — planning you cannot get from platform credit rollups alone.
-        """
+    hero(
+        "Model switch scenarios",
+        "Same tokens, different Cortex list rates. Advisor surfaces the top savings; "
+        "this page is the full scenario matrix for FinOps review.",
+        kicker="Switches",
     )
 
     days = int(st.session_state.get("days", 90))
@@ -30,41 +31,42 @@ on another Cortex model — planning you cannot get from platform credit rollups
 
     cortex_prices = load_ref_cortex_current()
     using_dataset = not cortex_prices.empty
-
     if not using_dataset:
         snap = load_snapshot()
         cortex_prices = snap[snap["row_type"] == "cortex"].copy()
         if not cortex_prices.empty:
-            cortex_prices = cortex_prices.rename(
+            cortex_prices = cortex_prices[
+                ["cortex_function", "cortex_model", "credits_per_1m_tokens"]
+            ].rename(
                 columns={
                     "cortex_function": "FUNCTION_NAME",
                     "cortex_model": "MODEL_NAME",
                     "credits_per_1m_tokens": "CREDITS_PER_1M_TOKENS",
                 }
             )
-        st.caption(
-            "Rates from the bundled Cortex credit snapshot. Optionally bind the "
-            "AI Model & Compute Price Intelligence listing for weekly-refreshed rates."
-        )
+        st.caption("Using bundled Cortex credit rates (bind Marketplace dataset for weekly updates).")
     else:
-        st.caption("Rates from your bound Marketplace price dataset.")
+        st.caption("Using bound Marketplace Cortex rates.")
+
+    recs = switch_recommendations(usage, cortex_prices, credit_price)
+    if recs:
+        st.subheader("Ranked recommendations")
+        for insight in recs[:5]:
+            recommendation_card(insight)
+    else:
+        st.caption("No switch ≥15% cheaper than current effective spend in this window.")
 
     st.subheader("Usage basis")
-    usage = usage.copy()
-    usage["USD_EST"] = usage["CREDITS"] * credit_price
-    st.dataframe(usage, use_container_width=True)
-
-    st.subheader("Switch scenarios")
-    st.write(
-        "For each model in the table above, estimated credits if that token volume "
-        "ran on another Cortex COMPLETE / embedding model."
-    )
+    usage_view = usage.copy()
+    usage_view["USD_EST"] = usage_view["CREDITS"] * credit_price
+    st.dataframe(usage_view, use_container_width=True)
 
     if cortex_prices.empty:
-        st.info("No Cortex price table available in this install.")
+        st.caption("No Cortex rate table available.")
         render_connect_account()
         return
 
+    st.subheader("Full scenario matrix")
     cp = cortex_prices.copy()
     cp.columns = [c.upper() for c in cp.columns]
     rows: list[dict[str, object]] = []
@@ -93,13 +95,15 @@ on another Cortex model — planning you cannot get from platform credit rollups
                 }
             )
     if not rows:
-        st.info("Could not build scenarios from the current rate table.")
+        st.caption("Could not build scenarios.")
         render_connect_account()
         return
 
     scen = pd.DataFrame(rows)
     scen = scen[scen["YOUR_MODEL"].str.lower() != scen["ALT_MODEL"].str.lower()]
     st.dataframe(scen.sort_values("USD_DELTA"), use_container_width=True)
-    st.caption("Negative USD_DELTA means the alternate model would have been cheaper for that volume.")
-
+    st.caption(
+        "Negative USD_DELTA = cheaper alternate at list rates. "
+        "Validate quality before migrating. USD = estimate from your $/credit."
+    )
     render_connect_account()

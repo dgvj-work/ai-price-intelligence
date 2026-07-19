@@ -1,4 +1,4 @@
-"""Deterministic preview data so the app shows value before privileges are granted."""
+"""Deterministic preview data so Advisor shows recommendations before privileges."""
 
 from __future__ import annotations
 
@@ -6,11 +6,11 @@ from datetime import date, timedelta
 
 import pandas as pd
 
-# Synthetic but realistic Cortex usage for first-run preview.
+# Synthetic usage skewed so switch recommendations and spikes are visible in preview.
 _DEMO_MODELS = [
-    ("COMPLETE", "llama3.1-70b", 42_000_000, 18.14),
-    ("COMPLETE", "mistral-large2", 12_500_000, 15.00),
     ("COMPLETE", "claude-4-sonnet", 8_200_000, 14.76),
+    ("COMPLETE", "mistral-large2", 12_500_000, 15.00),
+    ("COMPLETE", "llama3.1-70b", 42_000_000, 18.14),
     ("EMBED_TEXT_768", "snowflake-arctic-embed-m", 95_000_000, 2.85),
 ]
 
@@ -35,28 +35,31 @@ def demo_cortex_top() -> pd.DataFrame:
 
 
 def demo_cortex_spend(days: int = 30) -> pd.DataFrame:
-    """Spread demo credits across recent days for a believable trend chart."""
-    days = max(7, min(int(days), 90))
+    """Spread demo credits across days; inject one spike for anomaly demos."""
+    days = max(14, min(int(days), 365))
     end = date.today()
     start = end - timedelta(days=days - 1)
     usage = demo_usage_by_model()
     total_credits = float(usage["CREDITS"].sum())
     total_tokens = float(usage["TOKENS"].sum())
 
-    # Weekday-weighted synthetic curve (Mon–Fri heavier).
     weights: list[float] = []
     day_list: list[date] = []
     cur = start
     while cur <= end:
         day_list.append(cur)
-        # Mon=0 … Sun=6
         w = 1.35 if cur.weekday() < 5 else 0.55
         weights.append(w)
         cur += timedelta(days=1)
-    wsum = sum(weights) or 1.0
 
+    # Spike ~5 days ago for anomaly insight.
+    spike_day = end - timedelta(days=5)
+    for i, d in enumerate(day_list):
+        if d == spike_day:
+            weights[i] *= 3.2
+
+    wsum = sum(weights) or 1.0
     rows: list[dict[str, object]] = []
-    # Allocate each model proportionally across days.
     for _, u in usage.iterrows():
         share_c = float(u["CREDITS"]) / total_credits if total_credits else 0.0
         share_t = float(u["TOKENS"]) / total_tokens if total_tokens else 0.0
