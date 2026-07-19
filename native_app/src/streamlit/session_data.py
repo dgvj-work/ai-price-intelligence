@@ -13,7 +13,7 @@ import queries
 
 SNAPSHOT_PATH = Path(__file__).resolve().parent / "data" / "price_snapshot.csv"
 
-APP_VERSION = "1.2.2"  # keep in sync with manifest.yml version.label
+APP_VERSION = "1.2.3"  # keep in sync with manifest.yml version.label
 
 # Single source of truth for consumer-facing support links.
 SUPPORT_URL = "https://github.com/dgvj-work/ai-price-intelligence/discussions"
@@ -92,6 +92,7 @@ def _set_load_error(key: str, message: str | None) -> None:
     errors = st.session_state.setdefault("data_load_errors", {})
     if message:
         errors[key] = message[:240]
+        record_diagnostic("load_error", f"{key}:{message[:200]}")
     else:
         errors.pop(key, None)
 
@@ -123,6 +124,32 @@ def init_usage_session(*, force: bool = False) -> None:
     )
 
 
+def _persist_setting(key: str, value: str) -> None:
+    session = _session()
+    if session is None:
+        return
+    try:
+        session.sql(queries.SQL_SET_SETTING, params=[key, value]).collect()
+    except Exception:  # noqa: BLE001
+        safe_key = key.replace("'", "")
+        safe_val = value.replace("'", "")
+        try:
+            session.sql(
+                f"""
+                MERGE INTO APP_SCHEMA.USER_SETTINGS t
+                USING (SELECT '{safe_key}' AS SETTING_KEY) s
+                ON t.SETTING_KEY = s.SETTING_KEY
+                WHEN MATCHED THEN UPDATE SET
+                  SETTING_VALUE = '{safe_val}',
+                  UPDATED_AT = CURRENT_TIMESTAMP()
+                WHEN NOT MATCHED THEN INSERT (SETTING_KEY, SETTING_VALUE, UPDATED_AT)
+                  VALUES ('{safe_key}', '{safe_val}', CURRENT_TIMESTAMP())
+                """
+            ).collect()
+        except Exception:  # noqa: BLE001
+            pass
+
+
 def load_persisted_credit_price(default: float = 3.0) -> float:
     session = _session()
     if session is None:
@@ -138,32 +165,63 @@ def load_persisted_credit_price(default: float = 3.0) -> float:
 
 def persist_credit_price(price: float) -> None:
     """Save $/credit using bound parameters (Marketplace-review friendly)."""
+    p = queries.clamp_credit_price(price)
+    _persist_setting("credit_price_usd", f"{p:.4f}")
+
+
+def load_persisted_min_savings_pct(default: float = 15.0) -> float:
+    """Return UI percent (e.g. 15.0 for 15%), not fraction."""
     session = _session()
     if session is None:
-        return
-    p = queries.clamp_credit_price(price)
+        return default
+    try:
+        rows = session.sql(
+            queries.SQL_GET_SETTING, params=["min_switch_savings_pct"]
+        ).collect()
+        if rows and rows[0][0] is not None:
+            return queries.clamp_min_savings_pct(float(rows[0][0]))
+    except Exception:  # noqa: BLE001
+        pass
+    return default
+
+
+def persist_min_savings_pct(pct: float) -> None:
+    p = queries.clamp_min_savings_pct(pct)
+    _persist_setting("min_switch_savings_pct", f"{p:.2f}")
+
+
+def record_diagnostic(event_type: str, detail: str) -> str | None:
+    """Log to APP_SCHEMA.DIAGNOSTICS (consumer account only; no egress)."""
+    session = _session()
+    code = f"CCA-{APP_VERSION}-{event_type[:32]}"
+    payload = f"{code}|{detail}"[:900]
+    st.session_state["last_diagnostic"] = payload
+    if session is None:
+        return payload
     try:
         session.sql(
-            queries.SQL_SET_CREDIT_PRICE,
-            params=["credit_price_usd", f"{p:.4f}"],
+            queries.SQL_INSERT_DIAGNOSTIC,
+            params=[event_type[:64], payload],
         ).collect()
     except Exception:  # noqa: BLE001
-        # Fallback for connectors that reject ? binds in MERGE USING.
-        try:
-            session.sql(
-                f"""
-                MERGE INTO APP_SCHEMA.USER_SETTINGS t
-                USING (SELECT 'credit_price_usd' AS SETTING_KEY) s
-                ON t.SETTING_KEY = s.SETTING_KEY
-                WHEN MATCHED THEN UPDATE SET
-                  SETTING_VALUE = TO_VARCHAR({p:.4f}),
-                  UPDATED_AT = CURRENT_TIMESTAMP()
-                WHEN NOT MATCHED THEN INSERT (SETTING_KEY, SETTING_VALUE, UPDATED_AT)
-                  VALUES ('credit_price_usd', TO_VARCHAR({p:.4f}), CURRENT_TIMESTAMP())
-                """
-            ).collect()
-        except Exception:  # noqa: BLE001
-            pass
+        pass
+    return payload
+
+
+def last_diagnostic() -> str | None:
+    cached = st.session_state.get("last_diagnostic")
+    if cached:
+        return str(cached)
+    session = _session()
+    if session is None:
+        return None
+    try:
+        rows = session.sql(queries.SQL_LATEST_DIAGNOSTIC).collect()
+        if rows and rows[0][3] is not None:
+            return str(rows[0][3])
+    except Exception:  # noqa: BLE001
+        pass
+    return None
 
 
 @st.cache_data(ttl=900, show_spinner="Loading Cortex usage...")
@@ -319,6 +377,13 @@ def mode_banner(mode: DataMode) -> None:
             "This is not empty usage; a query/timeout/schema error occurred. "
             "Retry later or check warehouse status."
         )
+        diag = last_diagnostic()
+        if diag:
+            st.code(diag, language=None)
+            st.caption(
+                "Copy the diagnostic string into a GitHub Discussion if you need help. "
+                "It stays in this app schema only (no external telemetry)."
+            )
         return
     if mode == "preview":
         st.caption(

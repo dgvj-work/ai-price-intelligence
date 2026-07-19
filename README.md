@@ -35,8 +35,8 @@ Illustrative listing images (attach in Provider Studio):
 
 - [Dataset — current model prices](docs/screenshots/dataset-model-current.png)
 - [Dataset — cost per MMLU point](docs/screenshots/cost-per-mmlu.png)
-- [App — Overview](docs/screenshots/app-overview.png)
-- [App — Model Advisor](docs/screenshots/app-model-advisor.png)
+- [App — Advisor](docs/screenshots/app-advisor.png)
+- [App — Switches](docs/screenshots/app-switches.png)
 
 Replace with live Snowsight captures after your first private-share install when possible.
 

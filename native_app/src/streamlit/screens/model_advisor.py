@@ -26,6 +26,7 @@ def render() -> None:
 
     days = int(st.session_state.get("days", 90))
     credit_price = float(st.session_state.get("credit_price_usd", 3.0))
+    min_savings_pct = float(st.session_state.get("min_switch_savings_pct", 15.0)) / 100.0
     usage, mode = load_usage_by_model(days)
     mode_banner(mode)
 
@@ -48,13 +49,18 @@ def render() -> None:
     else:
         st.caption("Using bound Marketplace Cortex rates.")
 
-    recs = switch_recommendations(usage, cortex_prices, credit_price)
+    recs = switch_recommendations(
+        usage, cortex_prices, credit_price, min_savings_pct=min_savings_pct
+    )
     if recs:
         section("Ranked recommendations", "Top list-rate switch scenarios for this window.")
         for insight in recs[:5]:
             recommendation_card(insight)
     else:
-        st.caption("No switch >=15% cheaper than current effective spend in this window.")
+        st.caption(
+            f"No switch >={min_savings_pct:.0%} cheaper than current effective "
+            "spend in this window (sidebar threshold)."
+        )
 
     section("Usage basis")
     usage_view = usage.copy()

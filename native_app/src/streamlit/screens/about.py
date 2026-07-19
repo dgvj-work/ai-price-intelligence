@@ -52,14 +52,25 @@ That recommendation pack is the product. Credit charts are evidence.
 New teammates: open the sidebar tab **Getting started** for the setup walkthrough.
 
 Publisher: **Digvijay Vaghela**  
-Support: [GitHub Discussions]({SUPPORT_URL})  
-Contact: [{SUPPORT_EMAIL}](mailto:{SUPPORT_EMAIL})  
+Primary support: [GitHub Discussions]({SUPPORT_URL}) (preferred; searchable for other consumers)  
+Contact email: [{SUPPORT_EMAIL}](mailto:{SUPPORT_EMAIL})  
 Repo: https://github.com/dgvj-work/ai-price-intelligence  
 SLA: best-effort community support (free listing; no contractual uptime SLA in v{APP_VERSION})
 
-This app does not phone home. After the Marketplace listing is published, the publisher
-sees install/usage analytics in Snowflake **Provider Studio** (company and account when
-Snowflake provides them), not from fields typed inside the app.
+This app does not phone home. Load failures can write a short diagnostic string to
+**APP_SCHEMA.DIAGNOSTICS** in your account only so you can paste it into Discussions.
+After the Marketplace listing is published, the publisher sees install/usage analytics
+in Snowflake **Provider Studio** (company and account when Snowflake provides them),
+not from fields typed inside the app.
+
+### Insight thresholds (documented defaults)
+
+| Signal | Default | Tunable |
+|--------|---------|---------|
+| Min switch savings | **15%** cheaper at list rates | Sidebar slider (persist) |
+| Concentration | One model **>55%** of Cortex credits | Documented constant |
+| Spend spike | Day **>=2.5x** median daily credits | Documented constant |
+| Forward estimate | Trailing **14d** average x **30** days | Documented constants |
 
 ## Architecture (no manual "refresh product")
 

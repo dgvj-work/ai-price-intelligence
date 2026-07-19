@@ -50,6 +50,7 @@ def render() -> None:
 
     days = int(st.session_state.get("days", 90))
     credit_price = float(st.session_state.get("credit_price_usd", 3.0))
+    min_savings_pct = float(st.session_state.get("min_switch_savings_pct", 15.0)) / 100.0
 
     usage, mode = load_usage_by_model(days)
     spend, _ = load_cortex_spend(days)
@@ -65,6 +66,7 @@ def render() -> None:
         cortex_prices=prices,
         llm_snapshot=llm,
         credit_price=credit_price,
+        min_savings_pct=min_savings_pct,
     )
 
     primary = pack["primary"]
@@ -87,7 +89,7 @@ def render() -> None:
             (
                 "Switch savings (est. USD)",
                 f"${pack['total_switch_savings_usd']:,.0f}",
-                "Sum of ranked list-rate switch scenarios >=15% cheaper. Estimate only.",
+                f"Sum of ranked list-rate switch scenarios >={min_savings_pct:.0%} cheaper. Estimate only.",
             ),
             (
                 "Switch opportunities",

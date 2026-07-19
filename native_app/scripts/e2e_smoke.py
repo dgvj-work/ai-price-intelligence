@@ -23,13 +23,21 @@ def _fail(msg: str) -> None:
 def check_local_product() -> None:
     import demo_data
     import insights
-    from _logo_bytes import LOGO_PNG
     from charts import price_change_bars, spend_trend_chart, switch_savings_bars
     from model_ids import models_match
 
-    if not LOGO_PNG.startswith(b"\x89PNG"):
-        _fail("embedded logo is not a PNG")
-    _ok(f"embedded logo ({len(LOGO_PNG)} bytes)")
+    logo = STREAMLIT / "assets" / "logo.png"
+    if not logo.exists():
+        _fail("assets/logo.png missing")
+    raw = logo.read_bytes()
+    if not raw.startswith(b"\x89PNG"):
+        _fail("assets/logo.png is not a PNG")
+    _ok(f"asset logo.png ({len(raw)} bytes)")
+
+    # Threshold defaults must stay documented + configurable.
+    if abs(insights.SWITCH_MIN_SAVINGS_PCT - 0.15) > 1e-9:
+        _fail("unexpected SWITCH_MIN_SAVINGS_PCT default")
+    _ok("insight thresholds documented as module constants")
 
     usage = demo_data.demo_usage_by_model()
     spend = demo_data.demo_cortex_spend(90)
@@ -144,15 +152,39 @@ def check_snowflake() -> None:
     else:
         _ok("skipping live row counts (preview / pending privileges)")
 
-    out = sql("LIST @CORTEX_COST_ADVISOR_PKG.APP_SRC.STAGE/src/streamlit/;")
-    if "_logo_bytes" in out:
-        _ok("stage contains _logo_bytes.py")
-    else:
-        print(f"WARN stage logo module not confirmed:\n{out[:400]}")
-    if "charts.py" in out:
+    # Snowflake LIST wraps long names across columns; use PATTERN queries.
+    charts = sql(
+        "LIST @CORTEX_COST_ADVISOR_PKG.APP_SRC.STAGE/src/streamlit/ PATTERN='.*charts\\\\.py';"
+    )
+    if "charts.py" in charts.replace("\n", "") or "harts.py" in charts:
         _ok("stage contains charts.py")
-    if "price_snapshot.csv" in out or "data/" in out:
+    else:
+        _fail(f"stage missing charts.py: {charts[:300]}")
+
+    logo_mod = sql(
+        "LIST @CORTEX_COST_ADVISOR_PKG.APP_SRC.STAGE/src/streamlit/ PATTERN='.*_logo_bytes\\\\.py';"
+    )
+    if "_logo_bytes.py" in logo_mod.replace(" ", "").replace("\n", ""):
+        _fail("stage still contains removed _logo_bytes.py")
+    _ok("stage has no _logo_bytes.py source")
+
+    insights = sql(
+        "LIST @CORTEX_COST_ADVISOR_PKG.APP_SRC.STAGE/src/streamlit/ PATTERN='.*insights\\\\.py';"
+    )
+    if "insights.py" in insights.replace("\n", "") or "nsights.py" in insights:
+        _ok("stage contains insights.py")
+
+    snap = sql(
+        "LIST @CORTEX_COST_ADVISOR_PKG.APP_SRC.STAGE/src/streamlit/data/;"
+    )
+    if "price_snapshot" in snap or "snapshot" in snap:
         _ok("stage contains snapshot data path")
+
+    assets = sql(
+        "LIST @CORTEX_COST_ADVISOR_PKG.APP_SRC.STAGE/src/streamlit/assets/ PATTERN='.*logo\\\\.png';"
+    )
+    if "logo.png" in assets.replace("\n", "") or "ogo.png" in assets:
+        _ok("stage contains assets/logo.png")
 
 
 

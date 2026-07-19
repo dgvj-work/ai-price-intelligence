@@ -2,7 +2,8 @@ name: sf_env
 channels:
   - snowflake
 dependencies:
-  - streamlit
-  - pandas
-  - snowflake-snowpark-python
-  - altair
+  # Pin major ranges so Snowflake channel upgrades do not silently break the app.
+  - streamlit>=1.30,<2
+  - pandas>=2.0,<3
+  - snowflake-snowpark-python>=1.11,<2
+  - altair>=5.0,<6

@@ -165,7 +165,8 @@ Created by the install setup script and granted to application role **APP_USER**
 | Procedure **REGISTER_REFERENCE(...)** | **USAGE** | Optional Marketplace view binds |
 | View **V_CORTEX_USAGE** | **SELECT** | Cortex token / credit usage |
 | View **V_METERING_HISTORY** | **SELECT** | AI / Cortex metering rollup |
-| Table **USER_SETTINGS** | **SELECT**, **INSERT**, **UPDATE** | Your $/credit preference (stays in-app) |
+| Table **USER_SETTINGS** | **SELECT**, **INSERT**, **UPDATE** | $/credit + min switch savings % (stays in-app) |
+| Table **DIAGNOSTICS** | **SELECT**, **INSERT** | Optional load-error codes for support (no egress) |
 
 These live **inside the application**. Consumers never create them manually and
 never grant consumer-table access to the app.
@@ -178,6 +179,7 @@ never grant consumer-table access to the app.
 | Control | What it does | Privilege needed |
 |---------|--------------|------------------|
 | **Your credit rate ($ / credit)** | Converts savings to USD estimates; persisted in **APP_SCHEMA.USER_SETTINGS** | None beyond app access |
+| **Min switch savings (%)** | Floor for switch recommendations (default 15%; many teams use 25%+) | None beyond app access |
 | **Analysis window** | 30-365 days of metering via app views | None beyond the section 2 GRANT for live data |
 
 Wrong rate => wrong dollars; credit rankings stay usable. Snowflake does **not**

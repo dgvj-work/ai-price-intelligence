@@ -76,6 +76,13 @@ ORDER BY CREDITS DESC
 
 SQL_ENSURE_VIEWS = "CALL APP_SCHEMA.ENSURE_ACCOUNT_USAGE_VIEWS()"
 
+SQL_GET_SETTING = """
+SELECT SETTING_VALUE
+FROM APP_SCHEMA.USER_SETTINGS
+WHERE SETTING_KEY = ?
+LIMIT 1
+"""
+
 SQL_GET_CREDIT_PRICE = """
 SELECT TRY_TO_DOUBLE(SETTING_VALUE) AS CREDIT_PRICE_USD
 FROM APP_SCHEMA.USER_SETTINGS
@@ -84,7 +91,7 @@ LIMIT 1
 """
 
 # Parameterized MERGE - bind key + value via Snowpark params (no float f-string).
-SQL_SET_CREDIT_PRICE = """
+SQL_SET_SETTING = """
 MERGE INTO APP_SCHEMA.USER_SETTINGS t
 USING (
   SELECT ? AS SETTING_KEY, ? AS SETTING_VALUE
@@ -97,6 +104,21 @@ WHEN NOT MATCHED THEN INSERT (SETTING_KEY, SETTING_VALUE, UPDATED_AT)
   VALUES (s.SETTING_KEY, s.SETTING_VALUE, CURRENT_TIMESTAMP())
 """
 
+# Back-compat alias used by older call sites.
+SQL_SET_CREDIT_PRICE = SQL_SET_SETTING
+
+SQL_INSERT_DIAGNOSTIC = """
+INSERT INTO APP_SCHEMA.DIAGNOSTICS (EVENT_TYPE, DETAIL)
+VALUES (?, ?)
+"""
+
+SQL_LATEST_DIAGNOSTIC = """
+SELECT EVENT_ID, CREATED_AT, EVENT_TYPE, DETAIL
+FROM APP_SCHEMA.DIAGNOSTICS
+ORDER BY CREATED_AT DESC
+LIMIT 1
+"""
+
 
 def clamp_credit_price(price: float) -> float:
     p = float(price)
@@ -104,6 +126,16 @@ def clamp_credit_price(price: float) -> float:
         return 0.01
     if p > 100.0:
         return 100.0
+    return p
+
+
+def clamp_min_savings_pct(pct: float) -> float:
+    """UI stores percent 5-50; engine uses fraction 0.05-0.50."""
+    p = float(pct)
+    if p < 5.0:
+        return 5.0
+    if p > 50.0:
+        return 50.0
     return p
 
 

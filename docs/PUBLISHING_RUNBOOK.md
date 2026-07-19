@@ -120,7 +120,7 @@ ALTER APPLICATION PACKAGE CORTEX_COST_ADVISOR_PKG
 ALTER APPLICATION PACKAGE CORTEX_COST_ADVISOR_PKG DEREGISTER VERSION V1_1_2;
 ```
 
-Current package state: **DEFAULT** and **ALPHA** directives point at **V1_1_6** patch 0.
+Current package state: **DEFAULT** and **ALPHA** directives point at **V1_2_3** patch 0.
 
 ### EXTERNAL distribution (security scan)
 

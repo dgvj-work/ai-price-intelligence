@@ -4,6 +4,14 @@ Recommendation engine - the product moat beyond raw ACCOUNT_USAGE SELECT.
 Produces actionable Advisor cards: model-switch savings, concentration risk,
 spend anomalies, forward estimate, and price-move impact. This logic is not
 what Snowsight cost UI ships today.
+
+Threshold defaults (FinOps-tunable where noted):
+- SWITCH_MIN_SAVINGS_PCT (default 0.15): only surface switches >= this % cheaper
+  at list rates. Configurable in the app sidebar (many teams prefer 0.25+).
+- CONCENTRATION_SHARE_PCT (0.55): flag when one model exceeds this share of credits.
+- SPIKE_MEDIAN_MULT (2.5): flag days at/above this multiple of median daily credits.
+- FORECAST_TRAIL_DAYS (14) x FORECAST_HORIZON_DAYS (30): trailing-average planning
+  number (not ML).
 """
 
 from __future__ import annotations
@@ -12,6 +20,13 @@ from dataclasses import dataclass
 from typing import Any
 
 import pandas as pd
+
+# Documented defaults — switch floor is also exposed in the Streamlit sidebar.
+SWITCH_MIN_SAVINGS_PCT = 0.15
+CONCENTRATION_SHARE_PCT = 0.55
+SPIKE_MEDIAN_MULT = 2.5
+FORECAST_TRAIL_DAYS = 14
+FORECAST_HORIZON_DAYS = 30
 
 
 @dataclass(frozen=True)
@@ -44,7 +59,7 @@ def switch_recommendations(
     cortex_prices: pd.DataFrame,
     credit_price: float,
     *,
-    min_savings_pct: float = 0.15,
+    min_savings_pct: float = SWITCH_MIN_SAVINGS_PCT,
 ) -> list[Insight]:
     """Rank COMPLETE/embed switches where list rates imply material savings."""
     cp = _norm_prices(cortex_prices)
@@ -124,7 +139,7 @@ def concentration_insight(usage: pd.DataFrame, credit_price: float) -> Insight |
         return None
     top = u.sort_values("CREDITS", ascending=False).iloc[0]
     share = float(top["CREDITS"]) / total
-    if share < 0.55:
+    if share < CONCENTRATION_SHARE_PCT:
         return None
     model = str(top.get("MODEL_NAME") or "unknown")
     credits = float(top["CREDITS"])
@@ -134,12 +149,13 @@ def concentration_insight(usage: pd.DataFrame, credit_price: float) -> Insight |
         headline=f"{share:.0%} of Cortex credits on a single model ({model})",
         detail=(
             f"~{credits:,.2f} credits (~${credits * credit_price:,.0f} est.) concentrated "
-            f"on {model}. High concentration increases cost risk if rates rise or quality "
-            f"needs shift. Review whether a cheaper tier covers part of the workload."
+            f"on {model} (threshold {CONCENTRATION_SHARE_PCT:.0%}). High concentration "
+            f"increases cost risk if rates rise or quality needs shift. Review whether a "
+            f"cheaper tier covers part of the workload."
         ),
         savings_credits=0.0,
         savings_usd=0.0,
-        meta={"model": model, "share": share},
+        meta={"model": model, "share": share, "threshold": CONCENTRATION_SHARE_PCT},
     )
 
 
@@ -152,7 +168,9 @@ def anomaly_insights(spend: pd.DataFrame, credit_price: float) -> list[Insight]:
     med = float(daily["CREDITS"].median())
     if med <= 0:
         return []
-    spikes = daily[daily["CREDITS"] >= med * 2.5].sort_values("CREDITS", ascending=False)
+    spikes = daily[daily["CREDITS"] >= med * SPIKE_MEDIAN_MULT].sort_values(
+        "CREDITS", ascending=False
+    )
     out: list[Insight] = []
     for _, row in spikes.head(3).iterrows():
         day = row["DAY"]
@@ -164,25 +182,34 @@ def anomaly_insights(spend: pd.DataFrame, credit_price: float) -> list[Insight]:
                 severity="medium",
                 headline=f"Spend spike on {pd.Timestamp(day).date()}: {credits:,.2f} credits",
                 detail=(
-                    f"~{credits / med:.1f}× your median daily Cortex credits "
-                    f"(~${usd:,.0f} est.). Investigate batch jobs, eval loops, or "
-                    f"unbounded COMPLETE calls that day."
+                    f"~{credits / med:.1f}x your median daily Cortex credits "
+                    f"(spike rule: >={SPIKE_MEDIAN_MULT:.1f}x median; ~${usd:,.0f} est.). "
+                    f"Investigate batch jobs, eval loops, or unbounded COMPLETE calls that day."
                 ),
                 savings_credits=0.0,
                 savings_usd=0.0,
-                meta={"day": str(pd.Timestamp(day).date()), "credits": credits, "median": med},
+                meta={
+                    "day": str(pd.Timestamp(day).date()),
+                    "credits": credits,
+                    "median": med,
+                    "threshold_mult": SPIKE_MEDIAN_MULT,
+                },
             )
         )
     return out
 
 
-def forecast_insight(spend: pd.DataFrame, credit_price: float, horizon_days: int = 30) -> Insight | None:
+def forecast_insight(
+    spend: pd.DataFrame,
+    credit_price: float,
+    horizon_days: int = FORECAST_HORIZON_DAYS,
+) -> Insight | None:
     if spend is None or spend.empty:
         return None
     daily = spend.groupby("DAY", as_index=False)["CREDITS"].sum().sort_values("DAY")
     if len(daily) < 7:
         return None
-    trail = daily.tail(14)
+    trail = daily.tail(FORECAST_TRAIL_DAYS)
     avg = float(trail["CREDITS"].mean())
     projected = avg * horizon_days
     usd = projected * credit_price
@@ -194,13 +221,19 @@ def forecast_insight(spend: pd.DataFrame, credit_price: float, horizon_days: int
             f"(~${usd:,.0f}) over next {horizon_days} days"
         ),
         detail=(
-            f"Simple trailing 14-day average ({avg:,.2f} credits/day) × {horizon_days}. "
+            f"Simple trailing {FORECAST_TRAIL_DAYS}-day average "
+            f"({avg:,.2f} credits/day) x {horizon_days}. "
             f"Not ML forecasting. A planning number FinOps can challenge against budgets. "
             f"USD uses your entered $/credit."
         ),
         savings_credits=0.0,
         savings_usd=0.0,
-        meta={"avg_daily_credits": avg, "horizon_days": horizon_days, "projected_credits": projected},
+        meta={
+            "avg_daily_credits": avg,
+            "horizon_days": horizon_days,
+            "trail_days": FORECAST_TRAIL_DAYS,
+            "projected_credits": projected,
+        },
     )
 
 
@@ -256,8 +289,11 @@ def build_advisor_pack(
     cortex_prices: pd.DataFrame,
     llm_snapshot: pd.DataFrame,
     credit_price: float,
+    min_savings_pct: float = SWITCH_MIN_SAVINGS_PCT,
 ) -> dict[str, Any]:
-    switches = switch_recommendations(usage, cortex_prices, credit_price)
+    switches = switch_recommendations(
+        usage, cortex_prices, credit_price, min_savings_pct=min_savings_pct
+    )
     concentration = concentration_insight(usage, credit_price)
     anomalies = anomaly_insights(spend, credit_price)
     forecast = forecast_insight(spend, credit_price)
