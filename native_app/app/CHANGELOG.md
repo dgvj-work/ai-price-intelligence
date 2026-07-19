@@ -1,5 +1,14 @@
 # Cortex Cost Advisor changelog
 
+## 1.1.8 - 2026-07-19
+
+Visual polish (native Streamlit only, no HTML/CSS inject):
+
+- Bordered recommendation panels, clearer section hierarchy, quieter dataframes.
+- Sidebar data status + calmer planning-input layout.
+- Advisor: "At a glance" metrics + paired secondary findings.
+- Getting started / Trust: stay-updated links; Provider Studio analytics documented in runbook.
+
 ## 1.1.6 - 2026-07-19
 
 Copy polish:

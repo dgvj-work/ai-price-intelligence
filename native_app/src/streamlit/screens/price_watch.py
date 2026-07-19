@@ -13,14 +13,14 @@ from session_data import (
     load_usage_by_model,
     mode_banner,
 )
-from theme import hero, recommendation_card
+from theme import hero, recommendation_card, section, table
 
 
 def render() -> None:
     hero(
         "Price Watch",
         "Public LLM list-price moves overlaid on models in your Cortex usage. "
-        "competitive context Snowsight cost charts do not provide.",
+        "Competitive context Snowsight cost charts do not provide.",
         kicker="Prices",
     )
 
@@ -41,13 +41,13 @@ def render() -> None:
             lambda mid: overlaps_used(str(mid), used_models)
         )
         flagged = changes[changes["FLAGGED_IN_USE"]]
-        st.subheader("Moves affecting models you use")
+        section("Moves affecting models you use")
         if flagged.empty:
             st.caption("No overlap with your usage in this window. Full feed below.")
         else:
-            st.dataframe(flagged, use_container_width=True)
-        st.subheader("All bound changes")
-        st.dataframe(changes, use_container_width=True)
+            table(flagged, use_container_width=True, hide_index=True)
+        section("All bound changes")
+        table(changes, use_container_width=True, hide_index=True)
         render_connect_account()
         return
 
@@ -65,7 +65,7 @@ def render() -> None:
     moved = llm[llm["change_pct_90d"].fillna(0) != 0]
     st.caption("Bundled snapshot flags (bind Marketplace view for accumulating SCD2 history).")
     if moved.empty:
-        st.dataframe(llm, use_container_width=True)
+        table(llm, use_container_width=True)
         render_connect_account()
         return
 
@@ -73,7 +73,11 @@ def render() -> None:
     moved["FLAGGED_IN_USE"] = moved["model_name"].astype(str).apply(
         lambda name: overlaps_used(name, used_models)
     )
-    st.dataframe(moved.sort_values("change_pct_90d"), use_container_width=True)
+    table(
+        moved.sort_values("change_pct_90d"),
+        use_container_width=True,
+        hide_index=True,
+    )
     if not used_models:
         st.caption("Connect live usage to flag moves against models you actually call.")
     render_connect_account()

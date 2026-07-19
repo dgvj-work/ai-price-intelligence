@@ -6,7 +6,7 @@ import streamlit as st
 
 from screens.setup import render_connect_account
 from session_data import load_cortex_spend, load_cortex_top, load_metering, mode_banner
-from theme import hero
+from theme import hero, metric_strip, section, table
 
 
 def render() -> None:
@@ -38,15 +38,19 @@ def render() -> None:
         if m_mode == "live" and not metering.empty:
             st.caption("Function-level Cortex rows empty. Using AI/Cortex metering fallback.")
             total_credits = float(metering["CREDITS"].sum())
-            c1, c2 = st.columns(2)
-            c1.metric("Credits (metering)", f"{total_credits:,.2f}")
-            c2.metric("USD estimate*", f"${total_credits * credit_price:,.2f}")
+            metric_strip(
+                [
+                    ("Credits (metering)", f"{total_credits:,.2f}", None),
+                    ("USD estimate*", f"${total_credits * credit_price:,.2f}", None),
+                ]
+            )
+            section("Daily trend")
             st.line_chart(
                 metering.groupby("DAY", as_index=False)["CREDITS"].sum(),
                 x="DAY",
                 y="CREDITS",
             )
-            st.dataframe(metering, use_container_width=True)
+            table(metering, use_container_width=True, hide_index=True)
             st.caption("*USD estimate uses your sidebar $/credit. Not an invoice.")
             render_connect_account()
             return
@@ -54,23 +58,26 @@ def render() -> None:
     total_credits = float(spend["CREDITS"].sum()) if not spend.empty else float(top["CREDITS"].sum())
     total_tokens = float(spend["TOKENS"].sum()) if not spend.empty else float(top["TOKENS"].sum())
 
-    c1, c2, c3 = st.columns(3)
-    c1.metric("Cortex credits", f"{total_credits:,.2f}")
-    c2.metric("USD estimate*", f"${total_credits * credit_price:,.2f}")
-    c3.metric("Tokens", f"{total_tokens:,.0f}")
+    metric_strip(
+        [
+            ("Cortex credits", f"{total_credits:,.2f}", None),
+            ("USD estimate*", f"${total_credits * credit_price:,.2f}", None),
+            ("Tokens", f"{total_tokens:,.0f}", None),
+        ]
+    )
 
     if not spend.empty:
         daily = spend.groupby("DAY", as_index=False)["CREDITS"].sum()
-        st.subheader("Daily trend")
+        section("Daily trend")
         st.line_chart(daily, x="DAY", y="CREDITS")
 
-    st.subheader("Top functions / models")
+    section("Top functions / models")
     if top.empty:
         st.caption("No per-function breakdown in this window.")
     else:
         top_view = top.copy()
         top_view["USD_EST"] = top_view["CREDITS"] * credit_price
-        st.dataframe(top_view, use_container_width=True)
+        table(top_view, use_container_width=True, hide_index=True)
 
     st.caption(
         f"Window: {days} days (up to 365). ACCOUNT_USAGE can lag ~45 minutes. "

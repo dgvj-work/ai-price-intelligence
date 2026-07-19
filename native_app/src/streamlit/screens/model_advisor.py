@@ -13,7 +13,7 @@ from session_data import (
     load_usage_by_model,
     mode_banner,
 )
-from theme import hero, recommendation_card
+from theme import hero, recommendation_card, section, table
 
 
 def render() -> None:
@@ -50,23 +50,23 @@ def render() -> None:
 
     recs = switch_recommendations(usage, cortex_prices, credit_price)
     if recs:
-        st.subheader("Ranked recommendations")
+        section("Ranked recommendations", "Top list-rate switch scenarios for this window.")
         for insight in recs[:5]:
             recommendation_card(insight)
     else:
         st.caption("No switch >=15% cheaper than current effective spend in this window.")
 
-    st.subheader("Usage basis")
+    section("Usage basis")
     usage_view = usage.copy()
     usage_view["USD_EST"] = usage_view["CREDITS"] * credit_price
-    st.dataframe(usage_view, use_container_width=True)
+    table(usage_view, use_container_width=True, hide_index=True)
 
     if cortex_prices.empty:
         st.caption("No Cortex rate table available.")
         render_connect_account()
         return
 
-    st.subheader("Full scenario matrix")
+    section("Full scenario matrix", "Negative USD_DELTA means a cheaper alternate at list rates.")
     cp = cortex_prices.copy()
     cp.columns = [c.upper() for c in cp.columns]
     rows: list[dict[str, object]] = []
@@ -101,7 +101,7 @@ def render() -> None:
 
     scen = pd.DataFrame(rows)
     scen = scen[scen["YOUR_MODEL"].str.lower() != scen["ALT_MODEL"].str.lower()]
-    st.dataframe(scen.sort_values("USD_DELTA"), use_container_width=True)
+    table(scen.sort_values("USD_DELTA"), use_container_width=True, hide_index=True)
     st.caption(
         "Negative USD_DELTA = cheaper alternate at list rates. "
         "Validate quality before migrating. USD = estimate from your $/credit."

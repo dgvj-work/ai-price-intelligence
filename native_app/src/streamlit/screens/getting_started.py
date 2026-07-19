@@ -6,10 +6,11 @@ import streamlit as st
 
 from screens.setup import GRANT_SQL, render_connect_account
 from session_data import APP_VERSION, humanize_source, needs_setup
-from theme import hero
+from theme import hero, panel, section
 
 SUPPORT_URL = "https://github.com/dgvj-work/ai-price-intelligence/discussions"
 REPO_URL = "https://github.com/dgvj-work/ai-price-intelligence"
+SUPPORT_EMAIL = "digvijay.vaghela@yahoo.com"
 
 # Exact ACCOUNT_USAGE objects the setup procedure wraps (read-only via imported privileges).
 ACCOUNT_USAGE_OBJECTS = """\
@@ -43,19 +44,20 @@ def render() -> None:
     source = st.session_state.get("usage_source")
     preview = needs_setup(source)
 
-    if preview:
-        st.info(
-            "**Preview mode.** Advisor uses sample recommendations so you can evaluate "
-            "before any privilege grant. Complete **section 2 (Required privileges)** when ready for live data."
-        )
-    else:
-        label = humanize_source(source) or "Cortex metering"
-        st.success(
-            f"**Live usage connected.** Reading `{label}`. "
-            "Optional price-dataset binds are still available under section 6."
-        )
+    with panel():
+        if preview:
+            st.info(
+                "**Preview mode.** Advisor uses sample recommendations so you can evaluate "
+                "before any privilege grant. Complete **section 2 (Required privileges)** when ready for live data."
+            )
+        else:
+            label = humanize_source(source) or "Cortex metering"
+            st.success(
+                f"**Live usage connected.** Reading `{label}`. "
+                "Optional price-dataset binds are still available under section 6."
+            )
 
-    st.markdown("### Privilege map (read this first)")
+    section("Privilege map", "Required vs optional vs automatic vs never requested.")
     st.markdown(
         """
 | Layer | What you grant | Required? | Who runs it |
@@ -74,7 +76,7 @@ never SQL text, never your business tables.
         """
     )
 
-    st.markdown("### 1. Evaluate in preview (no grants yet)")
+    section("1. Evaluate in preview", "No grants needed yet.")
     st.markdown(
         """
 Open sidebar -> **Advisor**. You should already see:
@@ -87,12 +89,8 @@ No database, schema, or table privileges are needed for preview.
         """
     )
 
-    st.markdown("### 2. Required: connect live Cortex usage")
-    st.markdown(
-        """
-**One grant** unlocks live metering. Replace the application name if you renamed it at install.
-        """
-    )
+    section("2. Required: connect live Cortex usage", "One grant unlocks live metering.")
+    st.caption("Replace the application name if you renamed it at install.")
     if preview:
         render_connect_account()
     else:
@@ -139,7 +137,7 @@ SHOW GRANTS TO APPLICATION CORTEX_COST_ADVISOR;
             language="sql",
         )
 
-    st.markdown("### 3. Who can open the app + warehouse")
+    section("3. Who can open the app + warehouse")
     st.markdown(
         """
 | Item | What consumers need |
@@ -171,7 +169,7 @@ never grant consumer-table access to the app.
             """
         )
 
-    st.markdown("### 4. Set planning inputs (sidebar)")
+    section("4. Set planning inputs", "Sidebar controls that shape USD estimates and window size.")
     st.markdown(
         """
 | Control | What it does | Privilege needed |
@@ -184,7 +182,7 @@ expose your contracted credit price to apps.
         """
     )
 
-    st.markdown("### 5. Use the pages")
+    section("5. Use the pages")
     st.markdown(
         """
 | Page | When to open it |
@@ -198,7 +196,7 @@ expose your contracted credit price to apps.
         """
     )
 
-    st.markdown("### 6. Optional: bind Price Intelligence views")
+    section("6. Optional: bind Price Intelligence views")
     st.markdown(
         """
 For **live** public list rates (instead of the bundled CSV snapshot):
@@ -275,6 +273,31 @@ Version: **v{APP_VERSION}** | Support: [GitHub Discussions]({SUPPORT_URL}) | [So
 | Price Watch looks stale | Optional references unbound | Bind section 6 views, or accept bundled snapshot |
 | Teammate cannot open app | Missing application role | Grant app role `APP_USER` to their Snowflake role |
             """
+        )
+
+    section("Stay updated (optional)")
+    with panel():
+        st.caption(
+            "This app has no network egress, so it cannot phone home. "
+            "If you want product updates or to share feedback, reach out directly:"
+        )
+        c1, c2 = st.columns(2)
+        with c1:
+            st.link_button(
+                "GitHub Discussions",
+                SUPPORT_URL,
+                use_container_width=True,
+            )
+        with c2:
+            st.link_button(
+                "Email the publisher",
+                f"mailto:{SUPPORT_EMAIL}?subject=Cortex%20Cost%20Advisor%20-%20hello",
+                use_container_width=True,
+            )
+        st.caption(
+            "Tip for FinOps teams: say which company/account you installed on. "
+            "That helps prioritize features. Marketplace install analytics also appear "
+            "for the publisher in Snowflake Provider Studio after the listing is live."
         )
 
     st.caption(

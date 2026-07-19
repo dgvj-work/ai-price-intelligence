@@ -1,9 +1,9 @@
 manifest_version: 1
 
 version:
-  name: v1_1_6
-  label: "1.1.6"
-  comment: "Plain-language UI copy; remove fancy punctuation from consumer text"
+  name: v1_1_8
+  label: "1.1.8"
+  comment: "Subtle native Streamlit visual polish; stay-updated links"
 
 artifacts:
   setup_script: setup_script.sql

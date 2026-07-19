@@ -14,7 +14,7 @@ from session_data import (
     load_usage_by_model,
     mode_banner,
 )
-from theme import hero, recommendation_card
+from theme import hero, metric_strip, recommendation_card, section
 
 
 def _cortex_price_table():
@@ -42,9 +42,8 @@ def _cortex_price_table():
 def render() -> None:
     hero(
         "Stop guessing which Cortex model is burning budget",
-        "This is not another credit report. We rank model-switch savings, flag "
-        "concentration and spend spikes, and estimate forward Cortex cost: decisions "
-        "Snowsight rollups do not make for you.",
+        "Ranked model-switch savings, concentration and spend spikes, and a forward "
+        "Cortex cost estimate: decisions Snowsight rollups do not make for you.",
         kicker=f"Advisor | v{APP_VERSION}",
     )
 
@@ -77,29 +76,30 @@ def render() -> None:
             "Check Spend for detail and Price Watch for external list moves."
         )
 
-    # Decision metrics - advice-shaped, not vanity charts first
-    c1, c2, c3 = st.columns(3)
-    c1.metric(
-        "Identified switch savings (est. USD)",
-        f"${pack['total_switch_savings_usd']:,.0f}",
-        help="Sum of ranked list-rate switch scenarios >=15% cheaper. Estimate only.",
-    )
-    c2.metric(
-        "Switch opportunities",
-        f"{len(pack['switches'])}",
-        help="Models where an alternate Cortex list rate beats your effective spend.",
-    )
     total_credits = float(usage["CREDITS"].sum()) if not usage.empty else 0.0
-    c3.metric(
-        f"Cortex credits ({days}d)",
-        f"{total_credits:,.1f}",
-        help="Context only. USD elsewhere uses your contract $/credit input.",
+    section("At a glance")
+    metric_strip(
+        [
+            (
+                "Switch savings (est. USD)",
+                f"${pack['total_switch_savings_usd']:,.0f}",
+                "Sum of ranked list-rate switch scenarios >=15% cheaper. Estimate only.",
+            ),
+            (
+                "Switch opportunities",
+                f"{len(pack['switches'])}",
+                "Models where an alternate Cortex list rate beats your effective spend.",
+            ),
+            (
+                f"Cortex credits ({days}d)",
+                f"{total_credits:,.1f}",
+                "Context only. USD elsewhere uses your contract $/credit input.",
+            ),
+        ]
     )
-
     st.caption(
-        f"USD figures use your sidebar rate (${credit_price:.2f}/credit). "
-        "Snowflake does not expose contracted credit prices to apps. "
-        "These are planning estimates, not invoices. "
+        f"USD uses your sidebar rate (${credit_price:.2f}/credit). "
+        "Planning estimates, not invoices. "
         + (
             "Rates: Marketplace dataset."
             if from_dataset
@@ -108,9 +108,16 @@ def render() -> None:
     )
 
     if pack["secondary"]:
-        st.subheader("More findings")
-        for insight in pack["secondary"][:6]:
-            recommendation_card(insight)
+        section("More findings", "Additional signals behind the primary recommendation.")
+        secondary = pack["secondary"][:6]
+        # Pair findings for a calmer scan; odd last item spans full width.
+        for i in range(0, len(secondary), 2):
+            left, right = st.columns(2)
+            with left:
+                recommendation_card(secondary[i])
+            if i + 1 < len(secondary):
+                with right:
+                    recommendation_card(secondary[i + 1])
 
     with st.expander("How this differs from raw SQL / Snowsight"):
         st.markdown(
@@ -122,8 +129,7 @@ def render() -> None:
 | Manual spreadsheet model compare | **Same-token scenarios** against Cortex list rates |
 | Nothing built-in for public LLM moves | **Price Watch** overlap against models you used |
 
-Buyer: FinOps / platform engineers deciding **which Cortex models to allow or migrate**.  
-Decision: "Cut or reallocate Cortex spend without reading query history."
+Buyer: FinOps / platform engineers deciding **which Cortex models to allow or migrate**.
             """
         )
 

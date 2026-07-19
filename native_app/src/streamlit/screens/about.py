@@ -53,8 +53,13 @@ New teammates: open the sidebar tab **Getting started** for the setup walkthroug
 
 Publisher: **Digvijay Vaghela**  
 Support: [GitHub Discussions](https://github.com/dgvj-work/ai-price-intelligence/discussions)  
+Email: digvijay.vaghela@yahoo.com  
 Repo: https://github.com/dgvj-work/ai-price-intelligence  
 SLA: best-effort community support (free listing; no contractual uptime SLA in v{APP_VERSION})
+
+This app does not phone home. After the Marketplace listing is published, the publisher
+sees install/usage analytics in Snowflake **Provider Studio** (company and account when
+Snowflake provides them), not from fields typed inside the app.
 
 ## Architecture (no manual "refresh product")
 

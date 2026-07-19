@@ -145,6 +145,40 @@ Then:
 5. Set a Streamlit query warehouse in Snowsight if the app prompts for one.
 6. Submit the **app listing** (Listing B copy). Emphasize the privacy paragraph.
 
+## 5b) Provider adoption analytics (who installed)
+
+You do **not** get company/user lists from inside the Native App UI. Zero egress is a Marketplace security win; saving an email to `USER_SETTINGS` only stores it in the **consumer** account (you cannot read it).
+
+After the listing is published on a non-trial provider account, use Snowflake's provider views:
+
+1. Snowsight: **Marketplace -> Provider Studio -> Analytics -> Detailed Metrics -> Listings Installed**
+   - Shows consumer company (when available), account name, contact fields Snowflake has, region.
+2. SQL (ACCOUNTADMIN on the **provider** account):
+
+```sql
+-- Install / uninstall / get events (latency up to ~2 days)
+SELECT
+  EVENT_DATE,
+  EVENT_TYPE,
+  LISTING_NAME,
+  CONSUMER_ORGANIZATION,
+  CONSUMER_ACCOUNT_NAME,
+  CONSUMER_ACCOUNT_LOCATOR,
+  CONSUMER_EMAIL,
+  REGION_GROUP
+FROM SNOWFLAKE.DATA_SHARING_USAGE.LISTING_EVENTS_DAILY
+ORDER BY EVENT_DATE DESC;
+
+-- App instance health across consumers
+SELECT *
+FROM SNOWFLAKE.DATA_SHARING_USAGE.APPLICATION_STATE
+LIMIT 100;
+```
+
+Until the listing is live (and Provider Studio / `DATA_SHARING_USAGE` is available on that account), those views will be empty or inaccessible. Private shares and trial provider accounts often lack full Marketplace analytics.
+
+Optional: in-app **Stay updated** links (GitHub Discussions / mailto) for voluntary intros. That is relationship outreach, not install telemetry.
+
 ## 6) Pre-submission security checklist
 
 Mapped to Snowflake app security review expectations:
