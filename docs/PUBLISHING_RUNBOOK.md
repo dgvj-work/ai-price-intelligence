@@ -107,9 +107,17 @@ ALTER APPLICATION PACKAGE cortex_cost_advisor_pkg
 
 Then:
 
-1. Push a version/patch per Snowflake Native Apps workflow (`snow app version create` / Provider Studio).
+1. Push a **named** version/patch (required for Marketplace; `UNVERSIONED` is only for local `snow app run` debug):
+
+```bash
+cd native_app
+snow app deploy -c ai_price
+snow app version create v1_1_2 -c ai_price --label "1.1.2" --skip-git-check --force --no-interactive
+snow app release-directive set DEFAULT -c ai_price --version v1_1_2 --patch 0
+```
+
 2. **Private share** the app to a second test account.
-3. Install on the test account, grant **Imported Privileges on SNOWFLAKE DB**, open Streamlit, click **Refresh usage views**, verify Overview (empty-state OK if no Cortex yet).
+3. Install on the test account from the release directive (not an `UNVERSIONED` debug install). Grant **Imported Privileges on SNOWFLAKE DB**, open Streamlit, use **Connect live usage** / reopen the app (views bind on session). Verify **Advisor** preview → connect → live (empty Cortex spend is OK).
 4. Optionally mount the data listing and bind references:
    - `price_intel_model_current` → `…SHARE.VW_MODEL_CURRENT`
    - `price_intel_cortex_current` → `…SHARE.VW_CORTEX_CURRENT`
