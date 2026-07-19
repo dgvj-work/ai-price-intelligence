@@ -40,7 +40,7 @@ def render() -> None:
         changes["FLAGGED_IN_USE"] = changes["MODEL_ID"].astype(str).apply(
             lambda mid: overlaps_used(str(mid), used_models)
         )
-        flagged = changes[changes["FLAGGED_IN_USE"] == True]  # noqa: E712
+        flagged = changes[changes["FLAGGED_IN_USE"]]
         st.subheader("Moves affecting models you use")
         if flagged.empty:
             st.caption("No overlap with your usage in this window — full feed below.")
