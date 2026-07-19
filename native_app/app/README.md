@@ -1,4 +1,4 @@
-# Cortex Cost Advisor (v1.1.0)
+# Cortex Cost Advisor (v1.1.2)
 
 **Advisor for Cortex model spend** — ranked switch savings, concentration/spike signals, and price context. Not a generic credit report.
 
@@ -37,4 +37,4 @@ USD figures use **your** entered $/credit — Snowflake does not expose contract
 
 ## Support
 
-digvijay.vaghela@yahoo.com · https://github.com/dgvj-work/ai-price-intelligence · `CHANGELOG.md`
+Support: https://github.com/dgvj-work/ai-price-intelligence/discussions · `CHANGELOG.md`

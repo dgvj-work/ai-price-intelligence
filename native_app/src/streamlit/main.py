@@ -30,6 +30,8 @@ PAGES = {
     "Trust": about.render,
 }
 
+SUPPORT_URL = "https://github.com/dgvj-work/ai-price-intelligence/discussions"
+
 
 def main() -> None:
     apply_theme()
@@ -85,12 +87,12 @@ def main() -> None:
 
     st.sidebar.divider()
     st.sidebar.markdown(
-        """
+        f"""
 **For FinOps / platform teams**  
 Decide which Cortex models to allow or migrate.
 
 Publisher: Digvijay Vaghela  
-Support: digvijay.vaghela@yahoo.com  
+Support: [GitHub Discussions]({SUPPORT_URL})  
 [Source on GitHub](https://github.com/dgvj-work/ai-price-intelligence)
         """
     )

@@ -22,9 +22,12 @@ def render() -> None:
 
     spend, spend_mode = load_cortex_spend(days)
     top, top_mode = load_cortex_top(days)
-    if spend_mode == "live" or top_mode == "live":
+    modes = {spend_mode, top_mode}
+    if "error" in modes:
+        mode = "error"
+    elif "live" in modes:
         mode = "live"
-    elif spend_mode == "sample" or top_mode == "sample":
+    elif "sample" in modes:
         mode = "sample"
     else:
         mode = "preview"

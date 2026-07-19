@@ -83,19 +83,11 @@ WHERE SETTING_KEY = 'credit_price_usd'
 LIMIT 1
 """
 
-
-def sql_set_credit_price(price: float) -> str:
-    """Persist planning $/credit inside the app schema (not exported)."""
-    p = float(price)
-    if p < 0.01:
-        p = 0.01
-    if p > 100.0:
-        p = 100.0
-    # Numeric literal only — never string-interpolate user text.
-    return f"""
+# Parameterized MERGE — bind key + value via Snowpark params (no float f-string).
+SQL_SET_CREDIT_PRICE = """
 MERGE INTO APP_SCHEMA.USER_SETTINGS t
 USING (
-  SELECT 'credit_price_usd' AS SETTING_KEY, '{p:.4f}' AS SETTING_VALUE
+  SELECT ? AS SETTING_KEY, ? AS SETTING_VALUE
 ) s
 ON t.SETTING_KEY = s.SETTING_KEY
 WHEN MATCHED THEN UPDATE SET
@@ -104,6 +96,15 @@ WHEN MATCHED THEN UPDATE SET
 WHEN NOT MATCHED THEN INSERT (SETTING_KEY, SETTING_VALUE, UPDATED_AT)
   VALUES (s.SETTING_KEY, s.SETTING_VALUE, CURRENT_TIMESTAMP())
 """
+
+
+def clamp_credit_price(price: float) -> float:
+    p = float(price)
+    if p < 0.01:
+        return 0.01
+    if p > 100.0:
+        return 100.0
+    return p
 
 
 # Native App reference() bindings (optional Marketplace dataset)

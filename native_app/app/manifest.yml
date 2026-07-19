@@ -1,9 +1,9 @@
 manifest_version: 1
 
 version:
-  name: v1_1_1
-  label: "1.1.1"
-  comment: "P0: system fonts, credit persistence, no EMPTY_STUB leak, usage-only price flags"
+  name: v1_1_2
+  label: "1.1.2"
+  comment: "Deploy hygiene, parameterized settings, load-error UX, tight model matching"
 
 artifacts:
   setup_script: setup_script.sql

@@ -13,7 +13,7 @@ import queries
 
 SNAPSHOT_PATH = Path(__file__).resolve().parent / "data" / "price_snapshot.csv"
 
-APP_VERSION = "1.1.1"  # keep in sync with manifest.yml version.label
+APP_VERSION = "1.1.2"  # keep in sync with manifest.yml version.label
 
 # Internal procedure return values → never shown raw in the UI.
 _LIVE_SOURCES = {
@@ -26,7 +26,8 @@ _BLOCKED_UI_TOKENS = ("EMPTY_STUB", "PENDING_PRIVILEGES", "ENSURE_FAILED")
 # live = real ACCOUNT_USAGE rows
 # preview = privileges missing — sample data + connect CTA
 # sample = privileges OK but no rows in window — sample data, no connect CTA
-DataMode = Literal["live", "preview", "sample"]
+# error = live query failed — sample shown with warning
+DataMode = Literal["live", "preview", "sample", "error"]
 
 
 def sanitize_source_token(source: str | None) -> str | None:
@@ -42,7 +43,6 @@ def sanitize_source_token(source: str | None) -> str | None:
         return "ENSURE_FAILED"
     if raw in _PENDING:
         return "PENDING_PRIVILEGES" if raw == "EMPTY_STUB" else raw
-    # Unknown / leaky payloads → pending, never echo to UI
     return "PENDING_PRIVILEGES"
 
 
@@ -83,6 +83,18 @@ def _session() -> Any:
         return None
 
 
+def _set_load_error(key: str, message: str | None) -> None:
+    errors = st.session_state.setdefault("data_load_errors", {})
+    if message:
+        errors[key] = message[:240]
+    else:
+        errors.pop(key, None)
+
+
+def data_load_errors() -> dict[str, str]:
+    return dict(st.session_state.get("data_load_errors") or {})
+
+
 def ensure_usage_views() -> str | None:
     """Recreate ACCOUNT_USAGE views after consumer grants imported privileges."""
     session = _session()
@@ -101,7 +113,6 @@ def init_usage_session(*, force: bool = False) -> None:
     """Auto-refresh usage views once per browser session (and on force)."""
     if force or "usage_source" not in st.session_state:
         st.session_state["usage_source"] = ensure_usage_views()
-    # Belt-and-suspenders: scrub any leaked internal tokens already in session.
     st.session_state["usage_source"] = sanitize_source_token(
         st.session_state.get("usage_source")
     )
@@ -121,63 +132,88 @@ def load_persisted_credit_price(default: float = 3.0) -> float:
 
 
 def persist_credit_price(price: float) -> None:
+    """Save $/credit using bound parameters (Marketplace-review friendly)."""
     session = _session()
     if session is None:
         return
+    p = queries.clamp_credit_price(price)
     try:
-        session.sql(queries.sql_set_credit_price(price)).collect()
+        session.sql(
+            queries.SQL_SET_CREDIT_PRICE,
+            params=["credit_price_usd", f"{p:.4f}"],
+        ).collect()
     except Exception:  # noqa: BLE001
-        pass
+        # Fallback for connectors that reject ? binds in MERGE USING.
+        try:
+            session.sql(
+                f"""
+                MERGE INTO APP_SCHEMA.USER_SETTINGS t
+                USING (SELECT 'credit_price_usd' AS SETTING_KEY) s
+                ON t.SETTING_KEY = s.SETTING_KEY
+                WHEN MATCHED THEN UPDATE SET
+                  SETTING_VALUE = TO_VARCHAR({p:.4f}),
+                  UPDATED_AT = CURRENT_TIMESTAMP()
+                WHEN NOT MATCHED THEN INSERT (SETTING_KEY, SETTING_VALUE, UPDATED_AT)
+                  VALUES ('credit_price_usd', TO_VARCHAR({p:.4f}), CURRENT_TIMESTAMP())
+                """
+            ).collect()
+        except Exception:  # noqa: BLE001
+            pass
 
 
 @st.cache_data(ttl=900, show_spinner="Loading Cortex usage…")
-def _load_cortex_spend_live(days: int) -> pd.DataFrame:
+def _load_cortex_spend_live(days: int) -> tuple[pd.DataFrame, str | None]:
     session = _session()
     if session is None:
-        return pd.DataFrame()
+        return pd.DataFrame(), "no_session"
     try:
-        return session.sql(queries.sql_cortex_spend(days)).to_pandas()
-    except Exception:  # noqa: BLE001
-        return pd.DataFrame()
+        return session.sql(queries.sql_cortex_spend(days)).to_pandas(), None
+    except Exception as exc:  # noqa: BLE001
+        return pd.DataFrame(), f"{type(exc).__name__}"
 
 
 @st.cache_data(ttl=900, show_spinner="Loading top functions…")
-def _load_cortex_top_live(days: int) -> pd.DataFrame:
+def _load_cortex_top_live(days: int) -> tuple[pd.DataFrame, str | None]:
     session = _session()
     if session is None:
-        return pd.DataFrame()
+        return pd.DataFrame(), "no_session"
     try:
-        return session.sql(queries.sql_cortex_top(days)).to_pandas()
-    except Exception:  # noqa: BLE001
-        return pd.DataFrame()
+        return session.sql(queries.sql_cortex_top(days)).to_pandas(), None
+    except Exception as exc:  # noqa: BLE001
+        return pd.DataFrame(), f"{type(exc).__name__}"
 
 
 @st.cache_data(ttl=900, show_spinner="Loading metering…")
-def _load_metering_live(days: int) -> pd.DataFrame:
+def _load_metering_live(days: int) -> tuple[pd.DataFrame, str | None]:
     session = _session()
     if session is None:
-        return pd.DataFrame()
+        return pd.DataFrame(), "no_session"
     try:
-        return session.sql(queries.sql_metering_fallback(days)).to_pandas()
-    except Exception:  # noqa: BLE001
-        return pd.DataFrame()
+        return session.sql(queries.sql_metering_fallback(days)).to_pandas(), None
+    except Exception as exc:  # noqa: BLE001
+        return pd.DataFrame(), f"{type(exc).__name__}"
 
 
 @st.cache_data(ttl=900)
-def _load_usage_by_model_live(days: int) -> pd.DataFrame:
+def _load_usage_by_model_live(days: int) -> tuple[pd.DataFrame, str | None]:
     session = _session()
     if session is None:
-        return pd.DataFrame()
+        return pd.DataFrame(), "no_session"
     try:
-        return session.sql(queries.sql_usage_by_model(days)).to_pandas()
-    except Exception:  # noqa: BLE001
-        return pd.DataFrame()
+        return session.sql(queries.sql_usage_by_model(days)).to_pandas(), None
+    except Exception as exc:  # noqa: BLE001
+        return pd.DataFrame(), f"{type(exc).__name__}"
 
 
 def load_cortex_spend(days: int) -> tuple[pd.DataFrame, DataMode]:
     if needs_setup(st.session_state.get("usage_source")):
+        _set_load_error("cortex_spend", None)
         return demo_data.demo_cortex_spend(days), "preview"
-    df = _load_cortex_spend_live(days)
+    df, err = _load_cortex_spend_live(days)
+    if err:
+        _set_load_error("cortex_spend", err)
+        return demo_data.demo_cortex_spend(days), "error"
+    _set_load_error("cortex_spend", None)
     if not df.empty:
         return df, "live"
     return demo_data.demo_cortex_spend(days), "sample"
@@ -185,8 +221,13 @@ def load_cortex_spend(days: int) -> tuple[pd.DataFrame, DataMode]:
 
 def load_cortex_top(days: int) -> tuple[pd.DataFrame, DataMode]:
     if needs_setup(st.session_state.get("usage_source")):
+        _set_load_error("cortex_top", None)
         return demo_data.demo_cortex_top(), "preview"
-    df = _load_cortex_top_live(days)
+    df, err = _load_cortex_top_live(days)
+    if err:
+        _set_load_error("cortex_top", err)
+        return demo_data.demo_cortex_top(), "error"
+    _set_load_error("cortex_top", None)
     if not df.empty:
         return df, "live"
     return demo_data.demo_cortex_top(), "sample"
@@ -194,8 +235,13 @@ def load_cortex_top(days: int) -> tuple[pd.DataFrame, DataMode]:
 
 def load_metering(days: int) -> tuple[pd.DataFrame, DataMode]:
     if needs_setup(st.session_state.get("usage_source")):
+        _set_load_error("metering", None)
         return pd.DataFrame(), "preview"
-    df = _load_metering_live(days)
+    df, err = _load_metering_live(days)
+    if err:
+        _set_load_error("metering", err)
+        return pd.DataFrame(), "error"
+    _set_load_error("metering", None)
     if not df.empty:
         return df, "live"
     return pd.DataFrame(), "sample"
@@ -203,8 +249,13 @@ def load_metering(days: int) -> tuple[pd.DataFrame, DataMode]:
 
 def load_usage_by_model(days: int) -> tuple[pd.DataFrame, DataMode]:
     if needs_setup(st.session_state.get("usage_source")):
+        _set_load_error("usage_by_model", None)
         return demo_data.demo_usage_by_model(), "preview"
-    df = _load_usage_by_model_live(days)
+    df, err = _load_usage_by_model_live(days)
+    if err:
+        _set_load_error("usage_by_model", err)
+        return demo_data.demo_usage_by_model(), "error"
+    _set_load_error("usage_by_model", None)
     if not df.empty:
         return df, "live"
     return demo_data.demo_usage_by_model(), "sample"
@@ -255,6 +306,15 @@ def empty_state(message: str) -> None:
 
 
 def mode_banner(mode: DataMode) -> None:
+    errs = data_load_errors()
+    if mode == "error" or errs:
+        keys = ", ".join(sorted(errs.keys())) if errs else "query"
+        st.warning(
+            f"**Live data load failed** ({keys}) — showing sample recommendations. "
+            "This is not empty usage; a query/timeout/schema error occurred. "
+            "Retry later or check warehouse status."
+        )
+        return
     if mode == "preview":
         st.caption(
             "Showing **sample recommendations** so you can evaluate the product before "

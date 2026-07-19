@@ -208,13 +208,18 @@ def price_move_insights(
     usage: pd.DataFrame,
     llm_snapshot: pd.DataFrame,
     credit_price: float,
+    *,
+    limit: int | None = 5,
 ) -> list[Insight]:
-    """Flag public list-price moves that may affect models overlapping usage names."""
+    """Flag public list-price moves that overlap usage models (canonical id match)."""
+    from model_ids import overlaps_used
+
+    _ = credit_price  # reserved for future USD impact on list moves
     if usage is None or usage.empty or llm_snapshot is None or llm_snapshot.empty:
         return []
     u = usage.copy()
     u.columns = [str(c).upper() for c in u.columns]
-    used = {str(m).lower() for m in u.get("MODEL_NAME", pd.Series(dtype=str)).dropna().unique()}
+    used = {str(m) for m in u.get("MODEL_NAME", pd.Series(dtype=str)).dropna().unique()}
     snap = llm_snapshot.copy()
     if "change_pct_90d" not in snap.columns:
         return []
@@ -224,9 +229,7 @@ def price_move_insights(
     for _, row in moved.iterrows():
         name = str(row.get("model_name") or row.get("MODEL_NAME") or "")
         pct = float(row.get("change_pct_90d") or 0)
-        # Only surface moves that overlap models in the usage window (no hard-coded vendors).
-        overlap = any(x in name.lower() or name.lower() in x for x in used) if used else False
-        if not overlap:
+        if not overlaps_used(name, used):
             continue
         direction = "dropped" if pct < 0 else "rose"
         out.append(
@@ -241,7 +244,9 @@ def price_move_insights(
                 meta={"model": name, "change_pct_90d": pct, "overlap": True},
             )
         )
-    return out[:5]
+    if limit is not None:
+        return out[: int(limit)]
+    return out
 
 
 def build_advisor_pack(

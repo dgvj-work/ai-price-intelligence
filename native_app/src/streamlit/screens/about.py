@@ -49,9 +49,10 @@ That recommendation pack is the product. Credit charts are evidence.
 | Code | Un-obfuscated on GitHub |
 | Preview | Evaluate recommendations on sample data **before** granting |
 
-Publisher: **Digvijay Vaghela** · digvijay.vaghela@yahoo.com  
+Publisher: **Digvijay Vaghela**  
+Support: [GitHub Discussions](https://github.com/dgvj-work/ai-price-intelligence/discussions)  
 Repo: https://github.com/dgvj-work/ai-price-intelligence  
-SLA: best-effort email (free listing — no contractual uptime SLA in v{APP_VERSION})
+SLA: best-effort community support (free listing — no contractual uptime SLA in v{APP_VERSION})
 
 ## Architecture (no manual “refresh product”)
 

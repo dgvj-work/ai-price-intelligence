@@ -1,8 +1,20 @@
 # Cortex Cost Advisor changelog
 
+## 1.1.2 — 2026-07-19
+
+Deployment hygiene + Marketplace review polish:
+
+- Sync version label everywhere to **1.1.2** (`manifest.yml`, `APP_VERSION`, package).
+- Credit price persist via **parameterized** Snowpark SQL binds (no float f-string).
+- Distinguish **live load failure** vs empty usage (warning + sample, not silent demo).
+- Canonical model-id matching (`model_ids.py`) — no loose `"llama"` substring hits.
+- Price Watch: top 5 insights + expander for full overlapping list.
+- Support via GitHub Discussions (sidebar + Trust).
+- Require `ALTER APPLICATION … UPGRADE` / `snow app run` so consumers see Advisor nav.
+
 ## 1.1.1 — 2026-07-19
 
-P0 hardening (Coco review items, applied in-repo):
+P0 hardening:
 
 - Theme: remove Google Fonts `@import`; system font stacks only (no egress).
 - Session: sanitize procedure tokens so `EMPTY_STUB` never reaches the UI.
